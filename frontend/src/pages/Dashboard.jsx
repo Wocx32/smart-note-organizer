@@ -47,7 +47,7 @@ const Dashboard = () => {
 
   return (
     <Box>
-      <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <Box sx={{ mb: 4, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
         <Typography variant="h4" fontWeight="bold">Dashboard</Typography>
         <Box sx={{ display: 'flex', gap: 2 }}>
           {/* Removed New Note button */}
