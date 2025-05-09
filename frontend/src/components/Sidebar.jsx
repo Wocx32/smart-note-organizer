@@ -37,7 +37,6 @@ const drawerWidth = 240;
 const Sidebar = ({ onTagSelect }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [openTags, setOpenTags] = useState(true);
   const [newNoteDialogOpen, setNewNoteDialogOpen] = useState(false);
   const [tags, setTags] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -67,7 +66,6 @@ const Sidebar = ({ onTagSelect }) => {
       window.removeEventListener('smart_notes_updated', handleNotesUpdate);
     };
   }, []);
-
   const handleTagClick = (tag) => {
     onTagSelect(tag);
   };
@@ -255,14 +253,6 @@ const Sidebar = ({ onTagSelect }) => {
           </ListItemButton>
         </ListItem>
         
-        <ListItem disablePadding>
-          <ListItemButton onClick={() => navigate('/settings')}>
-            <ListItemIcon>
-              <Settings />
-            </ListItemIcon>
-            <ListItemText primary="Settings" />
-          </ListItemButton>
-        </ListItem>
         
         <Box sx={{ flexGrow: 1 }} />
         
