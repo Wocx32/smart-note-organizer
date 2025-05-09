@@ -19,7 +19,8 @@ import {
   Tab,
   Paper,
   FormControl,
-  Select
+  Select,
+  Avatar
 } from '@mui/material';
 import { 
   Search, 
@@ -154,7 +155,7 @@ const NotesPage = () => {
     const noteWithId = {
       ...newNote,
       id: notes.length + 1,
-      summary: newNote.content.substring(0, 150) + '...'
+      summary: newNote.summary
     };
     setNotes([noteWithId, ...notes]);
   };
@@ -163,7 +164,7 @@ const NotesPage = () => {
     const newNotes = processedFiles.map((file, index) => ({
       id: notes.length + index + 1,
       title: file.name,
-      summary: file.content.substring(0, 150) + '...',
+      summary: file.summary || file.content.substring(0, 150) + '...',
       date: new Date().toLocaleDateString('en-US', { 
         month: 'long', 
         day: 'numeric', 
@@ -330,7 +331,7 @@ const NotesPage = () => {
       {viewMode === 'grid' ? (
         <Grid container spacing={3}>
           {filteredNotes.map((note) => (
-            <Grid item xs={12} sm={6} md={4} key={note.id}>
+            <Grid key={note.id} columns={{ xs: 12, sm: 6, md: 4 }}>
               <Card 
                 elevation={0} 
                 sx={{ 
@@ -346,10 +347,10 @@ const NotesPage = () => {
                   }
                 }}
               >
-                <CardActionArea sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', alignItems: 'flex-start', p: 0 }}>
+                <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', alignItems: 'flex-start', p: 0 }}>
                   <CardContent sx={{ p: 3, pb: 2, width: '100%' }}>
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
-                      <Typography variant="h6" sx={{ fontWeight: 600, mb: 1 }}>
+                      <Typography variant="h6" component="div" sx={{ fontWeight: 600, mb: 1 }}>
                         {note.title}
                       </Typography>
                       <IconButton size="small">
@@ -357,7 +358,7 @@ const NotesPage = () => {
                       </IconButton>
                     </Box>
                     
-                    <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                    <Typography variant="body2" color="text.secondary" component="div" sx={{ mb: 2 }}>
                       {note.summary}
                     </Typography>
                   </CardContent>
@@ -380,10 +381,10 @@ const NotesPage = () => {
                     </Box>
                     <Box sx={{ display: 'flex', alignItems: 'center', color: 'text.secondary' }}>
                       <Event sx={{ fontSize: 16, mr: 0.5 }} />
-                      <Typography variant="caption">{note.date}</Typography>
+                      <Typography variant="caption" component="span">{note.date}</Typography>
                     </Box>
                   </Box>
-                </CardActionArea>
+                </Box>
               </Card>
             </Grid>
           ))}

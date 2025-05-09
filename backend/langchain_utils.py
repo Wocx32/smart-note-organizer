@@ -11,14 +11,13 @@ class TagsOutput(BaseModel):
     tags: list = Field(description="A list of 3-5 relevant tags for the input text")
 
 def summarize_text(text):
-
     llm = ChatGroq(
         model="llama-3.3-70b-versatile"
     )
 
     prompt = PromptTemplate.from_template("Summarize this text: {text}")
     chain = prompt | llm
-    return chain.run(text=text)
+    return chain.invoke({"text": text})
 
 def generate_tags_from_text(text):
     llm = ChatGroq(
