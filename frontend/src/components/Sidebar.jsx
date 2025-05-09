@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { 
   Box, 
@@ -12,50 +12,72 @@ import {
   Divider,
   Avatar,
   Button,
-  Chip,
   IconButton,
-  Collapse
+  Collapse,
+  TextField,
+  InputAdornment
 } from '@mui/material';
 import { 
-  Dashboard, 
   NoteAlt, 
-  Folder, 
   Tag, 
   School, 
   Add,
   ExpandMore,
   ExpandLess,
   Search,
-  Bookmark,
-  History
+  History,
+  Settings,
+  Label
 } from '@mui/icons-material';
 import NewNoteDialog from './NewNoteDialog';
+import { getTags } from '../utils/storage';
 
 const drawerWidth = 240;
 
-const Sidebar = () => {
+const Sidebar = ({ onTagSelect }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [openFolders, setOpenFolders] = useState(true);
   const [openTags, setOpenTags] = useState(true);
   const [newNoteDialogOpen, setNewNoteDialogOpen] = useState(false);
-  
-  const toggleFolders = () => setOpenFolders(!openFolders);
-  const toggleTags = () => setOpenTags(!openTags);
+  const [tags, setTags] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [expanded, setExpanded] = useState(true);
+  const [showAllTags, setShowAllTags] = useState(false);
+  const MAX_VISIBLE_TAGS = 4;
 
-  const folders = [
-    { name: 'Physics', count: 12 },
-    { name: 'Math', count: 8 },
-    { name: 'Computer Science', count: 15 },
-    { name: 'Biology', count: 6 }
-  ];
+  // Load tags from localStorage and set up event listeners
+  useEffect(() => {
+    const loadTags = () => {
+      const savedTags = getTags();
+      setTags(savedTags);
+    };
 
-  const tags = [
-    { name: 'Important', color: '#f56565' },
-    { name: 'Review', color: '#ed8936' },
-    { name: 'Equations', color: '#48bb78' },
-    { name: 'Concepts', color: '#4299e1' }
-  ];
+    // Initial load
+    loadTags();
+
+    // Listen for both storage and custom events
+    const handleStorageChange = () => loadTags();
+    const handleNotesUpdate = () => loadTags();
+
+    window.addEventListener('storage', handleStorageChange);
+    window.addEventListener('smart_notes_updated', handleNotesUpdate);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('smart_notes_updated', handleNotesUpdate);
+    };
+  }, []);
+
+  const handleTagClick = (tag) => {
+    onTagClick(tag);
+  };
+
+  const filteredTags = tags.filter(tag => 
+    tag.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const visibleTags = showAllTags ? filteredTags : filteredTags.slice(0, MAX_VISIBLE_TAGS);
+  const hasMoreTags = filteredTags.length > MAX_VISIBLE_TAGS;
 
   const handleNewNote = (note) => {
     // Here you would typically save the note to your backend
@@ -68,13 +90,6 @@ const Sidebar = () => {
     { text: 'Notes', icon: <NoteAlt />, path: '/notes' },
     { text: 'Flashcards', icon: <School />, path: '/flashcards' },
     { text: 'Search', icon: <Search />, path: '/search' },
-  ];
-
-  const tagItems = [
-    { text: 'Physics', count: 12 },
-    { text: 'Chemistry', count: 8 },
-    { text: 'Mathematics', count: 15 },
-    { text: 'Computer Science', count: 10 },
   ];
 
   return (
@@ -144,61 +159,87 @@ const Sidebar = () => {
         
         <List>
           <ListItem disablePadding>
-            <ListItemButton onClick={toggleFolders}>
+            <ListItemButton onClick={() => setExpanded(!expanded)}>
               <ListItemIcon>
-                <Folder />
-              </ListItemIcon>
-              <ListItemText primary="Folders" />
-              {openFolders ? <ExpandLess /> : <ExpandMore />}
-            </ListItemButton>
-          </ListItem>
-          
-          {openFolders && folders.map((folder) => (
-            <ListItem key={folder.name} disablePadding>
-              <ListItemButton 
-                sx={{ pl: 4 }}
-                component={Link}
-                to={`/folders/${folder.name.toLowerCase()}`}
-              >
-                <ListItemText primary={folder.name} />
-                <Chip
-                  label={folder.count}
-                  size="small"
-                  sx={{ 
-                    height: 20, 
-                    minWidth: 20, 
-                    fontSize: '0.75rem',
-                    backgroundColor: 'rgba(0,0,0,0.08)'
-                  }}
-                />
-              </ListItemButton>
-            </ListItem>
-          ))}
-          
-          <ListItem disablePadding>
-            <ListItemButton onClick={toggleTags}>
-              <ListItemIcon>
-                <Bookmark />
+                <Label />
               </ListItemIcon>
               <ListItemText primary="Tags" />
-              {openTags ? <ExpandLess /> : <ExpandMore />}
+              {expanded ? <ExpandLess /> : <ExpandMore />}
             </ListItemButton>
           </ListItem>
           
-          <Collapse in={openTags} timeout="auto" unmountOnExit>
+          <Collapse in={expanded} timeout="auto" unmountOnExit>
             <List component="div" disablePadding>
-              {tagItems.map((tag) => (
+              <TextField
+                fullWidth
+                size="small"
+                placeholder="Search tags..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <Search fontSize="small" />
+                    </InputAdornment>
+                  ),
+                }}
+                sx={{ mb: 2 }}
+              />
+              {visibleTags.map((tag) => (
                 <ListItemButton
-                  key={tag.text}
-                  sx={{ pl: 4 }}
-                  onClick={() => navigate(`/notes?tag=${tag.text}`)}
+                  key={tag}
+                  onClick={() => handleTagClick(tag)}
+                  sx={{ 
+                    pl: 4,
+                    borderRadius: 1,
+                    '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.04)' }
+                  }}
                 >
-                  <ListItemText
-                    primary={tag.text}
-                    secondary={`${tag.count} notes`}
+                  <ListItemText 
+                    primary={tag}
+                    primaryTypographyProps={{
+                      fontSize: '0.9rem',
+                      color: 'text.secondary'
+                    }}
                   />
                 </ListItemButton>
               ))}
+              {hasMoreTags && !showAllTags && (
+                <ListItemButton
+                  onClick={() => setShowAllTags(true)}
+                  sx={{ 
+                    pl: 4,
+                    borderRadius: 1,
+                    '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.04)' }
+                  }}
+                >
+                  <ListItemText 
+                    primary={`Show ${filteredTags.length - MAX_VISIBLE_TAGS} more tags`}
+                    primaryTypographyProps={{
+                      fontSize: '0.9rem',
+                      color: 'primary.main'
+                    }}
+                  />
+                </ListItemButton>
+              )}
+              {showAllTags && hasMoreTags && (
+                <ListItemButton
+                  onClick={() => setShowAllTags(false)}
+                  sx={{ 
+                    pl: 4,
+                    borderRadius: 1,
+                    '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.04)' }
+                  }}
+                >
+                  <ListItemText 
+                    primary="Show less"
+                    primaryTypographyProps={{
+                      fontSize: '0.9rem',
+                      color: 'primary.main'
+                    }}
+                  />
+                </ListItemButton>
+              )}
             </List>
           </Collapse>
         </List>
@@ -211,6 +252,15 @@ const Sidebar = () => {
               <History />
             </ListItemIcon>
             <ListItemText primary="Recent" />
+          </ListItemButton>
+        </ListItem>
+        
+        <ListItem disablePadding>
+          <ListItemButton onClick={() => navigate('/settings')}>
+            <ListItemIcon>
+              <Settings />
+            </ListItemIcon>
+            <ListItemText primary="Settings" />
           </ListItemButton>
         </ListItem>
         

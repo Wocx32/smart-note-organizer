@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { 
   Box, 
   Typography, 
@@ -8,7 +8,6 @@ import {
   Grid, 
   Card, 
   CardContent, 
-  CardActionArea, 
   Divider,
   Chip,
   Menu,
@@ -37,6 +36,8 @@ import {
 } from '@mui/icons-material';
 import FileImportDialog from '../components/FileImportDialog';
 import NewNoteDialog from '../components/NewNoteDialog';
+import { getNotes, addNote, updateNote, deleteNote } from '../utils/storage';
+import Sidebar from '../components/Sidebar';
 
 const NotesPage = () => {
   const [viewMode, setViewMode] = useState('grid');
@@ -46,57 +47,17 @@ const NotesPage = () => {
   const [sortBy, setSortBy] = useState('recent');
   const [importDialogOpen, setImportDialogOpen] = useState(false);
   const [newNoteDialogOpen, setNewNoteDialogOpen] = useState(false);
-  const [notes, setNotes] = useState([
-    { 
-      id: 1, 
-      title: 'Quantum Mechanics: Wave Functions', 
-      summary: 'Wave functions describe the quantum state of a particle. The square of the absolute value of the wave function represents the probability density.', 
-      date: 'May 15, 2024', 
-      tags: ['Physics', 'Advanced'],
-      recent: true
-    },
-    { 
-      id: 2, 
-      title: 'Organic Chemistry: Functional Groups', 
-      summary: 'Functional groups are specific groupings of atoms that give a compound certain chemical properties. Common functional groups include alcohols, aldehydes, and ketones.', 
-      date: 'May 14, 2024', 
-      tags: ['Chemistry'],
-      recent: true
-    },
-    { 
-      id: 3, 
-      title: 'Linear Algebra: Eigenvalues', 
-      summary: 'Eigenvalues are special scalars associated with linear systems of equations. An eigenvector of a matrix is a non-zero vector that changes only by a scalar factor when the matrix is multiplied by it.', 
-      date: 'May 10, 2024', 
-      tags: ['Math', 'Important'],
-      recent: false
-    },
-    { 
-      id: 4, 
-      title: 'Neural Networks: Backpropagation', 
-      summary: 'Backpropagation is a method used to calculate gradients in neural networks. It\'s based on the chain rule from calculus and is key to training deep learning models efficiently.', 
-      date: 'May 8, 2024', 
-      tags: ['CS', 'AI'],
-      recent: false
-    },
-    { 
-      id: 5, 
-      title: 'Cell Biology: Mitochondria Function', 
-      summary: 'Mitochondria are the powerhouses of the cell, generating most of the cell\'s supply of ATP. They have their own DNA and can replicate independently of the cell.', 
-      date: 'May 5, 2024', 
-      tags: ['Biology', 'Cellular'],
-      recent: false
-    },
-    { 
-      id: 6, 
-      title: 'Statistical Mechanics: Entropy', 
-      summary: 'Entropy is a measure of disorder or randomness in a system. The second law of thermodynamics states that entropy always increases in an isolated system.', 
-      date: 'May 3, 2024', 
-      tags: ['Physics', 'Thermodynamics'],
-      recent: false
-    },
-  ]);
-  
+  const [notes, setNotes] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedTag, setSelectedTag] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  // Load notes from localStorage on component mount
+  useEffect(() => {
+    const savedNotes = getNotes();
+    setNotes(savedNotes);
+  }, []);
+
   const handleSortClick = (event) => {
     setSortAnchorEl(event.currentTarget);
   };
@@ -126,12 +87,32 @@ const NotesPage = () => {
     setViewMode(mode);
   };
 
+  const handleTagSelect = (tag) => {
+    setSelectedTag(tag);
+    setActiveTab(0);
+  };
+
   const filterNotes = () => {
     let filtered = [...notes];
+    
+    // Filter by search query
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(note => 
+        note.title.toLowerCase().includes(query) ||
+        note.content.toLowerCase().includes(query) ||
+        note.tags.some(tag => tag.toLowerCase().includes(query))
+      );
+    }
     
     // Filter by tab
     if (activeTab === 1) {
       filtered = filtered.filter(note => note.recent);
+    }
+    
+    // Filter by tag
+    if (selectedTag) {
+      filtered = filtered.filter(note => note.tags.includes(selectedTag));
     }
     
     // Sort
@@ -152,18 +133,15 @@ const NotesPage = () => {
   const filteredNotes = filterNotes();
 
   const handleCreateNote = (newNote) => {
-    const noteWithId = {
-      ...newNote,
-      id: notes.length + 1,
-      summary: newNote.summary
-    };
-    setNotes([noteWithId, ...notes]);
+    const savedNote = addNote(newNote);
+    setNotes(prevNotes => [savedNote, ...prevNotes]);
+    setNewNoteDialogOpen(false);
   };
 
   const handleImportFiles = (processedFiles) => {
-    const newNotes = processedFiles.map((file, index) => ({
-      id: notes.length + index + 1,
+    const newNotes = processedFiles.map(file => ({
       title: file.name,
+      content: file.content,
       summary: file.summary || file.content.substring(0, 150) + '...',
       date: new Date().toLocaleDateString('en-US', { 
         month: 'long', 
@@ -174,301 +152,317 @@ const NotesPage = () => {
       recent: true
     }));
     
-    setNotes([...newNotes, ...notes]);
+    newNotes.forEach(note => {
+      addNote(note);
+    });
+    
+    setNotes(prevNotes => [...newNotes, ...prevNotes]);
+  };
+
+  const handleDeleteNote = (noteId) => {
+    deleteNote(noteId);
+    setNotes(prevNotes => prevNotes.filter(note => note.id !== noteId));
   };
 
   return (
-    <Box>
-      <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Typography variant="h4" fontWeight="bold">My Notes</Typography>
-        <Box sx={{ display: 'flex', gap: 2 }}>
-          <Button 
-            variant="outlined" 
-            startIcon={<Upload />}
-            onClick={() => setImportDialogOpen(true)}
-            sx={{ 
-              borderColor: 'rgba(0, 0, 0, 0.23)', 
-              color: 'text.primary',
-              textTransform: 'none' 
-            }}
-          >
-            Import
-          </Button>
-          <Button 
-            variant="contained" 
-            startIcon={<NoteAlt />}
-            onClick={() => setNewNoteDialogOpen(true)}
-            sx={{ 
-              backgroundColor: '#3182ce',
-              boxShadow: 'none',
-              '&:hover': {
-                backgroundColor: '#2b6cb0',
-                boxShadow: 'none',
-              }
-            }}
-          >
-            New Note
-          </Button>
-        </Box>
-      </Box>
-
-      <Paper 
-        elevation={0} 
-        sx={{ 
-          p: 0, 
-          mb: 4, 
-          borderRadius: 2,
-          border: '1px solid rgba(0, 0, 0, 0.08)'
-        }}
-      >
-        <Tabs 
-          value={activeTab} 
-          onChange={handleTabChange}
-          sx={{ 
-            borderBottom: 1, 
-            borderColor: 'divider', 
-            px: 2 
-          }}
-        >
-          <Tab label="All Notes" />
-          <Tab label="Recent" />
-          <Tab label="Favorites" />
-        </Tabs>
-        
-        <Box sx={{ p: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 2 }}>
-          <TextField
-            placeholder="Search notes..."
-            variant="outlined"
-            size="small"
-            sx={{ width: { xs: '100%', sm: '300px' } }}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <Search />
-                </InputAdornment>
-              ),
-            }}
-          />
-          
-          <Box sx={{ display: 'flex', gap: 1 }}>
-            <Box sx={{ display: 'flex', border: '1px solid rgba(0, 0, 0, 0.12)', borderRadius: 1 }}>
-              <IconButton 
-                size="small"
-                onClick={() => handleViewChange('list')}
+    <Box sx={{ display: 'flex', height: '100vh' }}>
+      <Sidebar onTagSelect={handleTagSelect} />
+      <Box sx={{ flexGrow: 1, p: 3, overflow: 'auto' }}>
+        <Box>
+          <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Typography variant="h4" fontWeight="bold">My Notes</Typography>
+            <Box sx={{ display: 'flex', gap: 2 }}>
+              <Button 
+                variant="outlined" 
+                startIcon={<Upload />}
+                onClick={() => setImportDialogOpen(true)}
                 sx={{ 
-                  color: viewMode === 'list' ? 'primary.main' : 'text.secondary',
-                  bgcolor: viewMode === 'list' ? 'primary.light' : 'transparent',
-                  borderRadius: '4px 0 0 4px',
-                  '&:hover': { bgcolor: viewMode === 'list' ? 'primary.light' : 'rgba(0, 0, 0, 0.04)' },
+                  borderColor: 'rgba(0, 0, 0, 0.23)', 
+                  color: 'text.primary',
+                  textTransform: 'none' 
                 }}
               >
-                <ViewList />
-              </IconButton>
-              <IconButton 
-                size="small" 
-                onClick={() => handleViewChange('grid')}
+                Import
+              </Button>
+              <Button 
+                variant="contained" 
+                startIcon={<NoteAlt />}
+                onClick={() => setNewNoteDialogOpen(true)}
                 sx={{ 
-                  color: viewMode === 'grid' ? 'primary.main' : 'text.secondary',
-                  bgcolor: viewMode === 'grid' ? 'primary.light' : 'transparent',
-                  borderRadius: '0 4px 4px 0',
-                  '&:hover': { bgcolor: viewMode === 'grid' ? 'primary.light' : 'rgba(0, 0, 0, 0.04)' },
-                }}
-              >
-                <ViewModule />
-              </IconButton>
-            </Box>
-          
-            <Button 
-              variant="outlined" 
-              startIcon={<Sort />}
-              onClick={handleSortClick}
-              size="small"
-              sx={{ 
-                borderColor: 'rgba(0, 0, 0, 0.12)', 
-                color: 'text.primary',
-                textTransform: 'none' 
-              }}
-            >
-              Sort
-            </Button>
-            <Menu
-              anchorEl={sortAnchorEl}
-              open={Boolean(sortAnchorEl)}
-              onClose={handleSortClose}
-            >
-              <MenuItem onClick={() => handleSortChange('recent')}>Most Recent</MenuItem>
-              <MenuItem onClick={() => handleSortChange('title')}>Alphabetical</MenuItem>
-            </Menu>
-            
-            <Button 
-              variant="outlined" 
-              startIcon={<FilterList />}
-              onClick={handleFilterClick}
-              size="small"
-              sx={{ 
-                borderColor: 'rgba(0, 0, 0, 0.12)', 
-                color: 'text.primary',
-                textTransform: 'none' 
-              }}
-            >
-              Filter
-            </Button>
-            <Menu
-              anchorEl={filterAnchorEl}
-              open={Boolean(filterAnchorEl)}
-              onClose={handleFilterClose}
-            >
-              <MenuItem>Physics</MenuItem>
-              <MenuItem>Chemistry</MenuItem>
-              <MenuItem>Mathematics</MenuItem>
-              <MenuItem>Computer Science</MenuItem>
-              <MenuItem>Biology</MenuItem>
-            </Menu>
-          </Box>
-        </Box>
-      </Paper>
-      
-      {viewMode === 'grid' ? (
-        <Grid container spacing={3}>
-          {filteredNotes.map((note) => (
-            <Grid key={note.id} columns={{ xs: 12, sm: 6, md: 4 }}>
-              <Card 
-                elevation={0} 
-                sx={{ 
-                  height: '100%', 
-                  display: 'flex', 
-                  flexDirection: 'column',
-                  borderRadius: 2,
-                  border: '1px solid rgba(0, 0, 0, 0.08)',
-                  transition: 'transform 0.2s, box-shadow 0.2s',
+                  backgroundColor: '#3182ce',
+                  boxShadow: 'none',
                   '&:hover': {
-                    transform: 'translateY(-3px)',
-                    boxShadow: '0 4px 20px rgba(0,0,0,0.1)'
+                    backgroundColor: '#2b6cb0',
+                    boxShadow: 'none',
                   }
                 }}
               >
-                <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', alignItems: 'flex-start', p: 0 }}>
-                  <CardContent sx={{ p: 3, pb: 2, width: '100%' }}>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
-                      <Typography variant="h6" component="div" sx={{ fontWeight: 600, mb: 1 }}>
-                        {note.title}
-                      </Typography>
-                      <IconButton size="small">
-                        <MoreVert fontSize="small" />
-                      </IconButton>
-                    </Box>
-                    
-                    <Typography variant="body2" color="text.secondary" component="div" sx={{ mb: 2 }}>
-                      {note.summary}
-                    </Typography>
-                  </CardContent>
-                  
-                  <Box sx={{ mt: 'auto', p: 2, pt: 0, width: '100%' }}>
-                    <Divider sx={{ my: 1 }} />
-                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mb: 1 }}>
-                      {note.tags.map((tag) => (
-                        <Chip 
-                          key={tag}
-                          label={tag}
-                          size="small"
-                          sx={{ 
-                            height: 20, 
-                            fontSize: '0.7rem',
-                            backgroundColor: 'rgba(0,0,0,0.06)'
-                          }}
-                        />
-                      ))}
-                    </Box>
-                    <Box sx={{ display: 'flex', alignItems: 'center', color: 'text.secondary' }}>
-                      <Event sx={{ fontSize: 16, mr: 0.5 }} />
-                      <Typography variant="caption" component="span">{note.date}</Typography>
-                    </Box>
-                  </Box>
-                </Box>
-              </Card>
-            </Grid>
-          ))}
-        </Grid>
-      ) : (
-        <Paper 
-          elevation={0} 
-          sx={{ 
-            borderRadius: 2,
-            border: '1px solid rgba(0, 0, 0, 0.08)',
-            overflow: 'hidden'
-          }}
-        >
-          {filteredNotes.map((note, index) => (
-            <Box key={note.id}>
-              {index > 0 && <Divider />}
-              <Box 
-                sx={{ 
-                  p: 3, 
-                  display: 'flex', 
-                  alignItems: 'flex-start',
-                  '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.02)' },
-                  cursor: 'pointer'
+                New Note
+              </Button>
+            </Box>
+          </Box>
+
+          <Paper 
+            elevation={0} 
+            sx={{ 
+              p: 0, 
+              mb: 4, 
+              borderRadius: 2,
+              border: '1px solid rgba(0, 0, 0, 0.08)'
+            }}
+          >
+            <Tabs 
+              value={activeTab} 
+              onChange={(e, newValue) => setActiveTab(newValue)}
+              sx={{ 
+                borderBottom: 1, 
+                borderColor: 'divider', 
+                px: 2 
+              }}
+            >
+              <Tab label="All Notes" />
+              <Tab label="Recent" />
+              <Tab label="Favorites" />
+            </Tabs>
+            
+            <Box sx={{ p: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 2 }}>
+              <TextField
+                placeholder="Search notes..."
+                variant="outlined"
+                size="small"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                sx={{ width: { xs: '100%', sm: '300px' } }}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <Search />
+                    </InputAdornment>
+                  ),
                 }}
-              >
-                <Box sx={{ display: 'flex', alignItems: 'center', mr: 2 }}>
-                  <Avatar sx={{ bgcolor: '#E2E8F0', color: '#4A5568' }}>
-                    <Description />
-                  </Avatar>
+              />
+              
+              <Box sx={{ display: 'flex', gap: 1 }}>
+                <Box sx={{ display: 'flex', border: '1px solid rgba(0, 0, 0, 0.12)', borderRadius: 1 }}>
+                  <IconButton 
+                    size="small"
+                    onClick={() => handleViewChange('list')}
+                    sx={{ 
+                      color: viewMode === 'list' ? 'primary.main' : 'text.secondary',
+                      bgcolor: viewMode === 'list' ? 'primary.light' : 'transparent',
+                      borderRadius: '4px 0 0 4px',
+                      '&:hover': { bgcolor: viewMode === 'list' ? 'primary.light' : 'rgba(0, 0, 0, 0.04)' },
+                    }}
+                  >
+                    <ViewList />
+                  </IconButton>
+                  <IconButton 
+                    size="small" 
+                    onClick={() => handleViewChange('grid')}
+                    sx={{ 
+                      color: viewMode === 'grid' ? 'primary.main' : 'text.secondary',
+                      bgcolor: viewMode === 'grid' ? 'primary.light' : 'transparent',
+                      borderRadius: '0 4px 4px 0',
+                      '&:hover': { bgcolor: viewMode === 'grid' ? 'primary.light' : 'rgba(0, 0, 0, 0.04)' },
+                    }}
+                  >
+                    <ViewModule />
+                  </IconButton>
                 </Box>
+              
+                <Button 
+                  variant="outlined" 
+                  startIcon={<Sort />}
+                  onClick={handleSortClick}
+                  size="small"
+                  sx={{ 
+                    borderColor: 'rgba(0, 0, 0, 0.12)', 
+                    color: 'text.primary',
+                    textTransform: 'none' 
+                  }}
+                >
+                  Sort
+                </Button>
+                <Menu
+                  anchorEl={sortAnchorEl}
+                  open={Boolean(sortAnchorEl)}
+                  onClose={handleSortClose}
+                >
+                  <MenuItem onClick={() => handleSortChange('recent')}>Most Recent</MenuItem>
+                  <MenuItem onClick={() => handleSortChange('title')}>Alphabetical</MenuItem>
+                </Menu>
                 
-                <Box sx={{ flexGrow: 1 }}>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-                    <Typography variant="h6" fontWeight={500}>
-                      {note.title}
-                    </Typography>
-                    <IconButton size="small">
-                      <MoreVert fontSize="small" />
-                    </IconButton>
-                  </Box>
-                  
-                  <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                    {note.summary}
-                  </Typography>
-                  
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <Box sx={{ display: 'flex', gap: 0.5 }}>
-                      {note.tags.map((tag) => (
-                        <Chip 
-                          key={tag}
-                          label={tag}
-                          size="small"
-                          sx={{ 
-                            height: 20, 
-                            fontSize: '0.7rem',
-                            backgroundColor: 'rgba(0,0,0,0.06)'
-                          }}
-                        />
-                      ))}
-                    </Box>
-                    
-                    <Box sx={{ display: 'flex', alignItems: 'center', color: 'text.secondary' }}>
-                      <Event sx={{ fontSize: 16, mr: 0.5 }} />
-                      <Typography variant="caption">{note.date}</Typography>
-                    </Box>
-                  </Box>
-                </Box>
+                <Button 
+                  variant="outlined" 
+                  startIcon={<FilterList />}
+                  onClick={handleFilterClick}
+                  size="small"
+                  sx={{ 
+                    borderColor: 'rgba(0, 0, 0, 0.12)', 
+                    color: 'text.primary',
+                    textTransform: 'none' 
+                  }}
+                >
+                  Filter
+                </Button>
+                <Menu
+                  anchorEl={filterAnchorEl}
+                  open={Boolean(filterAnchorEl)}
+                  onClose={handleFilterClose}
+                >
+                  <MenuItem>Physics</MenuItem>
+                  <MenuItem>Chemistry</MenuItem>
+                  <MenuItem>Mathematics</MenuItem>
+                  <MenuItem>Computer Science</MenuItem>
+                  <MenuItem>Biology</MenuItem>
+                </Menu>
               </Box>
             </Box>
-          ))}
-        </Paper>
-      )}
+          </Paper>
+          
+          {viewMode === 'grid' ? (
+            <Grid container spacing={3}>
+              {filteredNotes.map((note) => (
+                <Grid key={note.id} columns={{ xs: 12, sm: 6, md: 4 }}>
+                  <Card 
+                    elevation={0} 
+                    sx={{ 
+                      height: '100%', 
+                      display: 'flex', 
+                      flexDirection: 'column',
+                      borderRadius: 2,
+                      border: '1px solid rgba(0, 0, 0, 0.08)',
+                      transition: 'transform 0.2s, box-shadow 0.2s',
+                      '&:hover': {
+                        transform: 'translateY(-3px)',
+                        boxShadow: '0 4px 20px rgba(0,0,0,0.1)'
+                      }
+                    }}
+                  >
+                    <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', alignItems: 'flex-start', p: 0 }}>
+                      <CardContent sx={{ p: 3, pb: 2, width: '100%' }}>
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
+                          <Typography variant="h6" component="div" sx={{ fontWeight: 600, mb: 1 }}>
+                            {note.title}
+                          </Typography>
+                          <IconButton size="small" onClick={() => handleDeleteNote(note.id)}>
+                            <MoreVert fontSize="small" />
+                          </IconButton>
+                        </Box>
+                        
+                        <Typography variant="body2" color="text.secondary" component="div" sx={{ mb: 2 }}>
+                          {note.summary}
+                        </Typography>
+                      </CardContent>
+                      
+                      <Box sx={{ mt: 'auto', p: 2, pt: 0, width: '100%' }}>
+                        <Divider sx={{ my: 1 }} />
+                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mb: 1 }}>
+                          {note.tags.map((tag) => (
+                            <Chip 
+                              key={tag}
+                              label={tag}
+                              size="small"
+                              sx={{ 
+                                height: 20, 
+                                fontSize: '0.7rem',
+                                backgroundColor: 'rgba(0,0,0,0.06)'
+                              }}
+                            />
+                          ))}
+                        </Box>
+                        <Box sx={{ display: 'flex', alignItems: 'center', color: 'text.secondary' }}>
+                          <Event sx={{ fontSize: 16, mr: 0.5 }} />
+                          <Typography variant="caption" component="span">{note.date}</Typography>
+                        </Box>
+                      </Box>
+                    </Box>
+                  </Card>
+                </Grid>
+              ))}
+            </Grid>
+          ) : (
+            <Paper 
+              elevation={0} 
+              sx={{ 
+                borderRadius: 2,
+                border: '1px solid rgba(0, 0, 0, 0.08)',
+                overflow: 'hidden'
+              }}
+            >
+              {filteredNotes.map((note, index) => (
+                <Box key={note.id}>
+                  {index > 0 && <Divider />}
+                  <Box 
+                    sx={{ 
+                      p: 3, 
+                      display: 'flex', 
+                      alignItems: 'flex-start',
+                      '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.02)' },
+                      cursor: 'pointer'
+                    }}
+                  >
+                    <Box sx={{ display: 'flex', alignItems: 'center', mr: 2 }}>
+                      <Avatar sx={{ bgcolor: '#E2E8F0', color: '#4A5568' }}>
+                        <Description />
+                      </Avatar>
+                    </Box>
+                    
+                    <Box sx={{ flexGrow: 1 }}>
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                        <Typography variant="h6" component="div" fontWeight={500}>
+                          {note.title}
+                        </Typography>
+                        <IconButton size="small" onClick={() => handleDeleteNote(note.id)}>
+                          <MoreVert fontSize="small" />
+                        </IconButton>
+                      </Box>
+                      
+                      <Typography variant="body2" color="text.secondary" component="div" sx={{ mb: 2 }}>
+                        {note.summary}
+                      </Typography>
+                      
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <Box sx={{ display: 'flex', gap: 0.5 }}>
+                          {note.tags.map((tag) => (
+                            <Chip 
+                              key={tag}
+                              label={tag}
+                              size="small"
+                              sx={{ 
+                                height: 20, 
+                                fontSize: '0.7rem',
+                                backgroundColor: 'rgba(0,0,0,0.06)'
+                              }}
+                            />
+                          ))}
+                        </Box>
+                        
+                        <Box sx={{ display: 'flex', alignItems: 'center', color: 'text.secondary' }}>
+                          <Event sx={{ fontSize: 16, mr: 0.5 }} />
+                          <Typography variant="caption" component="span">{note.date}</Typography>
+                        </Box>
+                      </Box>
+                    </Box>
+                  </Box>
+                </Box>
+              ))}
+            </Paper>
+          )}
+        </Box>
 
-      <FileImportDialog
-        open={importDialogOpen}
-        onClose={() => setImportDialogOpen(false)}
-        onImport={handleImportFiles}
-      />
+        <FileImportDialog
+          open={importDialogOpen}
+          onClose={() => setImportDialogOpen(false)}
+          onImport={handleImportFiles}
+        />
 
-      <NewNoteDialog
-        open={newNoteDialogOpen}
-        onClose={() => setNewNoteDialogOpen(false)}
-        onSave={handleCreateNote}
-      />
+        <NewNoteDialog
+          open={newNoteDialogOpen}
+          onClose={() => setNewNoteDialogOpen(false)}
+          onSave={handleCreateNote}
+        />
+      </Box>
     </Box>
   );
 };
