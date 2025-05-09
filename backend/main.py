@@ -1,20 +1,22 @@
 from fastapi import FastAPI, HTTPException
-from langchain_utils import summarize_text, generate_tags_from_text
+from langchain_utils import build_summary_tags_flashcard
 
 app = FastAPI()
 
-@app.post("/summarize")
-async def summarize(data: dict):
+@app.post("/process")
+async def process_text(data: dict):
     text = data.get("text")
     if not text:
         raise HTTPException(status_code=400, detail="No text provided")
-    summary = summarize_text(text)
-    return {"summary": summary}
+    
+    result = build_summary_tags_flashcard(text)
 
-@app.post("/generate-tags")
-async def generate_tags(data: dict):
-    text = data.get("text")
-    if not text:
-        raise HTTPException(status_code=400, detail="No text provided")
-    tags = generate_tags_from_text(text)
-    return {"tags": tags}
+    summary = result.summary
+    tags = result.tags
+    anki_flashcard = result.flashcard.model_dump()
+    
+    return {
+        "summary": summary,
+        "tags": tags,
+        "anki_flashcard": anki_flashcard
+    }
