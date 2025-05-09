@@ -31,8 +31,10 @@ import {
   AccessTime, 
   Event,
   ViewList,
-  ViewModule
+  ViewModule,
+  Upload
 } from '@mui/icons-material';
+import FileImportDialog from '../components/FileImportDialog';
 
 const NotesPage = () => {
   const [viewMode, setViewMode] = useState('grid');
@@ -40,6 +42,7 @@ const NotesPage = () => {
   const [filterAnchorEl, setFilterAnchorEl] = useState(null);
   const [activeTab, setActiveTab] = useState(0);
   const [sortBy, setSortBy] = useState('recent');
+  const [importDialogOpen, setImportDialogOpen] = useState(false);
   
   const handleSortClick = (event) => {
     setSortAnchorEl(event.currentTarget);
@@ -147,24 +150,61 @@ const NotesPage = () => {
 
   const filteredNotes = filterNotes();
 
+  const handleImportFiles = (processedFiles) => {
+    // Here you would typically send the processed files to your backend
+    // For now, we'll just log them
+    console.log('Imported files:', processedFiles);
+    
+    // You can also add them to your notes list
+    const newNotes = processedFiles.map((file, index) => ({
+      id: notes.length + index + 1,
+      title: file.name,
+      summary: file.content.substring(0, 150) + '...',
+      date: new Date().toLocaleDateString('en-US', { 
+        month: 'long', 
+        day: 'numeric', 
+        year: 'numeric' 
+      }),
+      tags: [file.type.toUpperCase()],
+      recent: true
+    }));
+    
+    // Update your notes state here
+    // setNotes([...notes, ...newNotes]);
+  };
+
   return (
     <Box>
       <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <Typography variant="h4" fontWeight="bold">My Notes</Typography>
-        <Button 
-          variant="contained" 
-          startIcon={<NoteAlt />}
-          sx={{ 
-            backgroundColor: '#3182ce',
-            boxShadow: 'none',
-            '&:hover': {
-              backgroundColor: '#2b6cb0',
+        <Box sx={{ display: 'flex', gap: 2 }}>
+          <Button 
+            variant="outlined" 
+            startIcon={<Upload />}
+            onClick={() => setImportDialogOpen(true)}
+            sx={{ 
+              borderColor: 'rgba(0, 0, 0, 0.23)', 
+              color: 'text.primary',
+              textTransform: 'none' 
+            }}
+          >
+            Import
+          </Button>
+          <Button 
+            variant="contained" 
+            startIcon={<NoteAlt />}
+            sx={{ 
+              backgroundColor: '#3182ce',
               boxShadow: 'none',
-            }
-          }}
-        >
-          New Note
-        </Button>
+              '&:hover': {
+                backgroundColor: '#2b6cb0',
+                boxShadow: 'none',
+              }
+            }}
+          >
+            New Note
+          </Button>
+        </Box>
       </Box>
 
       <Paper 
@@ -412,6 +452,12 @@ const NotesPage = () => {
           ))}
         </Paper>
       )}
+
+      <FileImportDialog
+        open={importDialogOpen}
+        onClose={() => setImportDialogOpen(false)}
+        onImport={handleImportFiles}
+      />
     </Box>
   );
 };
