@@ -3,42 +3,44 @@ from langchain.prompts import PromptTemplate
 from langchain_groq import ChatGroq
 from langchain.output_parsers import PydanticOutputParser
 from pydantic import BaseModel, Field
+from typing import List
 import dotenv
 
 dotenv.load_dotenv('../.env')
 
-class TagsOutput(BaseModel):
-    tags: list = Field(description="A list of 3-5 relevant tags for the input text")
 
-def summarize_text(text):
-    llm = ChatGroq(
-        model="llama-3.3-70b-versatile"
-    )
+class FlashcardOutput(BaseModel):
+    front: str = Field(description="The front of the flashcard (question or key concept)")
+    back: str = Field(description="The back of the flashcard (answer or explanation)")
 
-    prompt = PromptTemplate.from_template("Summarize this text: {text}")
-    chain = prompt | llm
-    return chain.invoke({"text": text})
 
-def generate_tags_from_text(text):
-    llm = ChatGroq(
-        model="llama-3.3-70b-versatile"
-    )
+class CombinedOutput(BaseModel):
+    summary: str = Field(description="A summary of the input text, limited to 2-3 sentences")
+    tags: List[str] = Field(description="A list of 3-5 relevant tags for the input text")
+    flashcard: FlashcardOutput
+
+
+def build_summary_tags_flashcard(text):
+    llm = ChatGroq(model="llama-3.3-70b-versatile")
 
     prompt = PromptTemplate.from_template(
-        "Generate a list of 3-5 relevant tags for the following text: {text}\n\n"
-        "Output only the JSON object in the format {{\"tags\"=[\"tag1\", \"tag1\"]}}, no additional text."
+        "Generate a summary (2-3 sentences), a list of 3-5 tags, and an Anki flashcard (front and back) based on the following text: {text}. "
+        "Format the response as a JSON object with keys 'summary', 'tags', and 'flashcard' (which contains 'front' and 'back'). "
+        "Example structure: {{\"summary\": \"...\", \"tags\": [\"...\", \"...\"], \"flashcard\": {{\"front\": \"...\", \"back\": \"...\"}}}}. "
+        "Please ensure the output is strictly in the specified JSON format and nothing else."
     )
 
-    output_parser = PydanticOutputParser(pydantic_object=TagsOutput)
-    
+    output_parser = PydanticOutputParser(pydantic_object=CombinedOutput)
     chain = prompt | llm | output_parser
+
     result = chain.invoke({"text": text})
-
-    return result.tags
-
+    return result
 
 
 if __name__ == "__main__":
-    text = "AI is transforming the world. It is changing the way we work, live, and interact with each other. AI is being used in various fields such as healthcare, finance, and education. The future of AI is bright and full of possibilities."
+    text = "In a major development, researchers at the Global Institute of AI have announced a breakthrough in real-time language translation technology. The new system, called \"LinguaFlow,\" uses advanced neural networks to translate spoken and written language with near-perfect accuracy and minimal delay.\n\nUnlike previous translation tools, which often struggled with context and idiomatic expressions, LinguaFlow can understand and translate complex conversations in real time. The system has already been tested in international business meetings and is being considered for use in diplomatic settings.\n\nThe team behind LinguaFlow claims that the technology could revolutionize global communication, making language barriers nearly obsolete. It is expected to be released to the public in the next 12 months, with a mobile app and integrated features for major communication platforms."
 
-    print("Tags:", generate_tags_from_text(text))
+    result = build_summary_tags_flashcard(text)
+    print("Summary:", result.summary)
+    print("Tags:", result.tags)
+    print("Flashcard:", result.flashcard.model_dump())
