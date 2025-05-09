@@ -1,4 +1,3 @@
-# backend/langchain_utils.py
 from langchain.chains import LLMChain
 from langchain.prompts import PromptTemplate
 from langchain_groq import ChatGroq
@@ -35,10 +34,7 @@ def generate_tags_from_text(text):
     
     chain = prompt | llm | output_parser
     result = chain.invoke({"text": text})
-    
-    # structured_llm = llm.with_structured_output(TagsOutput)
 
-    # result = structured_llm.invoke({"text": text})
     return result.tags
 
 

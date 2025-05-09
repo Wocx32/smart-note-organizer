@@ -1,4 +1,3 @@
-# backend/main.py
 from fastapi import FastAPI, HTTPException
 from langchain_utils import summarize_text, generate_tags_from_text
 
