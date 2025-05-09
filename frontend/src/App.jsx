@@ -4,6 +4,7 @@ import Dashboard from './pages/Dashboard';
 import NotesPage from './pages/NotesPage';
 import NoteViewPage from './pages/NoteViewPage';
 import FlashcardsPage from './pages/FlashcardsPage';
+import SearchPage from './pages/SearchPage';
 import './App.css';
 
 function App() {
@@ -15,6 +16,7 @@ function App() {
           <Route path="notes" element={<NotesPage />} />
           <Route path="notes/:id" element={<NoteViewPage />} />
           <Route path="flashcards" element={<FlashcardsPage />} />
+          <Route path="search" element={<SearchPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
       </Routes>

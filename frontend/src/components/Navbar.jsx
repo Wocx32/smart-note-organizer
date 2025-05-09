@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { AppBar, Toolbar, Typography, Button, IconButton, Drawer, List, ListItem, ListItemButton, ListItemText, Box, InputBase, Avatar } from '@mui/material';
-import { Menu as MenuIcon, Search as SearchIcon, Notifications, Book, Lightbulb, Settings } from '@mui/icons-material';
+import { Link, useNavigate } from 'react-router-dom';
+import { AppBar, Toolbar, Typography, Button, IconButton, Drawer, List, ListItem, ListItemButton, ListItemText, Box, Avatar } from '@mui/material';
+import { Menu as MenuIcon, Notifications, Book, Lightbulb, Settings, Search as SearchIcon } from '@mui/icons-material';
 
 const Navbar = () => {
+  const navigate = useNavigate();
   const [drawerOpen, setDrawerOpen] = useState(false);
   
   const toggleDrawer = (open) => (event) => {
@@ -69,23 +70,18 @@ const Navbar = () => {
           
           <Box sx={{ flexGrow: 1 }} />
           
-          <Box sx={{ 
-            position: 'relative', 
-            backgroundColor: 'rgba(255,255,255,0.15)',
-            borderRadius: 1,
-            '&:hover': { backgroundColor: 'rgba(255,255,255,0.25)' },
-            width: { xs: '100%', sm: 'auto' },
-            maxWidth: '300px',
-            mr: 2
-          }}>
-            <Box sx={{ position: 'absolute', height: '100%', display: 'flex', alignItems: 'center', pl: 2 }}>
-              <SearchIcon />
-            </Box>
-            <InputBase
-              placeholder="Search notes..."
-              sx={{ color: 'inherit', pl: 5, pr: 1, py: 1, width: '100%' }}
-            />
-          </Box>
+          <IconButton 
+            color="inherit" 
+            onClick={() => navigate('/search')}
+            sx={{ 
+              mr: 1,
+              '&:hover': {
+                backgroundColor: 'rgba(255, 255, 255, 0.1)'
+              }
+            }}
+          >
+            <SearchIcon />
+          </IconButton>
           
           <IconButton color="inherit">
             <Notifications />
