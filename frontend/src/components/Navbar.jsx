@@ -18,7 +18,6 @@ const Navbar = () => {
     { text: 'Dashboard', path: '/', icon: <Book /> },
     { text: 'My Notes', path: '/notes', icon: <Book /> },
     { text: 'Flashcards', path: '/flashcards', icon: <Lightbulb /> },
-    { text: 'Settings', path: '/settings', icon: <Settings /> },
   ];
 
   return (

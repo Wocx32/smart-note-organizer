@@ -27,8 +27,7 @@ import {
   ExpandLess,
   Search,
   Bookmark,
-  History,
-  Settings
+  History
 } from '@mui/icons-material';
 import NewNoteDialog from './NewNoteDialog';
 
@@ -212,15 +211,6 @@ const Sidebar = () => {
               <History />
             </ListItemIcon>
             <ListItemText primary="Recent" />
-          </ListItemButton>
-        </ListItem>
-        
-        <ListItem disablePadding>
-          <ListItemButton onClick={() => navigate('/settings')}>
-            <ListItemIcon>
-              <Settings />
-            </ListItemIcon>
-            <ListItemText primary="Settings" />
           </ListItemButton>
         </ListItem>
         
