@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { 
   Box, 
   Drawer, 
@@ -12,7 +12,9 @@ import {
   Divider,
   Avatar,
   Button,
-  Chip
+  Chip,
+  IconButton,
+  Collapse
 } from '@mui/material';
 import { 
   Dashboard, 
@@ -22,15 +24,22 @@ import {
   School, 
   Add,
   ExpandMore,
-  ExpandLess
+  ExpandLess,
+  Search,
+  Bookmark,
+  History,
+  Settings
 } from '@mui/icons-material';
+import NewNoteDialog from './NewNoteDialog';
 
 const drawerWidth = 240;
 
 const Sidebar = () => {
+  const navigate = useNavigate();
   const location = useLocation();
   const [openFolders, setOpenFolders] = useState(true);
   const [openTags, setOpenTags] = useState(true);
+  const [newNoteDialogOpen, setNewNoteDialogOpen] = useState(false);
   
   const toggleFolders = () => setOpenFolders(!openFolders);
   const toggleTags = () => setOpenTags(!openTags);
@@ -47,6 +56,26 @@ const Sidebar = () => {
     { name: 'Review', color: '#ed8936' },
     { name: 'Equations', color: '#48bb78' },
     { name: 'Concepts', color: '#4299e1' }
+  ];
+
+  const handleNewNote = (note) => {
+    // Here you would typically save the note to your backend
+    console.log('New note created:', note);
+    // Navigate to the notes page after creating
+    navigate('/notes');
+  };
+
+  const menuItems = [
+    { text: 'Notes', icon: <NoteAlt />, path: '/notes' },
+    { text: 'Flashcards', icon: <School />, path: '/flashcards' },
+    { text: 'Search', icon: <Search />, path: '/search' },
+  ];
+
+  const tagItems = [
+    { text: 'Physics', count: 12 },
+    { text: 'Chemistry', count: 8 },
+    { text: 'Mathematics', count: 15 },
+    { text: 'Computer Science', count: 10 },
   ];
 
   return (
@@ -78,9 +107,10 @@ const Sidebar = () => {
         }}>
           <Button 
             variant="contained" 
+            fullWidth
             startIcon={<Add />}
+            onClick={() => setNewNoteDialogOpen(true)}
             sx={{ 
-              width: '80%',
               backgroundColor: '#3182ce',
               boxShadow: 'none',
               '&:hover': {
@@ -96,44 +126,19 @@ const Sidebar = () => {
         <Divider sx={{ mb: 2 }} />
         
         <List>
-          <ListItem disablePadding>
-            <ListItemButton 
-              component={Link} 
-              to="/"
-              selected={location.pathname === '/'}
-            >
-              <ListItemIcon>
-                <Dashboard />
-              </ListItemIcon>
-              <ListItemText primary="Dashboard" />
-            </ListItemButton>
-          </ListItem>
-          
-          <ListItem disablePadding>
-            <ListItemButton 
-              component={Link} 
-              to="/notes"
-              selected={location.pathname === '/notes'}
-            >
-              <ListItemIcon>
-                <NoteAlt />
-              </ListItemIcon>
-              <ListItemText primary="All Notes" />
-            </ListItemButton>
-          </ListItem>
-          
-          <ListItem disablePadding>
-            <ListItemButton 
-              component={Link} 
-              to="/flashcards"
-              selected={location.pathname === '/flashcards'}
-            >
-              <ListItemIcon>
-                <School />
-              </ListItemIcon>
-              <ListItemText primary="Flashcards" />
-            </ListItemButton>
-          </ListItem>
+          {menuItems.map((item) => (
+            <ListItem key={item.text} disablePadding>
+              <ListItemButton 
+                selected={location.pathname === item.path}
+                onClick={() => navigate(item.path)}
+              >
+                <ListItemIcon>
+                  {item.icon}
+                </ListItemIcon>
+                <ListItemText primary={item.text} />
+              </ListItemButton>
+            </ListItem>
+          ))}
         </List>
         
         <Divider sx={{ my: 2 }} />
@@ -174,34 +179,50 @@ const Sidebar = () => {
           <ListItem disablePadding>
             <ListItemButton onClick={toggleTags}>
               <ListItemIcon>
-                <Tag />
+                <Bookmark />
               </ListItemIcon>
               <ListItemText primary="Tags" />
               {openTags ? <ExpandLess /> : <ExpandMore />}
             </ListItemButton>
           </ListItem>
           
-          {openTags && tags.map((tag) => (
-            <ListItem key={tag.name} disablePadding>
-              <ListItemButton 
-                sx={{ pl: 4 }}
-                component={Link}
-                to={`/tags/${tag.name.toLowerCase()}`}
-              >
-                <Box 
-                  sx={{ 
-                    width: 10, 
-                    height: 10, 
-                    borderRadius: '50%', 
-                    backgroundColor: tag.color,
-                    mr: 2
-                  }} 
-                />
-                <ListItemText primary={tag.name} />
-              </ListItemButton>
-            </ListItem>
-          ))}
+          <Collapse in={openTags} timeout="auto" unmountOnExit>
+            <List component="div" disablePadding>
+              {tagItems.map((tag) => (
+                <ListItemButton
+                  key={tag.text}
+                  sx={{ pl: 4 }}
+                  onClick={() => navigate(`/notes?tag=${tag.text}`)}
+                >
+                  <ListItemText
+                    primary={tag.text}
+                    secondary={`${tag.count} notes`}
+                  />
+                </ListItemButton>
+              ))}
+            </List>
+          </Collapse>
         </List>
+        
+        <Divider sx={{ my: 2 }} />
+        
+        <ListItem disablePadding>
+          <ListItemButton onClick={() => navigate('/recent')}>
+            <ListItemIcon>
+              <History />
+            </ListItemIcon>
+            <ListItemText primary="Recent" />
+          </ListItemButton>
+        </ListItem>
+        
+        <ListItem disablePadding>
+          <ListItemButton onClick={() => navigate('/settings')}>
+            <ListItemIcon>
+              <Settings />
+            </ListItemIcon>
+            <ListItemText primary="Settings" />
+          </ListItemButton>
+        </ListItem>
         
         <Box sx={{ flexGrow: 1 }} />
         
@@ -217,6 +238,12 @@ const Sidebar = () => {
           </Box>
         </Box>
       </Box>
+
+      <NewNoteDialog
+        open={newNoteDialogOpen}
+        onClose={() => setNewNoteDialogOpen(false)}
+        onSave={handleNewNote}
+      />
     </Drawer>
   );
 };

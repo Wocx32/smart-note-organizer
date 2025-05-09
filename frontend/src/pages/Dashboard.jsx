@@ -50,20 +50,9 @@ const Dashboard = () => {
     <Box>
       <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <Typography variant="h4" fontWeight="bold">Dashboard</Typography>
-        <Button 
-          variant="contained" 
-          startIcon={<NoteAlt />}
-          sx={{ 
-            backgroundColor: '#3182ce',
-            boxShadow: 'none',
-            '&:hover': {
-              backgroundColor: '#2b6cb0',
-              boxShadow: 'none',
-            }
-          }}
-        >
-          New Note
-        </Button>
+        <Box sx={{ display: 'flex', gap: 2 }}>
+          {/* Removed New Note button */}
+        </Box>
       </Box>
 
       <Grid container spacing={3}>

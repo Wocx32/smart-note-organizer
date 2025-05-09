@@ -35,6 +35,7 @@ import {
   Upload
 } from '@mui/icons-material';
 import FileImportDialog from '../components/FileImportDialog';
+import NewNoteDialog from '../components/NewNoteDialog';
 
 const NotesPage = () => {
   const [viewMode, setViewMode] = useState('grid');
@@ -43,38 +44,8 @@ const NotesPage = () => {
   const [activeTab, setActiveTab] = useState(0);
   const [sortBy, setSortBy] = useState('recent');
   const [importDialogOpen, setImportDialogOpen] = useState(false);
-  
-  const handleSortClick = (event) => {
-    setSortAnchorEl(event.currentTarget);
-  };
-  
-  const handleSortClose = () => {
-    setSortAnchorEl(null);
-  };
-  
-  const handleFilterClick = (event) => {
-    setFilterAnchorEl(event.currentTarget);
-  };
-  
-  const handleFilterClose = () => {
-    setFilterAnchorEl(null);
-  };
-
-  const handleSortChange = (value) => {
-    setSortBy(value);
-    handleSortClose();
-  };
-  
-  const handleTabChange = (event, newValue) => {
-    setActiveTab(newValue);
-  };
-  
-  const handleViewChange = (mode) => {
-    setViewMode(mode);
-  };
-
-  // Mock data
-  const notes = [
+  const [newNoteDialogOpen, setNewNoteDialogOpen] = useState(false);
+  const [notes, setNotes] = useState([
     { 
       id: 1, 
       title: 'Quantum Mechanics: Wave Functions', 
@@ -123,7 +94,36 @@ const NotesPage = () => {
       tags: ['Physics', 'Thermodynamics'],
       recent: false
     },
-  ];
+  ]);
+  
+  const handleSortClick = (event) => {
+    setSortAnchorEl(event.currentTarget);
+  };
+  
+  const handleSortClose = () => {
+    setSortAnchorEl(null);
+  };
+  
+  const handleFilterClick = (event) => {
+    setFilterAnchorEl(event.currentTarget);
+  };
+  
+  const handleFilterClose = () => {
+    setFilterAnchorEl(null);
+  };
+
+  const handleSortChange = (value) => {
+    setSortBy(value);
+    handleSortClose();
+  };
+  
+  const handleTabChange = (event, newValue) => {
+    setActiveTab(newValue);
+  };
+  
+  const handleViewChange = (mode) => {
+    setViewMode(mode);
+  };
 
   const filterNotes = () => {
     let filtered = [...notes];
@@ -150,12 +150,16 @@ const NotesPage = () => {
 
   const filteredNotes = filterNotes();
 
+  const handleCreateNote = (newNote) => {
+    const noteWithId = {
+      ...newNote,
+      id: notes.length + 1,
+      summary: newNote.content.substring(0, 150) + '...'
+    };
+    setNotes([noteWithId, ...notes]);
+  };
+
   const handleImportFiles = (processedFiles) => {
-    // Here you would typically send the processed files to your backend
-    // For now, we'll just log them
-    console.log('Imported files:', processedFiles);
-    
-    // You can also add them to your notes list
     const newNotes = processedFiles.map((file, index) => ({
       id: notes.length + index + 1,
       title: file.name,
@@ -169,8 +173,7 @@ const NotesPage = () => {
       recent: true
     }));
     
-    // Update your notes state here
-    // setNotes([...notes, ...newNotes]);
+    setNotes([...newNotes, ...notes]);
   };
 
   return (
@@ -193,6 +196,7 @@ const NotesPage = () => {
           <Button 
             variant="contained" 
             startIcon={<NoteAlt />}
+            onClick={() => setNewNoteDialogOpen(true)}
             sx={{ 
               backgroundColor: '#3182ce',
               boxShadow: 'none',
@@ -457,6 +461,12 @@ const NotesPage = () => {
         open={importDialogOpen}
         onClose={() => setImportDialogOpen(false)}
         onImport={handleImportFiles}
+      />
+
+      <NewNoteDialog
+        open={newNoteDialogOpen}
+        onClose={() => setNewNoteDialogOpen(false)}
+        onSave={handleCreateNote}
       />
     </Box>
   );
