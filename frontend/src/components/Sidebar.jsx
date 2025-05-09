@@ -25,9 +25,8 @@ import {
   ExpandMore,
   ExpandLess,
   Search,
-  History,
-  Settings,
-  Label
+  Bookmark,
+  History
 } from '@mui/icons-material';
 import NewNoteDialog from './NewNoteDialog';
 import { getTags } from '../utils/storage';
@@ -253,15 +252,6 @@ const Sidebar = ({ onTagSelect }) => {
               <History />
             </ListItemIcon>
             <ListItemText primary="Recent" />
-          </ListItemButton>
-        </ListItem>
-        
-        <ListItem disablePadding>
-          <ListItemButton onClick={() => navigate('/settings')}>
-            <ListItemIcon>
-              <Settings />
-            </ListItemIcon>
-            <ListItemText primary="Settings" />
           </ListItemButton>
         </ListItem>
         
