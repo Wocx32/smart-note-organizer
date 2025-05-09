@@ -27,6 +27,7 @@ const NewNoteDialog = ({ open, onClose, onSave }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [summary, setSummary] = useState('');
   const [tagInput, setTagInput] = useState('');
+  const [ankiFlashcard, setAnkiFlashcard] = useState('');
 
   const handleAddTag = () => {
     if (currentTag.trim() && !tags.includes(currentTag.trim())) {
@@ -57,45 +58,40 @@ const NewNoteDialog = ({ open, onClose, onSave }) => {
     }
   };
 
-  const generateTagsAndSummary = async () => {
+  const generateAIContent = async () => {
     if (!content.trim()) return;
-    
     setIsLoading(true);
     try {
-      console.log('Generating tags and summary for content:', content.substring(0, 100) + '...');
-      
-      // Generate tags
-      const tagsResponse = await fetch('http://127.0.0.1:8000/generate-tags', {
+      console.log('[AI] Sending to /process:', { text: content });
+      const response = await fetch('http://127.0.0.1:8000/process', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ text: content }),
       });
-      const tagsData = await tagsResponse.json();
-      console.log('Tags API Response:', tagsData);
-      
-      // Generate summary
-      const summaryResponse = await fetch('http://127.0.0.1:8000/summarize', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ text: content }),
-      });
-      const summaryData = await summaryResponse.json();
-      console.log('Summary API Response:', summaryData);
+      console.log('[AI] Raw response:', response);
+      const data = await response.json();
+      console.log('[AI] Parsed response:', data);
+      setTags(data.tags || []);
+      setSummary(data.summary || '');
+      setAnkiFlashcard(data.anki_flashcard || '');
 
-      // Update state with generated tags and summary
-      setTags(tagsData.tags);
-      setSummary(summaryData.summary.content);
-      console.log('Updated state - Tags:', tagsData.tags, 'Summary:', summaryData.summary.content);
+      // Store flashcard in localStorage if it exists
+      if (data.anki_flashcard && data.tags && data.tags.length > 0) {
+        const existingFlashcards = JSON.parse(localStorage.getItem('flashcards') || '[]');
+        // Create a flashcard for each tag
+        const newFlashcards = data.tags.map(tag => ({
+          id: Date.now() + Math.random(), // Generate a unique ID
+          front: data.anki_flashcard.front,
+          back: data.anki_flashcard.back,
+          deck: tag,
+          tags: data.tags || []
+        }));
+        localStorage.setItem('flashcards', JSON.stringify([...existingFlashcards, ...newFlashcards]));
+      }
     } catch (error) {
-      console.error('Error generating tags and summary:', error);
-      console.error('Error details:', {
-        message: error.message,
-        stack: error.stack
-      });
+      console.error('[AI] Error calling /process:', error);
     } finally {
       setIsLoading(false);
     }
@@ -113,9 +109,9 @@ const NewNoteDialog = ({ open, onClose, onSave }) => {
           day: 'numeric',
           year: 'numeric'
         }),
-        recent: true
+        recent: true,
+        anki_flashcard: ankiFlashcard,
       };
-      console.log('Saving note with data:', noteData);
       onSave(noteData);
       handleClose();
     }
@@ -129,6 +125,7 @@ const NewNoteDialog = ({ open, onClose, onSave }) => {
     setCurrentTag('');
     setSummary('');
     setTagInput('');
+    setAnkiFlashcard('');
     onClose();
   };
 
@@ -208,7 +205,7 @@ const NewNoteDialog = ({ open, onClose, onSave }) => {
           <Button
             variant="outlined"
             startIcon={<AutoAwesomeIcon />}
-            onClick={generateTagsAndSummary}
+            onClick={generateAIContent}
             disabled={!content || isLoading}
           >
             Auto Generate
@@ -226,6 +223,19 @@ const NewNoteDialog = ({ open, onClose, onSave }) => {
             </Typography>
             <Typography variant="body2" component="div" color="text.secondary">
               {summary}
+            </Typography>
+          </Box>
+        )}
+        {ankiFlashcard && (
+          <Box sx={{ mt: 2, p: 2, bgcolor: 'background.default', borderRadius: 1 }}>
+            <Typography variant="subtitle2" component="div" sx={{ mb: 1 }}>
+              AI Generated Flashcard
+            </Typography>
+            <Typography variant="body2" component="div" color="text.secondary" sx={{ fontWeight: 600 }}>
+              Q: {ankiFlashcard.front}
+            </Typography>
+            <Typography variant="body2" component="div" color="text.secondary" sx={{ mt: 1 }}>
+              A: {ankiFlashcard.back}
             </Typography>
           </Box>
         )}

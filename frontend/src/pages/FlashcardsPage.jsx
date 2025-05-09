@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { 
   Box, 
   Typography, 
@@ -34,6 +34,7 @@ import {
   Download,
   Add
 } from '@mui/icons-material';
+import { getNotes } from '../utils/storage';
 
 const FlashcardsPage = () => {
   const [activeTab, setActiveTab] = useState(0);
@@ -42,7 +43,53 @@ const FlashcardsPage = () => {
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
   const [showAnswer, setShowAnswer] = useState(false);
   const [studyMode, setStudyMode] = useState(false);
-  
+  const [decks, setDecks] = useState([]);
+  const [flashcards, setFlashcards] = useState([]);
+
+  useEffect(() => {
+    // Fetch flashcards from localStorage
+    const storedFlashcards = JSON.parse(localStorage.getItem('flashcards') || '[]');
+    
+    // Create a map to track unique flashcards by their content
+    const uniqueFlashcards = new Map();
+    const deckMap = {};
+    
+    // Process flashcards to remove duplicates
+    storedFlashcards.forEach(card => {
+      // Create a unique key based on front and back content
+      const contentKey = `${card.front}-${card.back}`;
+      
+      if (!uniqueFlashcards.has(contentKey)) {
+        // If this is a new unique flashcard, add it to our maps
+        uniqueFlashcards.set(contentKey, card);
+        
+        // Add to deck map
+        if (!deckMap[card.deck]) {
+          deckMap[card.deck] = [];
+        }
+        deckMap[card.deck].push(card);
+      } else {
+        // If this is a duplicate, merge the tags with the existing card
+        const existingCard = uniqueFlashcards.get(contentKey);
+        const mergedTags = [...new Set([...existingCard.tags, ...card.tags])];
+        existingCard.tags = mergedTags;
+      }
+    });
+
+    // Set decks and flashcards
+    setDecks([
+      { id: 'all', name: 'All Decks', count: uniqueFlashcards.size },
+      ...Object.keys(deckMap).map(deck => ({ 
+        id: deck, 
+        name: deck, 
+        count: deckMap[deck].length 
+      })).sort((a, b) => a.name.localeCompare(b.name))
+    ]);
+    
+    // Convert the unique flashcards map to an array
+    setFlashcards(Array.from(uniqueFlashcards.values()));
+  }, []);
+
   const handleTabChange = (event, newValue) => {
     setActiveTab(newValue);
   };
@@ -79,52 +126,6 @@ const FlashcardsPage = () => {
     setStudyMode(false);
   };
 
-  // Mock data
-  const decks = [
-    { id: 1, name: 'Physics', count: 15 },
-    { id: 2, name: 'Chemistry', count: 12 },
-    { id: 3, name: 'Mathematics', count: 20 },
-    { id: 4, name: 'Computer Science', count: 18 }
-  ];
-
-  const flashcards = [
-    { 
-      id: 1, 
-      front: 'What is a wave function in quantum mechanics?', 
-      back: 'A description of the quantum state of a system. It is a complex-valued probability amplitude from which the probabilities for possible measurements can be derived.',
-      deck: 'Physics',
-      tags: ['Quantum Mechanics', 'Wave Function']
-    },
-    { 
-      id: 2, 
-      front: 'What does the Schrödinger equation describe?', 
-      back: 'The time evolution of quantum systems.',
-      deck: 'Physics',
-      tags: ['Quantum Mechanics', 'Equations']
-    },
-    { 
-      id: 3, 
-      front: 'What are the three key properties of wave functions?', 
-      back: 'Normalization, superposition, and collapse upon measurement.',
-      deck: 'Physics',
-      tags: ['Quantum Mechanics', 'Wave Function']
-    },
-    { 
-      id: 4, 
-      front: 'What is a functional group in organic chemistry?', 
-      back: 'Specific groups of atoms within molecules that give the molecule characteristic chemical properties.',
-      deck: 'Chemistry',
-      tags: ['Organic Chemistry', 'Functional Groups']
-    },
-    { 
-      id: 5, 
-      front: 'What is an eigenvalue in linear algebra?', 
-      back: 'A special scalar associated with a linear system of equations that, when multiplied by a specific vector (eigenvector), results in a vector parallel to the original vector.',
-      deck: 'Mathematics',
-      tags: ['Linear Algebra', 'Eigenvalues']
-    },
-  ];
-  
   const filteredFlashcards = selectedDeck === 'all' 
     ? flashcards 
     : flashcards.filter(card => card.deck === selectedDeck);
@@ -216,7 +217,7 @@ const FlashcardsPage = () => {
                   >
                     <MenuItem value="all">All Decks</MenuItem>
                     {decks.map((deck) => (
-                      <MenuItem key={deck.id} value={deck.name}>{deck.name}</MenuItem>
+                      <MenuItem key={deck.id} value={deck.id}>{deck.name} ({deck.count})</MenuItem>
                     ))}
                   </Select>
                 </FormControl>
