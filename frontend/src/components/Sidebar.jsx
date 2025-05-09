@@ -25,8 +25,9 @@ import {
   ExpandMore,
   ExpandLess,
   Search,
-  Bookmark,
-  History
+  History,
+  Settings,
+  Label
 } from '@mui/icons-material';
 import NewNoteDialog from './NewNoteDialog';
 import { getTags } from '../utils/storage';
@@ -42,7 +43,6 @@ const Sidebar = ({ onTagSelect }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [expanded, setExpanded] = useState(true);
   const [showAllTags, setShowAllTags] = useState(false);
-  
   const MAX_VISIBLE_TAGS = 4;
 
   // Load tags from localStorage and set up event listeners
@@ -69,7 +69,7 @@ const Sidebar = ({ onTagSelect }) => {
   }, []);
 
   const handleTagClick = (tag) => {
-    onTagSelect(tag);
+    onTagClick(tag);
   };
 
   const filteredTags = tags.filter(tag => 
@@ -252,6 +252,15 @@ const Sidebar = ({ onTagSelect }) => {
               <History />
             </ListItemIcon>
             <ListItemText primary="Recent" />
+          </ListItemButton>
+        </ListItem>
+        
+        <ListItem disablePadding>
+          <ListItemButton onClick={() => navigate('/settings')}>
+            <ListItemIcon>
+              <Settings />
+            </ListItemIcon>
+            <ListItemText primary="Settings" />
           </ListItemButton>
         </ListItem>
         
