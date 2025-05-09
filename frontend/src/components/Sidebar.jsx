@@ -69,7 +69,7 @@ const Sidebar = ({ onTagSelect }) => {
   }, []);
 
   const handleTagClick = (tag) => {
-    onTagClick(tag);
+    onTagSelect(tag);
   };
 
   const filteredTags = tags.filter(tag => 
