@@ -21,12 +21,5 @@ async def process_text(data: dict):
     
     result = build_summary_tags_flashcard(text)
 
-    summary = result.summary
-    tags = result.tags
-    anki_flashcard = result.flashcard.model_dump()
-    
-    return {
-        "summary": summary,
-        "tags": tags,
-        "anki_flashcard": anki_flashcard
-    }
+    return result
+
