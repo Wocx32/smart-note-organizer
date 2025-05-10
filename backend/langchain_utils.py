@@ -17,16 +17,16 @@ class FlashcardOutput(BaseModel):
 class CombinedOutput(BaseModel):
     summary: str = Field(description="A summary of the input text, limited to 2-3 sentences")
     tags: List[str] = Field(description="A list of 3-5 relevant tags for the input text")
-    flashcard: FlashcardOutput
+    flashcards: List[FlashcardOutput] = Field(description="An list of Anki flashcards with a front and back, based on the input text")
 
 
 def build_summary_tags_flashcard(text):
     llm = ChatGroq(model="llama-3.3-70b-versatile")
 
     prompt = PromptTemplate.from_template(
-        "Generate a summary (2-3 sentences), a list of 3-5 tags, and an Anki flashcard (front and back) based on the following text: {text}. "
-        "Format the response as a JSON object with keys 'summary', 'tags', and 'flashcard' (which contains 'front' and 'back'). "
-        "Example structure: {{\"summary\": \"...\", \"tags\": [\"...\", \"...\"], \"flashcard\": {{\"front\": \"...\", \"back\": \"...\"}}}}. "
+        "Generate a summary (2-3 sentences), a list of 3-5 tags, and a list of as many Anki flashcards (front and back) you see fit based on the following text: {text}. "
+        "Format the response as a JSON object with keys 'summary', 'tags', and 'flashcards' (which is a list that contains multiple objects with 'front' and 'back'). "
+        "Example structure: {{\"summary\": \"...\", \"tags\": [\"...\", \"...\"], \"flashcards\": [{{\"front\": \"...\", \"back\": \"...\"}}}}, {{\"front\": \"...\", \"back\": \"...\"}}}}]. "
         "Please ensure the output is strictly in the specified JSON format and nothing else."
     )
 
@@ -43,4 +43,4 @@ if __name__ == "__main__":
     result = build_summary_tags_flashcard(text)
     print("Summary:", result.summary)
     print("Tags:", result.tags)
-    print("Flashcard:", result.flashcard.model_dump())
+    print("Flashcards:", result.flashcards)
