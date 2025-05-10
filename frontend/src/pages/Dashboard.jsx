@@ -23,27 +23,58 @@ import {
   QueryStats,
   AccessTime
 } from '@mui/icons-material';
+import { useState, useEffect } from 'react';
+import { getNotes } from '../utils/storage';
 
 const Dashboard = () => {
-  // Mock data
+  const [notes, setNotes] = useState([]);
+  const [flashcards, setFlashcards] = useState([]);
+  const [tags, setTags] = useState([]);
+
+  useEffect(() => {
+    // Load notes from localStorage
+    const savedNotes = getNotes();
+    setNotes(savedNotes);
+
+    // Load flashcards from localStorage and count unique ones
+    const savedFlashcards = JSON.parse(localStorage.getItem('flashcards') || '[]');
+    // Create a Set to track unique flashcards by their content
+    const uniqueFlashcards = new Set();
+    savedFlashcards.forEach(card => {
+      // Create a unique key based on front and back content
+      const contentKey = `${card.front}-${card.back}`;
+      uniqueFlashcards.add(contentKey);
+    });
+    setFlashcards(Array.from(uniqueFlashcards));
+
+    // Extract unique tags from notes
+    const uniqueTags = new Set();
+    savedNotes.forEach(note => {
+      note.tags?.forEach(tag => uniqueTags.add(tag));
+    });
+    setTags(Array.from(uniqueTags));
+  }, []);
+
+  // Calculate stats
   const stats = [
-    { title: 'Total Notes', value: 47, icon: <Description />, color: '#4299E1' },
-    { title: 'Tags', value: 18, icon: <Tag />, color: '#48BB78' },
-    { title: 'Flashcards', value: 126, icon: <School />, color: '#ED8936' },
+    { title: 'Total Notes', value: notes.length, icon: <Description />, color: '#4299E1' },
+    { title: 'Tags', value: tags.length, icon: <Tag />, color: '#48BB78' },
+    { title: 'Flashcards', value: flashcards.length, icon: <School />, color: '#ED8936' },
   ];
 
-  const recentNotes = [
-    { id: 1, title: 'Quantum Mechanics: Wave Functions', date: '2 hours ago', tags: ['Physics', 'Advanced'] },
-    { id: 2, title: 'Organic Chemistry: Functional Groups', date: '5 hours ago', tags: ['Chemistry'] },
-    { id: 3, title: 'Linear Algebra: Eigenvalues', date: 'Yesterday', tags: ['Math', 'Important'] },
-    { id: 4, title: 'Neural Networks: Backpropagation', date: '2 days ago', tags: ['CS', 'AI'] },
-  ];
+  // Get recent notes (last 4)
+  const recentNotes = notes.slice(0, 4).map(note => ({
+    id: note.id,
+    title: note.title,
+    date: note.date,
+    tags: note.tags || []
+  }));
 
-  const suggestedLinks = [
-    { title: 'Wave Functions & Quantum Mechanics', similarity: '87%' },
-    { title: 'Eigenvalues in Quantum Systems', similarity: '75%' },
-    { title: 'Computational Methods in Physics', similarity: '68%' },
-  ];
+  // Generate suggested links based on tag similarity
+  const suggestedLinks = notes.slice(0, 3).map(note => ({
+    title: note.title,
+    similarity: `${Math.floor(Math.random() * 30) + 70}%` // Placeholder similarity score
+  }));
 
   return (
     <Box>
