@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Box,
   Typography,
@@ -69,6 +70,7 @@ const NotesPage = () => {
   const [noteToDeleteInDialog, setNoteToDeleteInDialog] = useState(null); // <-- ADDED STATE
   const [selectedNotes, setSelectedNotes] = useState([]);
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
+  const navigate = useNavigate();
 
   // Load notes from localStorage on component mount
   useEffect(() => {
@@ -333,6 +335,10 @@ const NotesPage = () => {
     handleMenuClose();
   };
 
+  const handleNoteClick = (noteId) => {
+    navigate(`/notes/${noteId}`);
+  };
+
   return (
     <Box sx={{ display: 'flex', height: '100vh' }}>
       <Sidebar onTagSelect={handleTagSelect} />
@@ -530,9 +536,11 @@ const NotesPage = () => {
                       transition: 'transform 0.2s, box-shadow 0.2s',
                       '&:hover': {
                         transform: 'translateY(-3px)',
-                        boxShadow: '0 4px 20px rgba(0,0,0,0.1)'
+                        boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
+                        cursor: 'pointer'
                       }
                     }}
+                    onClick={() => handleNoteClick(note.id)}
                   >
                     <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', alignItems: 'flex-start', p: 0 }}>
                       <CardContent sx={{ p: 3, pb: 2, width: '100%' }}>
@@ -628,7 +636,7 @@ const NotesPage = () => {
                       '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.02)' },
                       cursor: 'pointer'
                     }}
-                    // onClick={() => navigate(`/notes/${note.id}`)} // Example navigation
+                    onClick={() => handleNoteClick(note.id)}
                   >
                     <Box sx={{ display: 'flex', alignItems: 'center', mr: 2 }}>
                       <Checkbox

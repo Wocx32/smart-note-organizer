@@ -14,7 +14,7 @@ function App() {
         <Route path="/" element={<Layout />}>
           <Route index element={<Dashboard />} />
           <Route path="notes" element={<NotesPage />} />
-          <Route path="notes/:id" element={<NoteViewPage />} />
+          <Route path="notes/:noteId" element={<NoteViewPage />} />
           <Route path="flashcards" element={<FlashcardsPage />} />
           <Route path="search" element={<SearchPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
