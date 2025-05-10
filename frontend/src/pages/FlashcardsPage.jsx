@@ -809,5 +809,5 @@ const FlashcardsPage = () => {
     </Box>
   );
 };
-
+};
 export default FlashcardsPage; 
