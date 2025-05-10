@@ -28,12 +28,8 @@ import {
   Description,
   PictureAsPdf,
   School,
-  History,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
-import { getNotes } from '../utils/storage';
-
-const MAX_RECENT_SEARCHES = 5;
 
 const SearchPage = () => {
   const navigate = useNavigate();
@@ -41,24 +37,44 @@ const SearchPage = () => {
   const [activeTab, setActiveTab] = useState(0);
   const [selectedTags, setSelectedTags] = useState([]);
   const [searchResults, setSearchResults] = useState([]);
-  const [recentSearches, setRecentSearches] = useState([]);
-  const [notes, setNotes] = useState([]);
-  const [flashcards, setFlashcards] = useState([]);
+  const [recentSearches, setRecentSearches] = useState([
+    'quantum mechanics',
+    'organic chemistry',
+    'linear algebra',
+  ]);
 
-  // Load data from localStorage on component mount
-  useEffect(() => {
-    // Load recent searches
-    const savedSearches = JSON.parse(localStorage.getItem('recentSearches') || '[]');
-    setRecentSearches(savedSearches);
+  // Mock data for demonstration
+  const allTags = [
+    'Physics', 'Chemistry', 'Mathematics', 'Computer Science',
+    'Biology', 'Important', 'Review', 'Equations', 'Concepts'
+  ];
 
-    // Load notes
-    const savedNotes = getNotes();
-    setNotes(savedNotes);
-
-    // Load flashcards
-    const savedFlashcards = JSON.parse(localStorage.getItem('flashcards') || '[]');
-    setFlashcards(savedFlashcards);
-  }, []);
+  const mockNotes = [
+    {
+      id: 1,
+      title: 'Quantum Mechanics: Wave Functions',
+      summary: 'Wave functions describe the quantum state of a particle. The square of the absolute value of the wave function represents the probability density.',
+      tags: ['Physics', 'Advanced'],
+      type: 'note',
+      date: 'May 15, 2024'
+    },
+    {
+      id: 2,
+      title: 'Organic Chemistry: Functional Groups',
+      summary: 'Functional groups are specific groupings of atoms that give a compound certain chemical properties.',
+      tags: ['Chemistry'],
+      type: 'note',
+      date: 'May 14, 2024'
+    },
+    {
+      id: 3,
+      title: 'Linear Algebra: Eigenvalues',
+      summary: 'Eigenvalues are special scalars associated with linear systems of equations.',
+      tags: ['Math', 'Important'],
+      type: 'flashcard',
+      date: 'May 10, 2024'
+    },
+  ];
 
   useEffect(() => {
     if (searchQuery.trim()) {
@@ -68,70 +84,21 @@ const SearchPage = () => {
     }
   }, [searchQuery, selectedTags]);
 
-  const updateRecentSearches = (query) => {
-    if (!query.trim()) return;
-    
-    const updatedSearches = [
-      query,
-      ...recentSearches.filter(search => search !== query)
-    ].slice(0, MAX_RECENT_SEARCHES);
-    
-    setRecentSearches(updatedSearches);
-    localStorage.setItem('recentSearches', JSON.stringify(updatedSearches));
-  };
-
   const performSearch = () => {
     const query = searchQuery.toLowerCase();
-    
-    // Search in notes
-    const noteResults = notes
-      .filter(note => {
-        const matchesQuery = 
-          note.title.toLowerCase().includes(query) ||
-          note.content.toLowerCase().includes(query) ||
-          (note.tags && note.tags.some(tag => tag.toLowerCase().includes(query)));
+    const results = mockNotes.filter(note => {
+      const matchesQuery = 
+        note.title.toLowerCase().includes(query) ||
+        note.summary.toLowerCase().includes(query) ||
+        note.tags.some(tag => tag.toLowerCase().includes(query));
 
-        const matchesTags = selectedTags.length === 0 ||
-          (note.tags && selectedTags.every(tag => note.tags.includes(tag)));
+      const matchesTags = selectedTags.length === 0 ||
+        selectedTags.every(tag => note.tags.includes(tag));
 
-        return matchesQuery && matchesTags;
-      })
-      .map(note => ({
-        ...note,
-        type: 'note'
-      }));
-
-    // Search in flashcards
-    const flashcardResults = flashcards
-      .filter(card => {
-        const matchesQuery = 
-          card.front.toLowerCase().includes(query) ||
-          card.back.toLowerCase().includes(query) ||
-          (card.tags && card.tags.some(tag => tag.toLowerCase().includes(query)));
-
-        const matchesTags = selectedTags.length === 0 ||
-          (card.tags && selectedTags.every(tag => card.tags.includes(tag)));
-
-        return matchesQuery && matchesTags;
-      })
-      .map(card => ({
-        ...card,
-        type: 'flashcard',
-        title: card.front,
-        summary: card.back
-      }));
-
-    // Combine and filter results based on active tab
-    let results = [...noteResults, ...flashcardResults];
-    
-    if (activeTab === 1) {
-      results = noteResults;
-    } else if (activeTab === 2) {
-      results = flashcardResults;
-    }
+      return matchesQuery && matchesTags;
+    });
 
     setSearchResults(results);
-    updateRecentSearches(searchQuery);
   };
 
   const handleTagClick = (tag) => {
@@ -150,9 +117,6 @@ const SearchPage = () => {
 
   const handleTabChange = (event, newValue) => {
     setActiveTab(newValue);
-    if (searchQuery.trim()) {
-      performSearch();
-    }
   };
 
   const handleResultClick = (result) => {
@@ -160,12 +124,6 @@ const SearchPage = () => {
       navigate(`/notes/${result.id}`);
     } else if (result.type === 'flashcard') {
       navigate(`/flashcards/${result.id}`);
-    }
-  };
-
-  const handleSearchSubmit = (e) => {
-    if (e.key === 'Enter' && searchQuery.trim()) {
-      performSearch();
     }
   };
 
@@ -181,7 +139,6 @@ const SearchPage = () => {
           placeholder="Search across notes, flashcards, and tags..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          onKeyPress={handleSearchSubmit}
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
@@ -199,10 +156,27 @@ const SearchPage = () => {
           sx={{ mb: 2 }}
         />
 
-        {!searchQuery && recentSearches.length > 0 && (
+        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mb: 3 }}>
+          {allTags.map((tag) => (
+            <Chip
+              key={tag}
+              label={tag}
+              onClick={() => handleTagClick(tag)}
+              color={selectedTags.includes(tag) ? 'primary' : 'default'}
+              sx={{
+                backgroundColor: selectedTags.includes(tag) ? 'primary.main' : 'rgba(0, 0, 0, 0.08)',
+                color: selectedTags.includes(tag) ? 'white' : 'inherit',
+                '&:hover': {
+                  backgroundColor: selectedTags.includes(tag) ? 'primary.dark' : 'rgba(0, 0, 0, 0.12)',
+                },
+              }}
+            />
+          ))}
+        </Box>
+
+        {!searchQuery && (
           <Box sx={{ mb: 4 }}>
-            <Typography variant="subtitle1" fontWeight="medium" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <History fontSize="small" />
+            <Typography variant="subtitle1" fontWeight="medium" gutterBottom>
               Recent Searches
             </Typography>
             <List>
@@ -275,7 +249,7 @@ const SearchPage = () => {
                           {result.summary}
                         </Typography>
                         <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-                          {result.tags && result.tags.map((tag) => (
+                          {result.tags.map((tag) => (
                             <Chip
                               key={tag}
                               label={tag}
