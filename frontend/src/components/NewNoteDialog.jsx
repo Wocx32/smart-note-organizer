@@ -87,21 +87,21 @@ const NewNoteDialog = ({ open, onClose, onSave, initialNote }) => {
       setSummary(data.summary || '');
       setFlashcards(data.flashcards || []);
 
-      // Remove automatic flashcard storage
-      // if (data.flashcards && data.flashcards.length > 0 && data.tags && data.tags.length > 0) {
-      //   const existingFlashcards = JSON.parse(localStorage.getItem('flashcards') || '[]');
-      //   // Create flashcards for each tag
-      //   const newFlashcards = data.flashcards.flatMap(card => 
-      //     data.tags.map(tag => ({
-      //       id: Date.now() + Math.random(), // Generate a unique ID
-      //       front: card.front,
-      //       back: card.back,
-      //       deck: tag,
-      //       tags: data.tags || []
-      //     }))
-      //   );
-      //   localStorage.setItem('flashcards', JSON.stringify([...existingFlashcards, ...newFlashcards]));
-      // }
+      // Store flashcards in localStorage if they exist
+      if (data.flashcards && data.flashcards.length > 0 && data.tags && data.tags.length > 0) {
+        const existingFlashcards = JSON.parse(localStorage.getItem('flashcards') || '[]');
+        // Create flashcards for each tag
+        const newFlashcards = data.flashcards.flatMap(card => 
+          data.tags.map(tag => ({
+            id: Date.now() + Math.random(), // Generate a unique ID
+            front: card.front,
+            back: card.back,
+            deck: tag,
+            tags: data.tags || []
+          }))
+        );
+        localStorage.setItem('flashcards', JSON.stringify([...existingFlashcards, ...newFlashcards]));
+      }
     } catch (error) {
       console.error('[AI] Error calling /process:', error);
     } finally {
@@ -125,20 +125,6 @@ const NewNoteDialog = ({ open, onClose, onSave, initialNote }) => {
         recent: true,
         flashcards,
       };
-
-      // Store flashcards in localStorage if they exist
-      if (flashcards && flashcards.length > 0) {
-        const existingFlashcards = JSON.parse(localStorage.getItem('flashcards') || '[]');
-        const newFlashcards = flashcards.map(card => ({
-          id: Date.now() + Math.random(),
-          front: card.front,
-          back: card.back,
-          deck: tags[0] || 'General', // Use first tag as deck, or 'General' if no tags
-          tags: tags || []
-        }));
-        localStorage.setItem('flashcards', JSON.stringify([...existingFlashcards, ...newFlashcards]));
-      }
-
       onSave(noteData);
       handleClose();
     }
