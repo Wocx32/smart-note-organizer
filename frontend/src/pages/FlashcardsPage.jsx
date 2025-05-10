@@ -62,6 +62,8 @@ const FlashcardsPage = () => {
   });
   const [currentTag, setCurrentTag] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [cardToDelete, setCardToDelete] = useState(null);
 
   useEffect(() => {
     // Check if we're starting a study session from a note
@@ -78,7 +80,19 @@ const FlashcardsPage = () => {
       }
     }
 
-    // Only load all flashcards if we're not in a note study session
+    // Check if studyMode is set in localStorage
+    const studyModeEnabled = localStorage.getItem('studyMode') === 'true';
+    if (studyModeEnabled) {
+      // Clear the studyMode flag
+      localStorage.removeItem('studyMode');
+      // Start study mode with all flashcards
+      const storedFlashcards = JSON.parse(localStorage.getItem('flashcards') || '[]');
+      setFlashcards(storedFlashcards);
+      setStudyMode(true);
+      return; // Exit early to prevent loading all flashcards
+    }
+
+    // Only load all flashcards if we're not in a study session
     const storedFlashcards = JSON.parse(localStorage.getItem('flashcards') || '[]');
     
     // Create a map to track unique flashcards by their content
@@ -276,6 +290,58 @@ const FlashcardsPage = () => {
       tags: prev.tags.filter(tag => tag !== tagToRemove)
     }));
   }; // <<< FIXED: Added missing closing brace
+
+  const handleDeleteClick = (card) => {
+    setCardToDelete(card);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = () => {
+    if (cardToDelete) {
+      // Remove the card from localStorage
+      const existingFlashcards = JSON.parse(localStorage.getItem('flashcards') || '[]');
+      const updatedFlashcards = existingFlashcards.filter(card =>
+        !(card.front === cardToDelete.front && card.back === cardToDelete.back)
+      );
+      localStorage.setItem('flashcards', JSON.stringify(updatedFlashcards));
+
+      // Update state
+      setFlashcards(prev => prev.filter(card =>
+        !(card.front === cardToDelete.front && card.back === cardToDelete.back)
+      ));
+
+      // Update decks
+      setDecks(prev => prev.map(deck => {
+        if (deck.id === 'all') {
+          return {
+            ...deck,
+            count: deck.count - 1,
+            cards: deck.cards.filter(card =>
+              !(card.front === cardToDelete.front && card.back === cardToDelete.back)
+            )
+          };
+        }
+        if (deck.id === cardToDelete.deck) {
+          return {
+            ...deck,
+            count: deck.count - 1,
+            cards: deck.cards.filter(card =>
+              !(card.front === cardToDelete.front && card.back === cardToDelete.back)
+            )
+          };
+        }
+        return deck;
+      }));
+
+      setDeleteDialogOpen(false);
+      setCardToDelete(null);
+    }
+  };
+
+  const handleDeleteCancel = () => {
+    setDeleteDialogOpen(false);
+    setCardToDelete(null);
+  };
 
   // Add check for empty deck in study mode
   if (studyMode && (!filteredFlashcards.length || !currentCard)) {
@@ -577,9 +643,6 @@ const FlashcardsPage = () => {
                           >
                             {card.deck}
                           </Typography>
-                          <IconButton size="small"> {/* Add Menu for Edit/Delete here */}
-                            <MoreVert fontSize="small" />
-                          </IconButton>
                         </Box>
 
                         <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 2, wordBreak: 'break-word' }}>
@@ -623,7 +686,12 @@ const FlashcardsPage = () => {
                           <IconButton size="small" title="Copy"> {/* Add onClick handlers */}
                             <ContentCopy fontSize="small" />
                           </IconButton>
-                          <IconButton size="small" color="error" title="Delete"> {/* Add onClick handlers */}
+                          <IconButton 
+                            size="small" 
+                            color="error" 
+                            title="Delete"
+                            onClick={() => handleDeleteClick(card)}
+                          >
                             <Delete fontSize="small" />
                           </IconButton>
                         </Box>
@@ -840,6 +908,23 @@ const FlashcardsPage = () => {
           </Box>
         </Box>
       )}
+
+      {/* Add Delete Confirmation Dialog */}
+      <Dialog
+        open={deleteDialogOpen}
+        onClose={handleDeleteCancel}
+      >
+        <DialogTitle>Delete Flashcard</DialogTitle>
+        <DialogContent>
+          <Typography>
+            Are you sure you want to delete this flashcard? This action cannot be undone.
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleDeleteCancel}>Cancel</Button>
+          <Button onClick={handleDeleteConfirm} color="error">Delete</Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };
