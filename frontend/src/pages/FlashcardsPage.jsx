@@ -45,6 +45,7 @@ const FlashcardsPage = () => {
   const [studyMode, setStudyMode] = useState(false);
   const [decks, setDecks] = useState([]);
   const [flashcards, setFlashcards] = useState([]);
+  const [viewingDeck, setViewingDeck] = useState(null);
 
   useEffect(() => {
     // Fetch flashcards from localStorage
@@ -126,12 +127,75 @@ const FlashcardsPage = () => {
     setStudyMode(false);
   };
 
+  const handleViewDeck = (deckId) => {
+    setSelectedDeck(deckId);
+    setActiveTab(0); // Switch to All Flashcards tab
+    setViewingDeck(deckId);
+  };
+
+  const handleStudyDeck = (deckId) => {
+    setSelectedDeck(deckId);
+    setStudyMode(true);
+    setCurrentCardIndex(0);
+    setShowAnswer(false);
+    setViewingDeck(deckId);
+  };
+
   const filteredFlashcards = selectedDeck === 'all' 
     ? flashcards 
     : flashcards.filter(card => card.deck === selectedDeck);
   
   // Current card in study mode
-  const currentCard = flashcards[currentCardIndex];
+  const currentCard = filteredFlashcards[currentCardIndex];
+
+  // Add check for empty deck
+  if (studyMode && (!filteredFlashcards.length || !currentCard)) {
+    return (
+      <Box>
+        <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Typography variant="h4" fontWeight="bold">Study Mode</Typography>
+          <Button 
+            variant="outlined" 
+            onClick={endStudyMode}
+            sx={{ 
+              borderColor: 'rgba(0, 0, 0, 0.23)', 
+              color: 'text.primary',
+              textTransform: 'none' 
+            }}
+          >
+            Exit Study Mode
+          </Button>
+        </Box>
+        
+        <Box sx={{ 
+          display: 'flex', 
+          flexDirection: 'column', 
+          alignItems: 'center', 
+          justifyContent: 'center',
+          py: 4
+        }}>
+          <Typography variant="h6" color="text.secondary" sx={{ mb: 2 }}>
+            No flashcards available in this deck
+          </Typography>
+          <Button 
+            variant="contained" 
+            onClick={endStudyMode}
+            sx={{ 
+              backgroundColor: '#3182ce',
+              boxShadow: 'none',
+              textTransform: 'none',
+              '&:hover': {
+                backgroundColor: '#2b6cb0',
+                boxShadow: 'none',
+              }
+            }}
+          >
+            Return to Decks
+          </Button>
+        </Box>
+      </Box>
+    );
+  }
 
   return (
     <Box>
@@ -386,6 +450,7 @@ const FlashcardsPage = () => {
                         <Button 
                           variant="outlined" 
                           size="small"
+                          onClick={() => handleViewDeck(deck.id)}
                           sx={{ 
                             flex: 1,
                             borderColor: 'rgba(0, 0, 0, 0.23)', 
@@ -398,6 +463,7 @@ const FlashcardsPage = () => {
                         <Button 
                           variant="contained" 
                           size="small"
+                          onClick={() => handleStudyDeck(deck.id)}
                           sx={{ 
                             flex: 1,
                             backgroundColor: '#3182ce',
@@ -482,7 +548,7 @@ const FlashcardsPage = () => {
             py: 4
           }}>
             <Typography variant="subtitle1" color="text.secondary" sx={{ mb: 2 }}>
-              Card {currentCardIndex + 1} of {flashcards.length}
+              Card {currentCardIndex + 1} of {filteredFlashcards.length}
             </Typography>
             
             <Card 

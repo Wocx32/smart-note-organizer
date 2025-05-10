@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -19,7 +19,7 @@ import {
   AutoAwesome as AutoAwesomeIcon,
 } from '@mui/icons-material';
 
-const NewNoteDialog = ({ open, onClose, onSave }) => {
+const NewNoteDialog = ({ open, onClose, onSave, initialNote }) => {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [tags, setTags] = useState([]);
@@ -27,7 +27,17 @@ const NewNoteDialog = ({ open, onClose, onSave }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [summary, setSummary] = useState('');
   const [tagInput, setTagInput] = useState('');
-  const [ankiFlashcard, setAnkiFlashcard] = useState('');
+  const [flashcards, setFlashcards] = useState([]);
+
+  useEffect(() => {
+    if (initialNote) {
+      setTitle(initialNote.title || '');
+      setContent(initialNote.content || '');
+      setTags(initialNote.tags || []);
+      setSummary(initialNote.summary || '');
+      setFlashcards(initialNote.flashcards || []);
+    }
+  }, [initialNote]);
 
   const handleAddTag = () => {
     if (currentTag.trim() && !tags.includes(currentTag.trim())) {
@@ -75,19 +85,21 @@ const NewNoteDialog = ({ open, onClose, onSave }) => {
       console.log('[AI] Parsed response:', data);
       setTags(data.tags || []);
       setSummary(data.summary || '');
-      setAnkiFlashcard(data.anki_flashcard || '');
+      setFlashcards(data.flashcards || []);
 
-      // Store flashcard in localStorage if it exists
-      if (data.anki_flashcard && data.tags && data.tags.length > 0) {
+      // Store flashcards in localStorage if they exist
+      if (data.flashcards && data.flashcards.length > 0 && data.tags && data.tags.length > 0) {
         const existingFlashcards = JSON.parse(localStorage.getItem('flashcards') || '[]');
-        // Create a flashcard for each tag
-        const newFlashcards = data.tags.map(tag => ({
-          id: Date.now() + Math.random(), // Generate a unique ID
-          front: data.anki_flashcard.front,
-          back: data.anki_flashcard.back,
-          deck: tag,
-          tags: data.tags || []
-        }));
+        // Create flashcards for each tag
+        const newFlashcards = data.flashcards.flatMap(card => 
+          data.tags.map(tag => ({
+            id: Date.now() + Math.random(), // Generate a unique ID
+            front: card.front,
+            back: card.back,
+            deck: tag,
+            tags: data.tags || []
+          }))
+        );
         localStorage.setItem('flashcards', JSON.stringify([...existingFlashcards, ...newFlashcards]));
       }
     } catch (error) {
@@ -100,6 +112,7 @@ const NewNoteDialog = ({ open, onClose, onSave }) => {
   const handleSave = () => {
     if (title.trim() && content.trim()) {
       const noteData = {
+        id: initialNote?.id,
         title: title.trim(),
         content: content.trim(),
         tags,
@@ -110,7 +123,7 @@ const NewNoteDialog = ({ open, onClose, onSave }) => {
           year: 'numeric'
         }),
         recent: true,
-        anki_flashcard: ankiFlashcard,
+        flashcards,
       };
       onSave(noteData);
       handleClose();
@@ -125,7 +138,7 @@ const NewNoteDialog = ({ open, onClose, onSave }) => {
     setCurrentTag('');
     setSummary('');
     setTagInput('');
-    setAnkiFlashcard('');
+    setFlashcards([]);
     onClose();
   };
 
@@ -144,7 +157,7 @@ const NewNoteDialog = ({ open, onClose, onSave }) => {
     >
       <DialogTitle sx={{ m: 0, p: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <Typography variant="h6" component="div">
-          New Note
+          {initialNote ? 'Edit Note' : 'New Note'}
         </Typography>
         <IconButton
           aria-label="close"
@@ -226,17 +239,21 @@ const NewNoteDialog = ({ open, onClose, onSave }) => {
             </Typography>
           </Box>
         )}
-        {ankiFlashcard && (
+        {flashcards.length > 0 && (
           <Box sx={{ mt: 2, p: 2, bgcolor: 'background.default', borderRadius: 1 }}>
             <Typography variant="subtitle2" component="div" sx={{ mb: 1 }}>
-              AI Generated Flashcard
+              AI Generated Flashcards
             </Typography>
-            <Typography variant="body2" component="div" color="text.secondary" sx={{ fontWeight: 600 }}>
-              Q: {ankiFlashcard.front}
-            </Typography>
-            <Typography variant="body2" component="div" color="text.secondary" sx={{ mt: 1 }}>
-              A: {ankiFlashcard.back}
-            </Typography>
+            {flashcards.map((card, index) => (
+              <Box key={index} sx={{ mb: 2 }}>
+                <Typography variant="body2" component="div" color="text.secondary" sx={{ fontWeight: 600 }}>
+                  Q: {card.front}
+                </Typography>
+                <Typography variant="body2" component="div" color="text.secondary" sx={{ mt: 1 }}>
+                  A: {card.back}
+                </Typography>
+              </Box>
+            ))}
           </Box>
         )}
       </DialogContent>
