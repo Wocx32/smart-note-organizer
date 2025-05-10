@@ -18,7 +18,11 @@ import {
   Select,
   FormControl,
   InputLabel,
-  Chip
+  Chip,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions
 } from '@mui/material';
 import { 
   School, 
@@ -46,6 +50,14 @@ const FlashcardsPage = () => {
   const [decks, setDecks] = useState([]);
   const [flashcards, setFlashcards] = useState([]);
   const [viewingDeck, setViewingDeck] = useState(null);
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [newCard, setNewCard] = useState({
+    front: '',
+    back: '',
+    deck: '',
+    tags: []
+  });
+  const [currentTag, setCurrentTag] = useState('');
 
   useEffect(() => {
     // Fetch flashcards from localStorage
@@ -148,6 +160,54 @@ const FlashcardsPage = () => {
   // Current card in study mode
   const currentCard = filteredFlashcards[currentCardIndex];
 
+  const handleCreateFlashcard = () => {
+    if (!newCard.front || !newCard.back || !newCard.deck) return;
+
+    const card = {
+      id: Date.now() + Math.random(),
+      ...newCard,
+      tags: newCard.tags || []
+    };
+
+    // Update localStorage
+    const existingFlashcards = JSON.parse(localStorage.getItem('flashcards') || '[]');
+    localStorage.setItem('flashcards', JSON.stringify([...existingFlashcards, card]));
+
+    // Update state
+    setFlashcards(prev => [...prev, card]);
+    
+    // Update decks if needed
+    if (!decks.some(d => d.id === card.deck)) {
+      setDecks(prev => [...prev, { id: card.deck, name: card.deck, count: 1 }]);
+    } else {
+      setDecks(prev => prev.map(d => 
+        d.id === card.deck ? { ...d, count: d.count + 1 } : d
+      ));
+    }
+
+    // Reset form and close dialog
+    setNewCard({ front: '', back: '', deck: '', tags: [] });
+    setCurrentTag('');
+    setCreateDialogOpen(false);
+  };
+
+  const handleAddTag = () => {
+    if (currentTag.trim() && !newCard.tags.includes(currentTag.trim())) {
+      setNewCard(prev => ({
+        ...prev,
+        tags: [...prev.tags, currentTag.trim()]
+      }));
+      setCurrentTag('');
+    }
+  };
+
+  const handleRemoveTag = (tagToRemove) => {
+    setNewCard(prev => ({
+      ...prev,
+      tags: prev.tags.filter(tag => tag !== tagToRemove)
+    }));
+  };
+
   // Add check for empty deck
   if (studyMode && (!filteredFlashcards.length || !currentCard)) {
     return (
@@ -219,6 +279,7 @@ const FlashcardsPage = () => {
               <Button 
                 variant="contained" 
                 startIcon={<Add />}
+                onClick={() => setCreateDialogOpen(true)}
                 sx={{ 
                   backgroundColor: '#3182ce',
                   boxShadow: 'none',
@@ -232,6 +293,83 @@ const FlashcardsPage = () => {
               </Button>
             </Box>
           </Box>
+          
+          {/* Create Flashcard Dialog */}
+          <Dialog 
+            open={createDialogOpen} 
+            onClose={() => setCreateDialogOpen(false)}
+            maxWidth="sm"
+            fullWidth
+          >
+            <DialogTitle>Create New Flashcard</DialogTitle>
+            <DialogContent>
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 2 }}>
+                <TextField
+                  label="Front"
+                  multiline
+                  rows={3}
+                  value={newCard.front}
+                  onChange={(e) => setNewCard(prev => ({ ...prev, front: e.target.value }))}
+                  placeholder="Enter the question or term"
+                />
+                <TextField
+                  label="Back"
+                  multiline
+                  rows={3}
+                  value={newCard.back}
+                  onChange={(e) => setNewCard(prev => ({ ...prev, back: e.target.value }))}
+                  placeholder="Enter the answer or definition"
+                />
+                <FormControl fullWidth>
+                  <InputLabel>Deck</InputLabel>
+                  <Select
+                    value={newCard.deck}
+                    onChange={(e) => setNewCard(prev => ({ ...prev, deck: e.target.value }))}
+                    label="Deck"
+                  >
+                    {decks.filter(d => d.id !== 'all').map((deck) => (
+                      <MenuItem key={deck.id} value={deck.id}>{deck.name}</MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+                <Box>
+                  <TextField
+                    label="Add Tags"
+                    value={currentTag}
+                    onChange={(e) => setCurrentTag(e.target.value)}
+                    onKeyPress={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        handleAddTag();
+                      }
+                    }}
+                    placeholder="Press Enter to add tags"
+                    fullWidth
+                  />
+                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mt: 1 }}>
+                    {newCard.tags.map((tag, index) => (
+                      <Chip
+                        key={index}
+                        label={tag}
+                        onDelete={() => handleRemoveTag(tag)}
+                        size="small"
+                      />
+                    ))}
+                  </Box>
+                </Box>
+              </Box>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={() => setCreateDialogOpen(false)}>Cancel</Button>
+              <Button 
+                variant="contained" 
+                onClick={handleCreateFlashcard}
+                disabled={!newCard.front || !newCard.back || !newCard.deck}
+              >
+                Create
+              </Button>
+            </DialogActions>
+          </Dialog>
           
           <Paper 
             elevation={0} 
