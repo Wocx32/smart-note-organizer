@@ -20,9 +20,11 @@ import {
   Tag
 } from '@mui/icons-material';
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { getNotes } from '../utils/storage';
 
 const Dashboard = () => {
+  const navigate = useNavigate();
   const [notes, setNotes] = useState([]);
   const [flashcards, setFlashcards] = useState([]);
   const [tags, setTags] = useState([]);
@@ -67,53 +69,50 @@ const Dashboard = () => {
   }));
 
   return (
-    <Container maxWidth="lg">
+    <Container maxWidth="lg" sx={{ py: 4 }}>
       <Box sx={{ mb: 6 }}>
         <Typography variant="h4" fontWeight="bold" align="center" sx={{ mb: 4 }}>
           Dashboard
         </Typography>
 
         {/* Stats Section */}
-        <Grid container spacing={4} justifyContent="center" sx={{ mb: 6 }}>
+        <Grid container spacing={4} justifyContent="center" sx={{ mb: 4 }}>
           {stats.map((stat) => (
-            <Grid item xs={12} sm={4} key={stat.title}>
-              <Card 
-                elevation={0} 
-                sx={{ 
+            <Grid item xs={12} sm={3} key={stat.title}>
+              <Card
+                elevation={0}
+                sx={{
+                  p: 3,
                   borderRadius: 2,
                   border: '1px solid rgba(0, 0, 0, 0.08)',
-                  height: '100%',
                   display: 'flex',
-                  flexDirection: 'column',
                   alignItems: 'center',
-                  textAlign: 'center',
-                  p: 3
+                  gap: 2,
+                  height: '100%'
                 }}
               >
-                <Box sx={{ 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  justifyContent: 'center',
-                  mb: 2,
-                  gap: 2
-                }}>
-                  <Avatar 
-                    sx={{ 
-                      bgcolor: stat.color + '20', 
-                      color: stat.color,
-                      width: 64,
-                      height: 64
-                    }}
-                  >
-                    {stat.icon}
-                  </Avatar>
-                  <Typography variant="h2" fontWeight="bold" color={stat.color}>
+                <Box
+                  sx={{
+                    width: 60,
+                    height: 60,
+                    borderRadius: 2,
+                    backgroundColor: stat.color,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: 'white'
+                  }}
+                >
+                  {stat.icon}
+                </Box>
+                <Box>
+                  <Typography variant="h4" fontWeight="bold">
                     {stat.value}
                   </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    {stat.title}
+                  </Typography>
                 </Box>
-                <Typography variant="h5" color="text.secondary">
-                  {stat.title}
-                </Typography>
               </Card>
             </Grid>
           ))}
@@ -130,7 +129,13 @@ const Dashboard = () => {
         >
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
             <Typography variant="h5" fontWeight="bold">Recent Notes</Typography>
-            <Button size="small" color="primary">View All</Button>
+            <Button 
+              size="small" 
+              color="primary"
+              onClick={() => navigate('/notes')}
+            >
+              View All
+            </Button>
           </Box>
           <Divider sx={{ mb: 3 }} />
           <List>
@@ -147,34 +152,28 @@ const Dashboard = () => {
                   }
                 }}
               >
-                <ListItemAvatar>
-                  <Avatar sx={{ bgcolor: '#E2E8F0', color: '#4A5568' }}>
-                    <Description />
-                  </Avatar>
-                </ListItemAvatar>
                 <ListItemText
                   primary={note.title}
                   secondary={
-                    <Box sx={{ mt: 1 }}>
-                      <Box sx={{ display: 'flex', gap: 1, mb: 1 }}>
-                        {note.tags.map((tag) => (
-                          <Chip 
-                            key={tag} 
-                            label={tag} 
-                            size="small"
-                            sx={{ 
-                              backgroundColor: 'rgba(0, 0, 0, 0.04)',
-                              '& .MuiChip-label': { px: 1 }
-                            }}
-                          />
-                        ))}
-                      </Box>
-                      <Typography variant="body2" color="text.secondary">
-                        Last updated: {new Date(note.date).toLocaleDateString()}
-                      </Typography>
+                    <Box sx={{ mt: 1, display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+                      {note.tags.map((tag) => (
+                        <Chip
+                          key={tag}
+                          label={tag}
+                          size="small"
+                          sx={{
+                            height: 20,
+                            fontSize: '0.7rem',
+                            backgroundColor: 'rgba(0,0,0,0.06)',
+                          }}
+                        />
+                      ))}
                     </Box>
                   }
                 />
+                <Typography variant="caption" color="text.secondary">
+                  {note.date}
+                </Typography>
               </ListItem>
             ))}
           </List>

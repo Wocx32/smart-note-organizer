@@ -30,7 +30,7 @@ import {
   Label
 } from '@mui/icons-material';
 import NewNoteDialog from './NewNoteDialog';
-import { getTags } from '../utils/storage';
+import { getTags, addNote } from '../utils/storage';
 
 const drawerWidth = 240;
 
@@ -77,10 +77,29 @@ const Sidebar = ({ onTagSelect }) => {
   const visibleTags = showAllTags ? filteredTags : filteredTags.slice(0, MAX_VISIBLE_TAGS);
   const hasMoreTags = filteredTags.length > MAX_VISIBLE_TAGS;
 
-  const handleNewNote = (note) => {
-    // Here you would typically save the note to your backend
-    console.log('New note created:', note);
-    // Navigate to the notes page after creating
+  const handleNewNote = (noteData) => {
+    // Create new note with required fields
+    const newNote = {
+      ...noteData,
+      id: Date.now().toString(),
+      date: new Date().toLocaleDateString('en-US', {
+        month: 'long',
+        day: 'numeric',
+        year: 'numeric'
+      }),
+      recent: true,
+      favorite: false,
+      tags: noteData.tags || [],
+      summary: noteData.summary || noteData.content.substring(0, 150) + (noteData.content.length > 150 ? '...' : ''),
+    };
+
+    // Add the note using the utility function
+    addNote(newNote);
+
+    // Dispatch event to notify other components
+    window.dispatchEvent(new Event('smart_notes_updated'));
+
+    // Navigate to the notes page
     navigate('/notes');
   };
 
