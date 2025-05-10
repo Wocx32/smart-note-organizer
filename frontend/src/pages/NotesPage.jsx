@@ -19,7 +19,11 @@ import {
   Paper,
   FormControl,
   Select,
-  Avatar
+  Avatar,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions
 } from '@mui/material';
 import { 
   Search, 
@@ -32,7 +36,11 @@ import {
   Event,
   ViewList,
   ViewModule,
-  Upload
+  Upload,
+  Edit,
+  Delete,
+  Bookmark,
+  BookmarkBorder
 } from '@mui/icons-material';
 import FileImportDialog from '../components/FileImportDialog';
 import NewNoteDialog from '../components/NewNoteDialog';
@@ -51,6 +59,10 @@ const NotesPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTag, setSelectedTag] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [menuAnchorEl, setMenuAnchorEl] = useState(null);
+  const [selectedNote, setSelectedNote] = useState(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [editingNote, setEditingNote] = useState(null);
 
   // Load notes from localStorage on component mount
   useEffect(() => {
@@ -108,6 +120,8 @@ const NotesPage = () => {
     // Filter by tab
     if (activeTab === 1) {
       filtered = filtered.filter(note => note.recent);
+    } else if (activeTab === 2) {
+      filtered = filtered.filter(note => note.favorite);
     }
     
     // Filter by tag
@@ -132,10 +146,25 @@ const NotesPage = () => {
 
   const filteredNotes = filterNotes();
 
-  const handleCreateNote = (newNote) => {
-    const savedNote = addNote(newNote);
-    setNotes(prevNotes => [savedNote, ...prevNotes]);
-    setNewNoteDialogOpen(false);
+  const handleCreateNote = (noteData) => {
+    if (editingNote) {
+      // Update existing note
+      updateNote(noteData);
+      setNotes(prevNotes => 
+        prevNotes.map(note => 
+          note.id === noteData.id ? noteData : note
+        )
+      );
+      setEditingNote(null);
+    } else {
+      // Create new note
+      const newNote = {
+        ...noteData,
+        id: Date.now().toString(),
+      };
+      addNote(newNote);
+      setNotes(prevNotes => [newNote, ...prevNotes]);
+    }
   };
 
   const handleImportFiles = (processedFiles) => {
@@ -162,6 +191,54 @@ const NotesPage = () => {
   const handleDeleteNote = (noteId) => {
     deleteNote(noteId);
     setNotes(prevNotes => prevNotes.filter(note => note.id !== noteId));
+  };
+
+  const handleMenuClick = (event, note) => {
+    setMenuAnchorEl(event.currentTarget);
+    setSelectedNote(note);
+  };
+
+  const handleMenuClose = () => {
+    setMenuAnchorEl(null);
+    setSelectedNote(null);
+  };
+
+  const handleDeleteClick = () => {
+    setDeleteDialogOpen(true);
+    handleMenuClose();
+  };
+
+  const handleDeleteConfirm = () => {
+    if (selectedNote) {
+      handleDeleteNote(selectedNote.id);
+      setDeleteDialogOpen(false);
+    }
+  };
+
+  const handleDeleteCancel = () => {
+    setDeleteDialogOpen(false);
+  };
+
+  const handleFavoriteToggle = () => {
+    if (selectedNote) {
+      const updatedNote = {
+        ...selectedNote,
+        favorite: !selectedNote.favorite
+      };
+      updateNote(updatedNote);
+      setNotes(prevNotes => 
+        prevNotes.map(note => 
+          note.id === selectedNote.id ? updatedNote : note
+        )
+      );
+      handleMenuClose();
+    }
+  };
+
+  const handleEditClick = () => {
+    setEditingNote(selectedNote);
+    setNewNoteDialogOpen(true);
+    handleMenuClose();
   };
 
   return (
@@ -213,7 +290,7 @@ const NotesPage = () => {
           >
             <Tabs 
               value={activeTab} 
-              onChange={(e, newValue) => setActiveTab(newValue)}
+              onChange={handleTabChange}
               sx={{ 
                 borderBottom: 1, 
                 borderColor: 'divider', 
@@ -323,7 +400,7 @@ const NotesPage = () => {
           {viewMode === 'grid' ? (
             <Grid container spacing={3}>
               {filteredNotes.map((note) => (
-                <Grid key={note.id} columns={{ xs: 12, sm: 6, md: 4 }}>
+                <Grid key={note.id} item xs={12} sm={6} md={4}>
                   <Card 
                     elevation={0} 
                     sx={{ 
@@ -345,9 +422,20 @@ const NotesPage = () => {
                           <Typography variant="h6" component="div" sx={{ fontWeight: 600, mb: 1 }}>
                             {note.title}
                           </Typography>
-                          <IconButton size="small" onClick={() => handleDeleteNote(note.id)}>
-                            <MoreVert fontSize="small" />
-                          </IconButton>
+                          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                            {note.favorite && (
+                              <Bookmark 
+                                sx={{ 
+                                  fontSize: 20, 
+                                  color: 'primary.main',
+                                  mr: 1 
+                                }} 
+                              />
+                            )}
+                            <IconButton size="small" onClick={(e) => handleMenuClick(e, note)}>
+                              <MoreVert fontSize="small" />
+                            </IconButton>
+                          </Box>
                         </Box>
                         
                         <Typography variant="body2" color="text.secondary" component="div" sx={{ mb: 2 }}>
@@ -413,7 +501,7 @@ const NotesPage = () => {
                         <Typography variant="h6" component="div" fontWeight={500}>
                           {note.title}
                         </Typography>
-                        <IconButton size="small" onClick={() => handleDeleteNote(note.id)}>
+                        <IconButton size="small" onClick={(e) => handleMenuClick(e, note)}>
                           <MoreVert fontSize="small" />
                         </IconButton>
                       </Box>
@@ -459,9 +547,69 @@ const NotesPage = () => {
 
         <NewNoteDialog
           open={newNoteDialogOpen}
-          onClose={() => setNewNoteDialogOpen(false)}
+          onClose={() => {
+            setNewNoteDialogOpen(false);
+            setEditingNote(null);
+          }}
           onSave={handleCreateNote}
+          initialNote={editingNote}
         />
+
+        <Menu
+          anchorEl={menuAnchorEl}
+          open={Boolean(menuAnchorEl)}
+          onClose={handleMenuClose}
+        >
+          <MenuItem onClick={handleFavoriteToggle}>
+            {selectedNote?.favorite ? (
+              <>
+                <Bookmark sx={{ mr: 1, fontSize: 20 }} />
+                Remove from Favorites
+              </>
+            ) : (
+              <>
+                <BookmarkBorder sx={{ mr: 1, fontSize: 20 }} />
+                Add to Favorites
+              </>
+            )}
+          </MenuItem>
+          <MenuItem onClick={handleEditClick}>
+            <Edit sx={{ mr: 1, fontSize: 20 }} />
+            Edit
+          </MenuItem>
+          <MenuItem onClick={handleDeleteClick} sx={{ color: 'error.main' }}>
+            <Delete sx={{ mr: 1, fontSize: 20 }} />
+            Delete
+          </MenuItem>
+        </Menu>
+
+        <Dialog
+          open={deleteDialogOpen}
+          onClose={handleDeleteCancel}
+          PaperProps={{
+            sx: {
+              borderRadius: 2,
+              minWidth: '300px'
+            }
+          }}
+        >
+          <DialogTitle>Delete Note</DialogTitle>
+          <DialogContent>
+            <Typography>
+              Are you sure you want to delete "{selectedNote?.title}"? This action cannot be undone.
+            </Typography>
+          </DialogContent>
+          <DialogActions sx={{ p: 2 }}>
+            <Button onClick={handleDeleteCancel}>Cancel</Button>
+            <Button 
+              onClick={handleDeleteConfirm} 
+              color="error" 
+              variant="contained"
+            >
+              Delete
+            </Button>
+          </DialogActions>
+        </Dialog>
       </Box>
     </Box>
   );

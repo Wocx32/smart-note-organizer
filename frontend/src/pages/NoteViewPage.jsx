@@ -226,7 +226,12 @@ The wave functions for the hydrogen atom are more complex and involve spherical 
                           elevation={0} 
                           sx={{ 
                             borderRadius: 2,
-                            border: '1px solid rgba(0, 0, 0, 0.08)'
+                            border: '1px solid rgba(0, 0, 0, 0.08)',
+                            transition: 'transform 0.2s, box-shadow 0.2s',
+                            '&:hover': {
+                              transform: 'translateY(-3px)',
+                              boxShadow: '0 4px 20px rgba(0,0,0,0.1)'
+                            }
                           }}
                         >
                           <CardContent>
