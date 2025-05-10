@@ -100,7 +100,10 @@ const Sidebar = ({ onTagSelect }) => {
           width: drawerWidth, 
           boxSizing: 'border-box',
           borderRight: '1px solid rgba(0, 0, 0, 0.08)',
-          backgroundColor: '#ffffff'
+          backgroundColor: '#ffffff',
+          height: 'calc(100vh - 64px - 80px)',
+          position: 'fixed',
+          top: '64px'
         },
         display: { xs: 'none', sm: 'block' },
       }}
@@ -115,7 +118,8 @@ const Sidebar = ({ onTagSelect }) => {
           display: 'flex', 
           justifyContent: 'center', 
           alignItems: 'center', 
-          mb: 2
+          mb: 2,
+          px: 2
         }}>
           <Button 
             variant="contained" 
@@ -137,136 +141,151 @@ const Sidebar = ({ onTagSelect }) => {
         
         <Divider sx={{ mb: 2 }} />
         
-        <List>
-          {menuItems.map((item) => (
-            <ListItem key={item.text} disablePadding>
+        <Box sx={{ px: 2, mb: 2 }}>
+          <List>
+            {menuItems.map((item) => (
+              <ListItem key={item.text} disablePadding>
+                <ListItemButton 
+                  selected={location.pathname === item.path}
+                  onClick={() => navigate(item.path)}
+                  sx={{
+                    borderRadius: 1,
+                    mb: 0.5,
+                    '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.04)' }
+                  }}
+                >
+                  <ListItemIcon>
+                    {item.icon}
+                  </ListItemIcon>
+                  <ListItemText primary={item.text} />
+                </ListItemButton>
+              </ListItem>
+            ))}
+          </List>
+        </Box>
+        
+        <Divider sx={{ my: 2 }} />
+        
+        <Box sx={{ px: 2 }}>
+          <List>
+            <ListItem disablePadding>
               <ListItemButton 
-                selected={location.pathname === item.path}
-                onClick={() => navigate(item.path)}
+                onClick={() => setExpanded(!expanded)}
+                sx={{
+                  borderRadius: 1,
+                  mb: 0.5,
+                  '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.04)' }
+                }}
               >
                 <ListItemIcon>
-                  {item.icon}
+                  <Label />
                 </ListItemIcon>
-                <ListItemText primary={item.text} />
+                <ListItemText primary="Tags" />
+                {expanded ? <ExpandLess /> : <ExpandMore />}
               </ListItemButton>
             </ListItem>
-          ))}
-        </List>
+            
+            <Collapse in={expanded} timeout="auto" unmountOnExit>
+              <List component="div" disablePadding>
+                <TextField
+                  fullWidth
+                  size="small"
+                  placeholder="Search tags..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <Search fontSize="small" />
+                      </InputAdornment>
+                    ),
+                  }}
+                  sx={{ mb: 2 }}
+                />
+                {visibleTags.map((tag) => (
+                  <ListItemButton
+                    key={tag}
+                    onClick={() => handleTagClick(tag)}
+                    sx={{ 
+                      pl: 4,
+                      borderRadius: 1,
+                      mb: 0.5,
+                      '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.04)' }
+                    }}
+                  >
+                    <ListItemText 
+                      primary={tag}
+                      primaryTypographyProps={{
+                        fontSize: '0.9rem',
+                        color: 'text.secondary'
+                      }}
+                    />
+                  </ListItemButton>
+                ))}
+                {hasMoreTags && !showAllTags && (
+                  <ListItemButton
+                    onClick={() => setShowAllTags(true)}
+                    sx={{ 
+                      pl: 4,
+                      borderRadius: 1,
+                      mb: 0.5,
+                      '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.04)' }
+                    }}
+                  >
+                    <ListItemText 
+                      primary={`Show ${filteredTags.length - MAX_VISIBLE_TAGS} more tags`}
+                      primaryTypographyProps={{
+                        fontSize: '0.9rem',
+                        color: 'primary.main'
+                      }}
+                    />
+                  </ListItemButton>
+                )}
+                {showAllTags && hasMoreTags && (
+                  <ListItemButton
+                    onClick={() => setShowAllTags(false)}
+                    sx={{ 
+                      pl: 4,
+                      borderRadius: 1,
+                      mb: 0.5,
+                      '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.04)' }
+                    }}
+                  >
+                    <ListItemText 
+                      primary="Show less"
+                      primaryTypographyProps={{
+                        fontSize: '0.9rem',
+                        color: 'primary.main'
+                      }}
+                    />
+                  </ListItemButton>
+                )}
+              </List>
+            </Collapse>
+          </List>
+        </Box>
         
         <Divider sx={{ my: 2 }} />
         
-        <List>
+        <Box sx={{ px: 2 }}>
           <ListItem disablePadding>
-            <ListItemButton onClick={() => setExpanded(!expanded)}>
+            <ListItemButton 
+              onClick={() => navigate('/recent')}
+              sx={{
+                borderRadius: 1,
+                mb: 0.5,
+                '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.04)' }
+              }}
+            >
               <ListItemIcon>
-                <Label />
+                <History />
               </ListItemIcon>
-              <ListItemText primary="Tags" />
-              {expanded ? <ExpandLess /> : <ExpandMore />}
+              <ListItemText primary="Recent" />
             </ListItemButton>
           </ListItem>
-          
-          <Collapse in={expanded} timeout="auto" unmountOnExit>
-            <List component="div" disablePadding>
-              <TextField
-                fullWidth
-                size="small"
-                placeholder="Search tags..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <Search fontSize="small" />
-                    </InputAdornment>
-                  ),
-                }}
-                sx={{ mb: 2 }}
-              />
-              {visibleTags.map((tag) => (
-                <ListItemButton
-                  key={tag}
-                  onClick={() => handleTagClick(tag)}
-                  sx={{ 
-                    pl: 4,
-                    borderRadius: 1,
-                    '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.04)' }
-                  }}
-                >
-                  <ListItemText 
-                    primary={tag}
-                    primaryTypographyProps={{
-                      fontSize: '0.9rem',
-                      color: 'text.secondary'
-                    }}
-                  />
-                </ListItemButton>
-              ))}
-              {hasMoreTags && !showAllTags && (
-                <ListItemButton
-                  onClick={() => setShowAllTags(true)}
-                  sx={{ 
-                    pl: 4,
-                    borderRadius: 1,
-                    '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.04)' }
-                  }}
-                >
-                  <ListItemText 
-                    primary={`Show ${filteredTags.length - MAX_VISIBLE_TAGS} more tags`}
-                    primaryTypographyProps={{
-                      fontSize: '0.9rem',
-                      color: 'primary.main'
-                    }}
-                  />
-                </ListItemButton>
-              )}
-              {showAllTags && hasMoreTags && (
-                <ListItemButton
-                  onClick={() => setShowAllTags(false)}
-                  sx={{ 
-                    pl: 4,
-                    borderRadius: 1,
-                    '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.04)' }
-                  }}
-                >
-                  <ListItemText 
-                    primary="Show less"
-                    primaryTypographyProps={{
-                      fontSize: '0.9rem',
-                      color: 'primary.main'
-                    }}
-                  />
-                </ListItemButton>
-              )}
-            </List>
-          </Collapse>
-        </List>
-        
-        <Divider sx={{ my: 2 }} />
-        
-        <ListItem disablePadding>
-          <ListItemButton onClick={() => navigate('/recent')}>
-            <ListItemIcon>
-              <History />
-            </ListItemIcon>
-            <ListItemText primary="Recent" />
-          </ListItemButton>
-        </ListItem>
-        
+        </Box>
         
         <Box sx={{ flexGrow: 1 }} />
-        
-        <Box sx={{ p: 2, borderTop: '1px solid rgba(0, 0, 0, 0.08)' }}>
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <Avatar sx={{ width: 32, height: 32, bgcolor: '#4299E1' }}>U</Avatar>
-            <Box sx={{ ml: 1.5 }}>
-              <Typography variant="subtitle2">User Name</Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.75rem' }}>
-                user@example.com
-              </Typography>
-            </Box>
-          </Box>
-        </Box>
       </Box>
 
       <NewNoteDialog
