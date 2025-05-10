@@ -148,6 +148,30 @@ const FlashcardsPage = () => {
   // Current card in study mode
   const currentCard = filteredFlashcards[currentCardIndex];
 
+  const exportToAnki = () => {
+    // Filter flashcards based on selected deck
+    const cardsToExport = selectedDeck === 'all' 
+      ? flashcards 
+      : flashcards.filter(card => card.deck === selectedDeck);
+
+    // Convert to Anki format (tab-separated values)
+    const ankiContent = cardsToExport.map(card => {
+      // Anki format: Front\tBack\tTags
+      return `${card.front}\t${card.back}\t${card.tags.join(' ')}`;
+    }).join('\n');
+
+    // Create blob and download
+    const blob = new Blob([ankiContent], { type: 'text/plain' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `anki_export_${selectedDeck === 'all' ? 'all_decks' : selectedDeck}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+  };
+
   // Add check for empty deck
   if (studyMode && (!filteredFlashcards.length || !currentCard)) {
     return (
@@ -313,6 +337,7 @@ const FlashcardsPage = () => {
                   variant="outlined" 
                   startIcon={<Download />}
                   size="small"
+                  onClick={exportToAnki}
                   sx={{ 
                     borderColor: 'rgba(0, 0, 0, 0.12)', 
                     color: 'text.primary',
