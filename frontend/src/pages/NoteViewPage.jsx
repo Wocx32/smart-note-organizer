@@ -57,6 +57,17 @@ const NoteViewPage = () => {
 
   const handleDeleteConfirm = () => {
     if (note) {
+      // Delete associated flashcards if they exist
+      if (note.flashcards?.length > 0) {
+        const existingFlashcards = JSON.parse(localStorage.getItem('flashcards') || '[]');
+        const updatedFlashcards = existingFlashcards.filter(card =>
+          !note.flashcards.some(noteCard =>
+            noteCard.front === card.front && noteCard.back === card.back
+          )
+        );
+        localStorage.setItem('flashcards', JSON.stringify(updatedFlashcards));
+      }
+
       deleteNote(note.id);
       setDeleteDialogOpen(false);
       setSnackbar({
