@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { AppBar, Toolbar, Typography, Button, IconButton, Drawer, List, ListItem, ListItemButton, ListItemText, Box, Avatar } from '@mui/material';
 import { Menu as MenuIcon, Notifications, Book, Lightbulb, Settings, Search as SearchIcon } from '@mui/icons-material';
 
-const Navbar = () => {
+const Navbar = ({ drawerWidth }) => {
   const navigate = useNavigate();
   const [drawerOpen, setDrawerOpen] = useState(false);
   
@@ -22,7 +22,16 @@ const Navbar = () => {
 
   return (
     <>
-      <AppBar position="static" elevation={0} sx={{ backgroundColor: '#1a202c' }}>
+      <AppBar 
+        position="fixed" 
+        elevation={0} 
+        sx={{ 
+          backgroundColor: '#1a202c',
+          width: { sm: `calc(100% - ${drawerWidth}px)` },
+          ml: { sm: `${drawerWidth}px` },
+          zIndex: (theme) => theme.zIndex.drawer + 1
+        }}
+      >
         <Toolbar>
           <IconButton
             edge="start"
