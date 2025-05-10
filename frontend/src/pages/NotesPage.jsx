@@ -335,7 +335,11 @@ const NotesPage = () => {
     handleMenuClose();
   };
 
-  const handleNoteClick = (noteId) => {
+  const handleNoteClick = (noteId, event) => {
+    // Don't navigate if clicking on the menu button or its children
+    if (event.target.closest('.MuiIconButton-root')) {
+      return;
+    }
     navigate(`/notes/${noteId}`);
   };
 
@@ -540,7 +544,7 @@ const NotesPage = () => {
                         cursor: 'pointer'
                       }
                     }}
-                    onClick={() => handleNoteClick(note.id)}
+                    onClick={(e) => handleNoteClick(note.id, e)}
                   >
                     <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', alignItems: 'flex-start', p: 0 }}>
                       <CardContent sx={{ p: 3, pb: 2, width: '100%' }}>
@@ -636,7 +640,7 @@ const NotesPage = () => {
                       '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.02)' },
                       cursor: 'pointer'
                     }}
-                    onClick={() => handleNoteClick(note.id)}
+                    onClick={(e) => handleNoteClick(note.id, e)}
                   >
                     <Box sx={{ display: 'flex', alignItems: 'center', mr: 2 }}>
                       <Checkbox

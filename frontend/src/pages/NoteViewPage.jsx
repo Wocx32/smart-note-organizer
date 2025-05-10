@@ -20,7 +20,8 @@ import {
   Edit,
   Delete,
   Bookmark,
-  BookmarkBorder
+  BookmarkBorder,
+  School
 } from '@mui/icons-material';
 import { getNotes, updateNote, deleteNote } from '../utils/storage';
 import NewNoteDialog from '../components/NewNoteDialog';
@@ -57,6 +58,17 @@ const NoteViewPage = () => {
 
   const handleDeleteConfirm = () => {
     if (note) {
+      // Delete associated flashcards if they exist
+      if (note.flashcards?.length > 0) {
+        const existingFlashcards = JSON.parse(localStorage.getItem('flashcards') || '[]');
+        const updatedFlashcards = existingFlashcards.filter(card =>
+          !note.flashcards.some(noteCard =>
+            noteCard.front === card.front && noteCard.back === card.back
+          )
+        );
+        localStorage.setItem('flashcards', JSON.stringify(updatedFlashcards));
+      }
+
       deleteNote(note.id);
       setDeleteDialogOpen(false);
       setSnackbar({
@@ -103,6 +115,25 @@ const NoteViewPage = () => {
     setSnackbar(prev => ({ ...prev, open: false }));
   };
 
+  const handleStartStudy = () => {
+    if (note?.flashcards?.length > 0) {
+      // Store the current note's flashcards in localStorage for the study session
+      localStorage.setItem('currentStudySession', JSON.stringify({
+        flashcards: note.flashcards,
+        source: 'note',
+        noteId: note.id,
+        noteTitle: note.title
+      }));
+      navigate('/flashcards?studyMode=true');
+    } else {
+      setSnackbar({
+        open: true,
+        message: 'No flashcards available for this note.',
+        severity: 'warning'
+      });
+    }
+  };
+
   if (!note) {
     return null;
   }
@@ -117,6 +148,20 @@ const NoteViewPage = () => {
           {note.title}
         </Typography>
         <Box sx={{ display: 'flex', gap: 1 }}>
+          <Button
+            variant="outlined"
+            startIcon={<School />}
+            onClick={handleStartStudy}
+            size="small"
+            disabled={!note?.flashcards?.length}
+            sx={{
+              borderColor: 'rgba(0, 0, 0, 0.23)',
+              color: 'text.primary',
+              textTransform: 'none'
+            }}
+          >
+            Study Flashcards
+          </Button>
           <IconButton onClick={handleFavoriteToggle} size="small">
             {note.favorite ? (
               <Bookmark sx={{ color: 'primary.main' }} />
