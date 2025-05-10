@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { AppBar, Toolbar, Typography, Button, IconButton, Drawer, List, ListItem, ListItemButton, ListItemText, Box, Avatar } from '@mui/material';
-import { Menu as MenuIcon, Notifications, Book, Lightbulb, Settings, Search as SearchIcon } from '@mui/icons-material';
+import { AppBar, Toolbar, Typography, Button, IconButton, Drawer, List, ListItem, ListItemButton, ListItemText, Box } from '@mui/material';
+import { Menu as MenuIcon, Book, Lightbulb, Search as SearchIcon } from '@mui/icons-material';
 
 const Navbar = ({ drawerWidth }) => {
   const navigate = useNavigate();
@@ -27,8 +27,7 @@ const Navbar = ({ drawerWidth }) => {
         elevation={0} 
         sx={{ 
           backgroundColor: '#1a202c',
-          width: { sm: `calc(100% - ${drawerWidth}px)` },
-          ml: { sm: `${drawerWidth}px` },
+          width: '100%',
           zIndex: (theme) => theme.zIndex.drawer + 1
         }}
       >
@@ -82,7 +81,6 @@ const Navbar = ({ drawerWidth }) => {
             color="inherit" 
             onClick={() => navigate('/search')}
             sx={{ 
-              mr: 1,
               '&:hover': {
                 backgroundColor: 'rgba(255, 255, 255, 0.1)'
               }
@@ -90,12 +88,6 @@ const Navbar = ({ drawerWidth }) => {
           >
             <SearchIcon />
           </IconButton>
-          
-          <IconButton color="inherit">
-            <Notifications />
-          </IconButton>
-          
-          <Avatar sx={{ ml: 2, bgcolor: '#4299E1', width: 32, height: 32 }}>U</Avatar>
         </Toolbar>
       </AppBar>
       
