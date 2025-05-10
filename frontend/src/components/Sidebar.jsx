@@ -34,7 +34,7 @@ import { getTags, addNote } from '../utils/storage';
 
 const drawerWidth = 240;
 
-const Sidebar = ({ onTagSelect }) => {
+const Sidebar = ({ onTagSelect, onNewNote }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const [newNoteDialogOpen, setNewNoteDialogOpen] = useState(false);
@@ -144,7 +144,7 @@ const Sidebar = ({ onTagSelect }) => {
             variant="contained" 
             fullWidth
             startIcon={<Add />}
-            onClick={() => setNewNoteDialogOpen(true)}
+            onClick={onNewNote}
             sx={{ 
               backgroundColor: '#3182ce',
               boxShadow: 'none',

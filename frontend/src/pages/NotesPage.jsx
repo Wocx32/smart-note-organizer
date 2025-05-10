@@ -76,6 +76,18 @@ const NotesPage = () => {
   useEffect(() => {
     const savedNotes = getNotes();
     setNotes(savedNotes);
+
+    // Add event listener for notes updates
+    const handleNotesUpdate = () => {
+      const updatedNotes = getNotes();
+      setNotes(updatedNotes);
+    };
+
+    window.addEventListener('smart_notes_updated', handleNotesUpdate);
+
+    return () => {
+      window.removeEventListener('smart_notes_updated', handleNotesUpdate);
+    };
   }, []);
 
   const handleSortClick = (event) => {
@@ -345,7 +357,13 @@ const NotesPage = () => {
 
   return (
     <Box sx={{ display: 'flex', height: '100vh' }}>
-      <Sidebar onTagSelect={handleTagSelect} />
+      <Sidebar 
+        onTagSelect={handleTagSelect} 
+        onNewNote={() => {
+          setEditingNote(null);
+          setNewNoteDialogOpen(true);
+        }}
+      />
       <Box sx={{ flexGrow: 1, p: 3, overflow: 'auto' }}>
         <Box>
           <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>

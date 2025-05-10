@@ -11,8 +11,8 @@ export const getNotes = () => {
 
 export const saveNotes = (notes) => {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(notes));
-  // Dispatch custom event when notes are updated
-  window.dispatchEvent(new CustomEvent(NOTES_UPDATED_EVENT));
+  // Dispatch event to notify components of notes update
+  window.dispatchEvent(new Event(NOTES_UPDATED_EVENT));
 };
 
 export const addNote = (note) => {
