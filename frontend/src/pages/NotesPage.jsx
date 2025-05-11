@@ -340,6 +340,9 @@ const NotesPage = () => {
     navigate(`/notes/${noteId}`);
   };
 
+  // Get all unique tags from notes
+  const allTags = Array.from(new Set(notes.flatMap(note => note.tags || [])));
+
   return (
     <Box sx={{ display: 'flex', height: '100vh' }}>
       <Sidebar 
@@ -349,7 +352,20 @@ const NotesPage = () => {
           setNewNoteDialogOpen(true);
         }}
       />
-      <Box sx={{ flexGrow: 1, p: 3, overflow: 'auto' }}>
+      <Box
+        sx={{
+          flex: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          pl: 0,
+          pr: { xs: 0, md: 4 },
+          pt: 4,
+          pb: 4,
+          minHeight: '100vh',
+          maxWidth: '100%',
+          boxSizing: 'border-box',
+        }}
+      >
         <Box>
           <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <Typography variant="h4" fontWeight="bold">My Notes</Typography>
@@ -376,7 +392,11 @@ const NotesPage = () => {
                 sx={{
                   borderColor: 'rgba(0, 0, 0, 0.23)',
                   color: 'text.primary',
-                  textTransform: 'none'
+                  textTransform: 'none',
+                  fontSize: '1rem',
+                  py: 1.5,
+                  px: 2.5,
+                  borderRadius: '50px'
                 }}
               >
                 Import
@@ -385,12 +405,17 @@ const NotesPage = () => {
                 variant="contained"
                 startIcon={<NoteAlt />}
                 onClick={() => {
-                  setEditingNote(null); // Ensure editingNote is null for a new note
+                  setEditingNote(null);
                   setNewNoteDialogOpen(true);
                 }}
                 sx={{
                   backgroundColor: '#3182ce',
                   boxShadow: 'none',
+                  textTransform: 'none',
+                  fontSize: '1rem',
+                  py: 1.5,
+                  px: 2.5,
+                  borderRadius: '50px',
                   '&:hover': {
                     backgroundColor: '#2b6cb0',
                     boxShadow: 'none',
@@ -432,7 +457,23 @@ const NotesPage = () => {
                 size="small"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                sx={{ width: { xs: '100%', sm: '300px' } }}
+                sx={{
+                  width: { xs: '100%', sm: '700px' },
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: '50px',
+                    fontSize: '1.1rem',
+                    backgroundColor: 'background.paper',
+                    '& fieldset': {
+                      borderColor: 'divider',
+                    },
+                    '&:hover fieldset': {
+                      borderColor: 'primary.main',
+                    },
+                    '&.Mui-focused fieldset': {
+                      borderColor: 'primary.main',
+                    },
+                  },
+                }}
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
@@ -445,7 +486,7 @@ const NotesPage = () => {
               <Box sx={{ display: 'flex', gap: 1 }}>
                 <Box sx={{ display: 'flex', border: '1px solid rgba(0, 0, 0, 0.12)', borderRadius: 1 }}>
                   <IconButton
-                    size="small"
+                    size="medium"
                     onClick={() => handleViewChange('list')}
                     sx={{
                       color: viewMode === 'list' ? 'primary.main' : 'text.secondary',
@@ -454,10 +495,10 @@ const NotesPage = () => {
                       '&:hover': { bgcolor: viewMode === 'list' ? 'primary.light' : 'rgba(0, 0, 0, 0.04)' },
                     }}
                   >
-                    <ViewList />
+                    <ViewList sx={{ fontSize: 24 }} />
                   </IconButton>
                   <IconButton
-                    size="small"
+                    size="medium"
                     onClick={() => handleViewChange('grid')}
                     sx={{
                       color: viewMode === 'grid' ? 'primary.main' : 'text.secondary',
@@ -466,19 +507,23 @@ const NotesPage = () => {
                       '&:hover': { bgcolor: viewMode === 'grid' ? 'primary.light' : 'rgba(0, 0, 0, 0.04)' },
                     }}
                   >
-                    <ViewModule />
+                    <ViewModule sx={{ fontSize: 24 }} />
                   </IconButton>
                 </Box>
 
                 <Button
                   variant="outlined"
-                  startIcon={<Sort />}
+                  startIcon={<Sort sx={{ fontSize: 24 }} />}
                   onClick={handleSortClick}
-                  size="small"
+                  size="medium"
                   sx={{
                     borderColor: 'rgba(0, 0, 0, 0.12)',
                     color: 'text.primary',
-                    textTransform: 'none'
+                    textTransform: 'none',
+                    fontSize: '1rem',
+                    py: 1.5,
+                    px: 2.5,
+                    borderRadius: '50px'
                   }}
                 >
                   Sort
@@ -494,13 +539,17 @@ const NotesPage = () => {
 
                 <Button
                   variant="outlined"
-                  startIcon={<FilterList />}
+                  startIcon={<FilterList sx={{ fontSize: 24 }} />}
                   onClick={handleFilterClick}
-                  size="small"
+                  size="medium"
                   sx={{
                     borderColor: 'rgba(0, 0, 0, 0.12)',
                     color: 'text.primary',
-                    textTransform: 'none'
+                    textTransform: 'none',
+                    fontSize: '1rem',
+                    py: 1.5,
+                    px: 2.5,
+                    borderRadius: '50px'
                   }}
                 >
                   Filter
@@ -510,17 +559,32 @@ const NotesPage = () => {
                   open={Boolean(filterAnchorEl)}
                   onClose={handleFilterClose}
                 >
-                  {/* Example filter items, replace with dynamic tags or categories */}
-                  <MenuItem onClick={() => { handleTagSelect('Physics'); handleFilterClose(); }}>Physics</MenuItem>
-                  <MenuItem onClick={() => { handleTagSelect('Chemistry'); handleFilterClose(); }}>Chemistry</MenuItem>
-                  <MenuItem onClick={() => { handleTagSelect('Mathematics'); handleFilterClose(); }}>Mathematics</MenuItem>
-                  <MenuItem onClick={() => { handleTagSelect('Computer Science'); handleFilterClose(); }}>Computer Science</MenuItem>
-                  <MenuItem onClick={() => { handleTagSelect('Biology'); handleFilterClose(); }}>Biology</MenuItem>
-                  <MenuItem onClick={() => { setSelectedTag(null); handleFilterClose();}}>Clear Filter</MenuItem>
+                  {allTags.length === 0 ? (
+                    <MenuItem disabled>No tags available</MenuItem>
+                  ) : (
+                    allTags.map((tag) => (
+                      <MenuItem key={tag} onClick={() => { handleTagSelect(tag); handleFilterClose(); }}>{tag}</MenuItem>
+                    ))
+                  )}
+                  <MenuItem onClick={() => { setSelectedTag(null); handleFilterClose(); }}>Clear Filter</MenuItem>
                 </Menu>
               </Box>
             </Box>
           </Paper>
+
+          {filteredNotes.length > 0 && (
+            <Box sx={{ mb: 2, display: 'flex', alignItems: 'center' }}>
+              <Checkbox
+                checked={selectedNotes.length === filteredNotes.length && filteredNotes.length > 0}
+                indeterminate={selectedNotes.length > 0 && selectedNotes.length < filteredNotes.length}
+                onChange={handleSelectAll}
+                size="small"
+              />
+              <Typography variant="body2" component="span" sx={{ ml: 1 }}>
+                Select All
+              </Typography>
+            </Box>
+          )}
 
           {filteredNotes.length === 0 && (
             <Typography variant="body1" color="text.secondary" sx={{ textAlign: 'center', mt: 4 }}>
@@ -573,8 +637,8 @@ const NotesPage = () => {
                                 }}
                               />
                             )}
-                            <IconButton size="small" onClick={(e) => handleMenuClick(e, note)}>
-                              <MoreVert fontSize="small" />
+                            <IconButton size="medium" onClick={(e) => handleMenuClick(e, note)}>
+                              <MoreVert sx={{ fontSize: 24 }} />
                             </IconButton>
                           </Box>
                         </Box>
@@ -591,10 +655,10 @@ const NotesPage = () => {
                             <Chip
                               key={tag}
                               label={tag}
-                              size="small"
+                              size="medium"
                               sx={{
-                                height: 20,
-                                fontSize: '0.7rem',
+                                height: 28,
+                                fontSize: '0.9rem',
                                 backgroundColor: 'rgba(0,0,0,0.06)'
                               }}
                             />
@@ -619,19 +683,6 @@ const NotesPage = () => {
                 overflow: 'hidden'
               }}
             >
-              {filteredNotes.length > 0 && (
-                <Box sx={{ p: 2, borderBottom: '1px solid rgba(0, 0, 0, 0.08)' }}>
-                  <Checkbox
-                    checked={selectedNotes.length === filteredNotes.length && filteredNotes.length > 0}
-                    indeterminate={selectedNotes.length > 0 && selectedNotes.length < filteredNotes.length}
-                    onChange={handleSelectAll}
-                    size="small"
-                  />
-                  <Typography variant="body2" component="span" sx={{ ml: 1 }}>
-                    Select All
-                  </Typography>
-                </Box>
-              )}
               {filteredNotes.map((note, index) => (
                 <Box key={note.id}>
                   {index > 0 && <Divider />}

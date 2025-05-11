@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AppBar, Toolbar, Typography, Button, IconButton, Drawer, List, ListItem, ListItemButton, ListItemText, Box } from '@mui/material';
-import { Menu as MenuIcon, Book, Lightbulb, Search as SearchIcon } from '@mui/icons-material';
+import { Menu as MenuIcon, Book, Lightbulb, Search as SearchIcon, Home as HomeIcon } from '@mui/icons-material';
+import React from 'react';
 
-const Navbar = ({ drawerWidth }) => {
+const Navbar = () => {
   const navigate = useNavigate();
   const [drawerOpen, setDrawerOpen] = useState(false);
   
@@ -15,7 +16,7 @@ const Navbar = ({ drawerWidth }) => {
   };
 
   const menuItems = [
-    { text: 'Dashboard', path: '/', icon: <Book /> },
+    { text: 'Home', path: '/', icon: <HomeIcon /> },
     { text: 'My Notes', path: '/notes', icon: <Book /> },
     { text: 'Flashcards', path: '/flashcards', icon: <Lightbulb /> },
   ];
@@ -26,7 +27,8 @@ const Navbar = ({ drawerWidth }) => {
         position="fixed" 
         elevation={0} 
         sx={{ 
-          backgroundColor: '#1a202c',
+          backgroundColor: 'background.default',
+          color: 'text.primary',
           width: '100%',
           zIndex: (theme) => theme.zIndex.drawer + 1
         }}
@@ -54,9 +56,10 @@ const Navbar = ({ drawerWidth }) => {
               fontWeight: 700,
               display: 'flex',
               alignItems: 'center',
+              fontSize: '2rem'
             }}
           >
-            <Book sx={{ mr: 1 }} />
+            <Book sx={{ mr: 0.2, fontSize: '2rem' }} />
             SmartNotes
           </Typography>
           
@@ -67,8 +70,11 @@ const Navbar = ({ drawerWidth }) => {
                 component={Link}
                 to={item.path}
                 color="inherit"
-                startIcon={item.icon}
-                sx={{ textTransform: 'none' }}
+                startIcon={React.cloneElement(item.icon, { sx: { fontSize: '1.5rem' } })}
+                sx={{ 
+                  textTransform: 'none',
+                  fontSize: '1.1rem'
+                }}
               >
                 {item.text}
               </Button>
@@ -82,7 +88,10 @@ const Navbar = ({ drawerWidth }) => {
             onClick={() => navigate('/search')}
             sx={{ 
               '&:hover': {
-                backgroundColor: 'rgba(255, 255, 255, 0.1)'
+                backgroundColor: 'action.hover'
+              },
+              '& .MuiSvgIcon-root': {
+                fontSize: '2.5rem'
               }
             }}
           >
@@ -95,6 +104,12 @@ const Navbar = ({ drawerWidth }) => {
         anchor="left"
         open={drawerOpen}
         onClose={toggleDrawer(false)}
+        sx={{
+          '& .MuiDrawer-paper': {
+            backgroundColor: 'background.default',
+            color: 'text.primary'
+          }
+        }}
       >
         <Box
           sx={{ width: 250 }}

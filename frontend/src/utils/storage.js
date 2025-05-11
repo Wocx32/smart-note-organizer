@@ -20,7 +20,7 @@ export const addNote = (note) => {
   // Only generate a new ID if one isn't provided
   const newNote = {
     ...note,
-    id: note.id || Date.now().toString(), // Use provided ID or generate new one
+    id: note.id || crypto.randomUUID(),
   };
   
   notes.unshift(newNote); // Add to beginning of array

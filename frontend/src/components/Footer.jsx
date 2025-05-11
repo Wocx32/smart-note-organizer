@@ -1,4 +1,4 @@
-import { Box, Typography, Divider } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 
 const Footer = () => {
   return (
@@ -7,17 +7,15 @@ const Footer = () => {
       sx={{
         py: 2,
         px: 3,
-        mt: 'auto',
-        backgroundColor: '#ffffff',
-        borderTop: '1px solid rgba(0, 0, 0, 0.08)',
+        backgroundColor: 'white',
+        borderTop: '1px solid',
+        borderColor: 'divider',
         width: '100%',
         position: 'fixed',
         bottom: 0,
         left: 0,
-        right: 0
       }}
     >
-      <Divider sx={{ mb: 2 }} />
       <Typography
         variant="body2"
         color="text.secondary"

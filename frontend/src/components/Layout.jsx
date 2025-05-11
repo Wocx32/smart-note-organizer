@@ -3,44 +3,61 @@ import Navbar from './Navbar';
 import Sidebar from './Sidebar';
 import Footer from './Footer';
 import { Box, Toolbar } from '@mui/material';
+import { useTheme } from '../context/ThemeContext';
 
 const drawerWidth = 240; // Match the sidebar width
 
 const Layout = () => {
+  const { isDarkMode } = useTheme();
+
   return (
-    <Box sx={{ display: 'flex', height: '100vh', overflow: 'hidden' }}>
+    <Box sx={{ 
+      display: 'flex', 
+      minHeight: '100vh', 
+      flexDirection: 'column',
+      bgcolor: isDarkMode ? 'background.default' : undefined,
+      backgroundImage: isDarkMode ? undefined : 'none',
+      backgroundAttachment: 'fixed',
+      backgroundRepeat: 'no-repeat',
+      backgroundSize: 'cover',
+      color: 'text.primary'
+    }}>
       <Navbar drawerWidth={drawerWidth} />
-      <Sidebar />
-      <Box 
-        component="main" 
-        sx={{ 
-          flexGrow: 1, 
-          p: 3,
-          overflow: 'auto',
-          height: '100vh',
-          display: 'flex',
-          flexDirection: 'column',
-          '&::-webkit-scrollbar': {
-            width: '8px',
-            height: '8px',
-          },
-          '&::-webkit-scrollbar-track': {
-            background: '#f1f1f1',
-            borderRadius: '4px',
-          },
-          '&::-webkit-scrollbar-thumb': {
-            background: '#c5c5c5',
-            borderRadius: '4px',
-            '&:hover': {
-              background: '#a8a8a8',
+      <Box sx={{ display: 'flex', flex: 1, minHeight: 'calc(100vh - 64px - 80px)' }}>
+        <Sidebar />
+        <Box 
+          component="main" 
+          sx={{ 
+            flexGrow: 1, 
+            p: 3,
+            overflow: 'auto',
+            display: 'flex',
+            flexDirection: 'column',
+            bgcolor: 'background.default',
+            '&::-webkit-scrollbar': {
+              width: '8px',
+              height: '8px',
             },
-          },
-        }}
-      >
-        <Toolbar />
-        <Box sx={{ flexGrow: 1, pb: 8 }}>
-          <Outlet />
+            '&::-webkit-scrollbar-track': {
+              background: isDarkMode ? '#2d3748' : '#f1f1f1',
+              borderRadius: '4px',
+            },
+            '&::-webkit-scrollbar-thumb': {
+              background: isDarkMode ? '#4a5568' : '#c5c5c5',
+              borderRadius: '4px',
+              '&:hover': {
+                background: isDarkMode ? '#718096' : '#a8a8a8',
+              },
+            },
+          }}
+        >
+          <Toolbar />
+          <Box sx={{ flexGrow: 1 }}>
+            <Outlet />
+          </Box>
         </Box>
+      </Box>
+      <Box sx={{ width: '100%', bgcolor: 'white' }}>
         <Footer />
       </Box>
     </Box>
