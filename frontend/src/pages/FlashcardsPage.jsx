@@ -22,7 +22,9 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
-  DialogActions
+  DialogActions,
+  Snackbar,
+  Alert
 } from '@mui/material';
 import {
   School,
@@ -45,6 +47,7 @@ import {
 const FlashcardsPage = () => {
   const [activeTab, setActiveTab] = useState(0);
   const [filterAnchorEl, setFilterAnchorEl] = useState(null);
+  const [currentFilter, setCurrentFilter] = useState('all');
   const [selectedDeck, setSelectedDeck] = useState('all');
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
   const [showAnswer, setShowAnswer] = useState(false);
@@ -64,6 +67,11 @@ const FlashcardsPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [cardToDelete, setCardToDelete] = useState(null);
+  const [editingCard, setEditingCard] = useState(null);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
+  const [menuAnchorEl, setMenuAnchorEl] = useState(null);
+  const [selectedCard, setSelectedCard] = useState(null);
 
   useEffect(() => {
     // Check if we're starting a study session from a note
@@ -144,6 +152,11 @@ const FlashcardsPage = () => {
     setFilterAnchorEl(null);
   };
 
+  const handleFilterSelect = (filter) => {
+    setCurrentFilter(filter);
+    handleFilterClose();
+  };
+
   const handleNextCard = () => {
     setShowAnswer(false);
     setCurrentCardIndex((currentCardIndex + 1) % filteredFlashcards.length);
@@ -183,22 +196,45 @@ const FlashcardsPage = () => {
     setViewingDeck(deckId); // Note: viewingDeck state is set but not directly used for rendering logic afterwards.
   };
 
+  const getFilteredFlashcards = () => {
+    let filtered = flashcards;
+    
+    // Apply search filter
+    if (searchQuery) {
+      filtered = filtered.filter(card => 
+        card.front.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        card.back.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        card.deck.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        card.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()))
+      );
+    }
+
+    // Apply deck filter
+    if (selectedDeck !== 'all') {
+      filtered = filtered.filter(card => card.deck === selectedDeck);
+    }
+
+    // Apply additional filters
+    switch (currentFilter) {
+      case 'recent':
+        filtered = [...filtered].sort((a, b) => b.id - a.id);
+        break;
+      case 'alphabetical':
+        filtered = [...filtered].sort((a, b) => a.front.localeCompare(b.front));
+        break;
+      case 'byDeck':
+        filtered = [...filtered].sort((a, b) => a.deck.localeCompare(b.deck));
+        break;
+      default:
+        break;
+    }
+
+    return filtered;
+  };
+
   const filteredFlashcards = currentStudySession 
     ? currentStudySession.flashcards 
-    : selectedDeck === 'all' 
-      ? flashcards.filter(card => 
-          card.front.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          card.back.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          card.deck.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          card.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()))
-        )
-      : flashcards.filter(card => 
-          card.deck === selectedDeck && (
-            card.front.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            card.back.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            card.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()))
-          )
-        );
+    : getFilteredFlashcards();
 
   // Current card in study mode
   const currentCard = filteredFlashcards[currentCardIndex];
@@ -331,6 +367,86 @@ const FlashcardsPage = () => {
     setCardToDelete(null);
   };
 
+  const handleEditClick = (card) => {
+    setEditingCard(card);
+    setNewCard({
+      front: card.front,
+      back: card.back,
+      deck: card.deck,
+      tags: [...card.tags]
+    });
+    setEditDialogOpen(true);
+  };
+
+  const handleCopyClick = (card) => {
+    const textToCopy = `Front: ${card.front}\nBack: ${card.back}\nDeck: ${card.deck}\nTags: ${card.tags.join(', ')}`;
+    navigator.clipboard.writeText(textToCopy);
+    setSnackbar({
+      open: true,
+      message: 'Flashcard copied to clipboard!',
+      severity: 'success'
+    });
+  };
+
+  const handleEditSave = () => {
+    if (!editingCard || !newCard.front || !newCard.back || !newCard.deck) return;
+
+    // Update localStorage
+    const existingFlashcards = JSON.parse(localStorage.getItem('flashcards') || '[]');
+    const updatedFlashcards = existingFlashcards.map(card =>
+      card.id === editingCard.id ? { ...card, ...newCard } : card
+    );
+    localStorage.setItem('flashcards', JSON.stringify(updatedFlashcards));
+
+    // Update state
+    setFlashcards(prev => prev.map(card =>
+      card.id === editingCard.id ? { ...card, ...newCard } : card
+    ));
+
+    // Update decks
+    setDecks(prev => prev.map(deck => {
+      if (deck.id === 'all') {
+        return {
+          ...deck,
+          cards: deck.cards.map(card =>
+            card.id === editingCard.id ? { ...card, ...newCard } : card
+          )
+        };
+      }
+      if (deck.id === editingCard.deck || deck.id === newCard.deck) {
+        return {
+          ...deck,
+          cards: deck.cards.filter(card => card.id !== editingCard.id)
+        };
+      }
+      return deck;
+    }));
+
+    // Reset form and close dialog
+    setEditingCard(null);
+    setNewCard({ front: '', back: '', deck: '', tags: [] });
+    setEditDialogOpen(false);
+    setSnackbar({
+      open: true,
+      message: 'Flashcard updated successfully!',
+      severity: 'success'
+    });
+  };
+
+  const handleSnackbarClose = () => {
+    setSnackbar(prev => ({ ...prev, open: false }));
+  };
+
+  const handleMenuOpen = (event, card) => {
+    setMenuAnchorEl(event.currentTarget);
+    setSelectedCard(card);
+  };
+
+  const handleMenuClose = () => {
+    setMenuAnchorEl(null);
+    setSelectedCard(null);
+  };
+
   // Add check for empty deck in study mode
   if (studyMode && (!filteredFlashcards.length || !currentCard)) {
     return (
@@ -389,24 +505,31 @@ const FlashcardsPage = () => {
             <Box sx={{ display: 'flex', gap: 2 }}>
               <Button
                 variant="outlined"
-                startIcon={<School />}
+                startIcon={<School sx={{ fontSize: 24 }} />}
                 onClick={startStudyMode}
-                disabled={flashcards.length === 0} // Disable study mode if no flashcards at all
+                disabled={flashcards.length === 0}
                 sx={{
                   borderColor: 'rgba(0, 0, 0, 0.23)',
                   color: 'text.primary',
-                  textTransform: 'none'
+                  textTransform: 'none',
+                  fontSize: '1rem',
+                  py: 1.5,
+                  px: 2.5
                 }}
               >
                 Study Mode
               </Button>
               <Button
                 variant="contained"
-                startIcon={<Add />}
+                startIcon={<Add sx={{ fontSize: 24 }} />}
                 onClick={() => setCreateDialogOpen(true)}
                 sx={{
                   backgroundColor: '#3182ce',
                   boxShadow: 'none',
+                  textTransform: 'none',
+                  fontSize: '1rem',
+                  py: 1.5,
+                  px: 2.5,
                   '&:hover': {
                     backgroundColor: '#2b6cb0',
                     boxShadow: 'none',
@@ -546,13 +669,16 @@ const FlashcardsPage = () => {
               <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
                 <Button
                   variant="outlined"
-                  startIcon={<FilterList />}
+                  startIcon={<FilterList sx={{ fontSize: 24 }} />}
                   onClick={handleFilterClick}
-                  size="small"
+                  size="medium"
                   sx={{
                     borderColor: 'rgba(0, 0, 0, 0.12)',
                     color: 'text.primary',
-                    textTransform: 'none'
+                    textTransform: 'none',
+                    fontSize: '1rem',
+                    py: 1.5,
+                    px: 2.5
                   }}
                 >
                   Filter
@@ -561,25 +687,53 @@ const FlashcardsPage = () => {
                   anchorEl={filterAnchorEl}
                   open={Boolean(filterAnchorEl)}
                   onClose={handleFilterClose}
+                  PaperProps={{
+                    elevation: 2,
+                    sx: {
+                      minWidth: 150,
+                      '& .MuiMenuItem-root': {
+                        fontSize: '0.9rem',
+                        py: 1.5
+                      }
+                    }
+                  }}
                 >
-                  <MenuItem>Recently Added</MenuItem>
-                  <MenuItem>Alphabetical</MenuItem>
-                  <MenuItem>By Deck</MenuItem>
+                  <MenuItem 
+                    onClick={() => handleFilterSelect('recent')}
+                    selected={currentFilter === 'recent'}
+                  >
+                    Recently Added
+                  </MenuItem>
+                  <MenuItem 
+                    onClick={() => handleFilterSelect('alphabetical')}
+                    selected={currentFilter === 'alphabetical'}
+                  >
+                    Alphabetical
+                  </MenuItem>
+                  <MenuItem 
+                    onClick={() => handleFilterSelect('byDeck')}
+                    selected={currentFilter === 'byDeck'}
+                  >
+                    By Deck
+                  </MenuItem>
                 </Menu>
 
                 <Button
                   variant="outlined"
-                  startIcon={<Download />}
-                  size="small"
+                  startIcon={<Download sx={{ fontSize: 24 }} />}
+                  size="medium"
                   onClick={exportToAnki}
                   disabled={filteredFlashcards.length === 0}
                   sx={{
                     borderColor: 'rgba(0, 0, 0, 0.12)',
                     color: 'text.primary',
-                    textTransform: 'none'
+                    textTransform: 'none',
+                    fontSize: '1rem',
+                    py: 1.5,
+                    px: 2.5
                   }}
                 >
-                  Export to Anki
+                  Export
                 </Button>
               </Box>
             </Box>
@@ -631,6 +785,12 @@ const FlashcardsPage = () => {
                           >
                             {card.deck}
                           </Typography>
+                          <IconButton
+                            size="medium"
+                            onClick={(e) => handleMenuOpen(e, card)}
+                          >
+                            <MoreVert sx={{ fontSize: 24 }} />
+                          </IconButton>
                         </Box>
 
                         <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 2, wordBreak: 'break-word' }}>
@@ -648,8 +808,8 @@ const FlashcardsPage = () => {
                         p: 2,
                         pt: 0,
                         display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center', // Align items for better layout
+                        justifyContent: 'flex-start',
+                        alignItems: 'center',
                         mt: 'auto'
                       }}>
                         <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
@@ -657,31 +817,14 @@ const FlashcardsPage = () => {
                             <Chip
                               key={index}
                               label={tag}
-                              size="small"
+                              size="medium"
                               sx={{
-                                height: 20,
-                                fontSize: '0.7rem',
+                                height: 28,
+                                fontSize: '0.9rem',
                                 backgroundColor: 'rgba(0,0,0,0.06)'
                               }}
                             />
                           ))}
-                        </Box>
-
-                        <Box sx={{ display: 'flex', gap: 0.5 }}>
-                          <IconButton size="small" title="Edit"> {/* Add onClick handlers */}
-                            <Edit fontSize="small" />
-                          </IconButton>
-                          <IconButton size="small" title="Copy"> {/* Add onClick handlers */}
-                            <ContentCopy fontSize="small" />
-                          </IconButton>
-                          <IconButton 
-                            size="small" 
-                            color="error" 
-                            title="Delete"
-                            onClick={() => handleDeleteClick(card)}
-                          >
-                            <Delete fontSize="small" />
-                          </IconButton>
                         </Box>
                       </Box>
                     </Card>
@@ -699,7 +842,7 @@ const FlashcardsPage = () => {
                 </Typography>
               )}
               {filteredDecks.map((deck) => (
-                <Grid item xs={12} sm={6} md={3} key={deck.id}>
+                <Grid item xs={12} sm={6} md={4} key={deck.id}>
                   <Card
                     elevation={0}
                     sx={{
@@ -727,16 +870,19 @@ const FlashcardsPage = () => {
                         {deck.count} flashcard{deck.count === 1 ? '' : 's'}
                       </Typography>
                     </CardContent>
-                    <Box sx={{ mt: 'auto', p:2, pt:0, display: 'flex', gap: 1 }}>
+                    <Box sx={{ mt: 'auto', p: 2, pt: 0, display: 'flex', gap: 1, justifyContent: 'flex-end' }}>
                       <Button
                         variant="outlined"
                         size="small"
                         onClick={() => handleViewDeck(deck.id)}
                         sx={{
-                          flex: 1,
+                          minWidth: '80px',
                           borderColor: 'rgba(0, 0, 0, 0.23)',
                           color: 'text.primary',
-                          textTransform: 'none'
+                          textTransform: 'none',
+                          fontSize: '0.9rem',
+                          py: 1,
+                          px: 1.5
                         }}
                       >
                         View
@@ -747,10 +893,13 @@ const FlashcardsPage = () => {
                         onClick={() => handleStudyDeck(deck.id)}
                         disabled={deck.count === 0}
                         sx={{
-                          flex: 1,
+                          minWidth: '80px',
                           backgroundColor: '#3182ce',
                           boxShadow: 'none',
                           textTransform: 'none',
+                          fontSize: '0.9rem',
+                          py: 1,
+                          px: 1.5,
                           '&:hover': {
                             backgroundColor: '#2b6cb0',
                             boxShadow: 'none',
@@ -848,38 +997,47 @@ const FlashcardsPage = () => {
             <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2, mb: 4 }}>
               <Button
                 variant="outlined"
-                startIcon={<ArrowBack />}
+                startIcon={<ArrowBack sx={{ fontSize: 24 }} />}
                 onClick={handlePrevCard}
                 disabled={filteredFlashcards.length <= 1}
                 sx={{
                   borderColor: 'rgba(0, 0, 0, 0.23)',
                   color: 'text.primary',
-                  textTransform: 'none'
+                  textTransform: 'none',
+                  fontSize: '1rem',
+                  py: 1.5,
+                  px: 2.5
                 }}
               >
                 Previous
               </Button>
               <Button
                 variant="outlined"
-                startIcon={<Refresh />}
+                startIcon={<Refresh sx={{ fontSize: 24 }} />}
                 onClick={() => setShowAnswer(false)}
                 sx={{
                   borderColor: 'rgba(0, 0, 0, 0.23)',
                   color: 'text.primary',
-                  textTransform: 'none'
+                  textTransform: 'none',
+                  fontSize: '1rem',
+                  py: 1.5,
+                  px: 2.5
                 }}
               >
                 Reset
               </Button>
               <Button
                 variant="contained"
-                endIcon={<ArrowForward />}
+                endIcon={<ArrowForward sx={{ fontSize: 24 }} />}
                 onClick={handleNextCard}
                 disabled={filteredFlashcards.length <= 1}
                 sx={{
                   backgroundColor: '#3182ce',
                   boxShadow: 'none',
                   textTransform: 'none',
+                  fontSize: '1rem',
+                  py: 1.5,
+                  px: 2.5,
                   '&:hover': {
                     backgroundColor: '#2b6cb0',
                     boxShadow: 'none',
@@ -913,6 +1071,150 @@ const FlashcardsPage = () => {
           <Button onClick={handleDeleteConfirm} color="error">Delete</Button>
         </DialogActions>
       </Dialog>
+
+      {/* Edit Flashcard Dialog */}
+      <Dialog
+        open={editDialogOpen}
+        onClose={() => {
+          setEditDialogOpen(false);
+          setEditingCard(null);
+          setNewCard({ front: '', back: '', deck: '', tags: [] });
+        }}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>Edit Flashcard</DialogTitle>
+        <DialogContent>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 2 }}>
+            <TextField
+              label="Front"
+              multiline
+              rows={3}
+              value={newCard.front}
+              onChange={(e) => setNewCard(prev => ({ ...prev, front: e.target.value }))}
+              placeholder="Enter the question or term"
+            />
+            <TextField
+              label="Back"
+              multiline
+              rows={3}
+              value={newCard.back}
+              onChange={(e) => setNewCard(prev => ({ ...prev, back: e.target.value }))}
+              placeholder="Enter the answer or definition"
+            />
+            <TextField
+              label="Deck"
+              value={newCard.deck}
+              onChange={(e) => setNewCard(prev => ({ ...prev, deck: e.target.value }))}
+              placeholder="Enter deck name"
+            />
+            <Box>
+              <TextField
+                label="Add Tags"
+                value={currentTag}
+                onChange={(e) => setCurrentTag(e.target.value)}
+                onKeyPress={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    handleAddTag();
+                  }
+                }}
+                placeholder="Press Enter to add tags"
+                fullWidth
+              />
+              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mt: 1 }}>
+                {newCard.tags.map((tag, index) => (
+                  <Chip
+                    key={index}
+                    label={tag}
+                    onDelete={() => handleRemoveTag(tag)}
+                    size="medium"
+                    sx={{
+                      height: 28,
+                      fontSize: '0.9rem',
+                      backgroundColor: 'rgba(0,0,0,0.06)'
+                    }}
+                  />
+                ))}
+              </Box>
+            </Box>
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => {
+            setEditDialogOpen(false);
+            setEditingCard(null);
+            setNewCard({ front: '', back: '', deck: '', tags: [] });
+          }}>
+            Cancel
+          </Button>
+          <Button
+            variant="contained"
+            onClick={handleEditSave}
+            disabled={!newCard.front || !newCard.back || !newCard.deck}
+          >
+            Save Changes
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Snackbar for notifications */}
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={3000}
+        onClose={handleSnackbarClose}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+      >
+        <Alert
+          onClose={handleSnackbarClose}
+          severity={snackbar.severity}
+          sx={{ width: '100%' }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
+
+      {/* Card Actions Menu */}
+      <Menu
+        anchorEl={menuAnchorEl}
+        open={Boolean(menuAnchorEl)}
+        onClose={handleMenuClose}
+        PaperProps={{
+          elevation: 2,
+          sx: {
+            minWidth: 150,
+            '& .MuiMenuItem-root': {
+              fontSize: '0.9rem',
+              py: 1.5
+            }
+          }
+        }}
+      >
+        <MenuItem onClick={() => {
+          handleEditClick(selectedCard);
+          handleMenuClose();
+        }}>
+          <Edit sx={{ fontSize: 20, mr: 1.5 }} />
+          Edit
+        </MenuItem>
+        <MenuItem onClick={() => {
+          handleCopyClick(selectedCard);
+          handleMenuClose();
+        }}>
+          <ContentCopy sx={{ fontSize: 20, mr: 1.5 }} />
+          Copy
+        </MenuItem>
+        <MenuItem 
+          onClick={() => {
+            handleDeleteClick(selectedCard);
+            handleMenuClose();
+          }}
+          sx={{ color: 'error.main' }}
+        >
+          <Delete sx={{ fontSize: 20, mr: 1.5 }} />
+          Delete
+        </MenuItem>
+      </Menu>
     </Box>
   );
 };

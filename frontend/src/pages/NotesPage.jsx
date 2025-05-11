@@ -376,7 +376,10 @@ const NotesPage = () => {
                 sx={{
                   borderColor: 'rgba(0, 0, 0, 0.23)',
                   color: 'text.primary',
-                  textTransform: 'none'
+                  textTransform: 'none',
+                  fontSize: '1rem',
+                  py: 1.5,
+                  px: 2.5
                 }}
               >
                 Import
@@ -385,12 +388,16 @@ const NotesPage = () => {
                 variant="contained"
                 startIcon={<NoteAlt />}
                 onClick={() => {
-                  setEditingNote(null); // Ensure editingNote is null for a new note
+                  setEditingNote(null);
                   setNewNoteDialogOpen(true);
                 }}
                 sx={{
                   backgroundColor: '#3182ce',
                   boxShadow: 'none',
+                  textTransform: 'none',
+                  fontSize: '1rem',
+                  py: 1.5,
+                  px: 2.5,
                   '&:hover': {
                     backgroundColor: '#2b6cb0',
                     boxShadow: 'none',
@@ -445,7 +452,7 @@ const NotesPage = () => {
               <Box sx={{ display: 'flex', gap: 1 }}>
                 <Box sx={{ display: 'flex', border: '1px solid rgba(0, 0, 0, 0.12)', borderRadius: 1 }}>
                   <IconButton
-                    size="small"
+                    size="medium"
                     onClick={() => handleViewChange('list')}
                     sx={{
                       color: viewMode === 'list' ? 'primary.main' : 'text.secondary',
@@ -454,10 +461,10 @@ const NotesPage = () => {
                       '&:hover': { bgcolor: viewMode === 'list' ? 'primary.light' : 'rgba(0, 0, 0, 0.04)' },
                     }}
                   >
-                    <ViewList />
+                    <ViewList sx={{ fontSize: 24 }} />
                   </IconButton>
                   <IconButton
-                    size="small"
+                    size="medium"
                     onClick={() => handleViewChange('grid')}
                     sx={{
                       color: viewMode === 'grid' ? 'primary.main' : 'text.secondary',
@@ -466,19 +473,22 @@ const NotesPage = () => {
                       '&:hover': { bgcolor: viewMode === 'grid' ? 'primary.light' : 'rgba(0, 0, 0, 0.04)' },
                     }}
                   >
-                    <ViewModule />
+                    <ViewModule sx={{ fontSize: 24 }} />
                   </IconButton>
                 </Box>
 
                 <Button
                   variant="outlined"
-                  startIcon={<Sort />}
+                  startIcon={<Sort sx={{ fontSize: 24 }} />}
                   onClick={handleSortClick}
-                  size="small"
+                  size="medium"
                   sx={{
                     borderColor: 'rgba(0, 0, 0, 0.12)',
                     color: 'text.primary',
-                    textTransform: 'none'
+                    textTransform: 'none',
+                    fontSize: '1rem',
+                    py: 1.5,
+                    px: 2.5
                   }}
                 >
                   Sort
@@ -494,13 +504,16 @@ const NotesPage = () => {
 
                 <Button
                   variant="outlined"
-                  startIcon={<FilterList />}
+                  startIcon={<FilterList sx={{ fontSize: 24 }} />}
                   onClick={handleFilterClick}
-                  size="small"
+                  size="medium"
                   sx={{
                     borderColor: 'rgba(0, 0, 0, 0.12)',
                     color: 'text.primary',
-                    textTransform: 'none'
+                    textTransform: 'none',
+                    fontSize: '1rem',
+                    py: 1.5,
+                    px: 2.5
                   }}
                 >
                   Filter
@@ -573,8 +586,8 @@ const NotesPage = () => {
                                 }}
                               />
                             )}
-                            <IconButton size="small" onClick={(e) => handleMenuClick(e, note)}>
-                              <MoreVert fontSize="small" />
+                            <IconButton size="medium" onClick={(e) => handleMenuClick(e, note)}>
+                              <MoreVert sx={{ fontSize: 24 }} />
                             </IconButton>
                           </Box>
                         </Box>
@@ -591,10 +604,10 @@ const NotesPage = () => {
                             <Chip
                               key={tag}
                               label={tag}
-                              size="small"
+                              size="medium"
                               sx={{
-                                height: 20,
-                                fontSize: '0.7rem',
+                                height: 28,
+                                fontSize: '0.9rem',
                                 backgroundColor: 'rgba(0,0,0,0.06)'
                               }}
                             />

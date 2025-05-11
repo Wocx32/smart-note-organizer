@@ -107,12 +107,12 @@ const FileImportDialog = ({ open, onClose, onImport }) => {
     //    console.log('General progress event:', message);
     // });
 
-    console.log(`Loading language '${language}'...`);
-    await worker.loadLanguage(language);
-    console.log(`Language '${language}' loaded.`);
-    console.log(`Initializing Tesseract for language '${language}'...`);
-    await worker.initialize(language);
-    console.log(`Tesseract worker initialized with language: ${language}.`);
+    // console.log(`Loading language '${language}'...`);
+    // await worker.loadLanguage(language);
+    // console.log(`Language '${language}' loaded.`);
+    // console.log(`Initializing Tesseract for language '${language}'...`);
+    // await worker.initialize(language);
+    // console.log(`Tesseract worker initialized with language: ${language}.`);
     tesseractWorkerRef.current = worker;
     return worker;
   };
