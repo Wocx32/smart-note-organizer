@@ -203,7 +203,8 @@ const FileImportDialog = ({ open, onClose, onImport }) => {
   const generateAIFeatures = async (content) => {
     try {
       setProcessingStatus('Generating Summary, Flashcards and Tags...');
-      const response = await fetch('http://127.0.0.1:8000/process', {
+      const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
+      const response = await fetch(`${API_BASE_URL}/process`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
