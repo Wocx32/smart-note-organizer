@@ -15,7 +15,8 @@ import {
   IconButton,
   Collapse,
   TextField,
-  InputAdornment
+  InputAdornment,
+  Tooltip
 } from '@mui/material';
 import { 
   NoteAlt, 
@@ -27,21 +28,31 @@ import {
   Search,
   History,
   Settings,
-  Label
+  Label,
+  ChevronLeft,
+  ChevronRight,
+  Menu,
+  LightMode,
+  DarkMode
 } from '@mui/icons-material';
-import NewNoteDialog from './NewNoteDialog';
 import { getTags } from '../utils/storage';
 
 const drawerWidth = 240;
+const collapsedWidth = 65;
 
 const Sidebar = ({ onTagSelect }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [newNoteDialogOpen, setNewNoteDialogOpen] = useState(false);
   const [tags, setTags] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [expanded, setExpanded] = useState(true);
   const [showAllTags, setShowAllTags] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(() => {
+    // Initialize from localStorage, default to false if not set
+    const savedState = localStorage.getItem('sidebarCollapsed');
+    return savedState ? JSON.parse(savedState) : false;
+  });
+  const [isDarkMode, setIsDarkMode] = useState(false);
   const MAX_VISIBLE_TAGS = 4;
 
   // Load tags from localStorage and set up event listeners
@@ -66,6 +77,12 @@ const Sidebar = ({ onTagSelect }) => {
       window.removeEventListener('smart_notes_updated', handleNotesUpdate);
     };
   }, []);
+
+  // Save sidebar state to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem('sidebarCollapsed', JSON.stringify(isCollapsed));
+  }, [isCollapsed]);
+
   const handleTagClick = (tag) => {
     onTagSelect(tag);
   };
@@ -77,13 +94,6 @@ const Sidebar = ({ onTagSelect }) => {
   const visibleTags = showAllTags ? filteredTags : filteredTags.slice(0, MAX_VISIBLE_TAGS);
   const hasMoreTags = filteredTags.length > MAX_VISIBLE_TAGS;
 
-  const handleNewNote = (note) => {
-    // Here you would typically save the note to your backend
-    console.log('New note created:', note);
-    // Navigate to the notes page after creating
-    navigate('/notes');
-  };
-
   const menuItems = [
     { text: 'Notes', icon: <NoteAlt />, path: '/notes' },
     { text: 'Flashcards', icon: <School />, path: '/flashcards' },
@@ -94,13 +104,19 @@ const Sidebar = ({ onTagSelect }) => {
     <Drawer
       variant="permanent"
       sx={{
-        width: drawerWidth,
+        width: isCollapsed ? collapsedWidth : drawerWidth,
         flexShrink: 0,
+        transition: 'width 0.2s ease-in-out',
         [`& .MuiDrawer-paper`]: { 
-          width: drawerWidth, 
+          width: isCollapsed ? collapsedWidth : drawerWidth,
           boxSizing: 'border-box',
           borderRight: '1px solid rgba(0, 0, 0, 0.08)',
-          backgroundColor: '#ffffff'
+          backgroundColor: '#ffffff',
+          height: 'calc(100vh - 64px - 80px)',
+          position: 'fixed',
+          top: '64px',
+          transition: 'width 0.2s ease-in-out',
+          overflowX: 'hidden'
         },
         display: { xs: 'none', sm: 'block' },
       }}
@@ -111,169 +127,274 @@ const Sidebar = ({ onTagSelect }) => {
         height: '100%', 
         pt: 2
       }}>
-        <Box sx={{ 
-          display: 'flex', 
-          justifyContent: 'center', 
-          alignItems: 'center', 
-          mb: 2
-        }}>
-          <Button 
-            variant="contained" 
-            fullWidth
-            startIcon={<Add />}
-            onClick={() => setNewNoteDialogOpen(true)}
-            sx={{ 
-              backgroundColor: '#3182ce',
-              boxShadow: 'none',
-              '&:hover': {
-                backgroundColor: '#2b6cb0',
-                boxShadow: 'none',
-              }
-            }}
-          >
-            New Note
-          </Button>
-        </Box>
-        
+        {isCollapsed ? (
+          <Box sx={{ 
+            display: 'flex', 
+            justifyContent: 'center', 
+            mb: 2 
+          }}>
+            <Tooltip title="Expand sidebar" arrow placement="right">
+              <IconButton 
+                onClick={() => setIsCollapsed(false)}
+                size="small"
+                sx={{
+                  color: 'text.secondary',
+                  '&:hover': {
+                    backgroundColor: 'rgba(0, 0, 0, 0.04)'
+                  }
+                }}
+              >
+                <Menu />
+              </IconButton>
+            </Tooltip>
+          </Box>
+        ) : (
+          <Box sx={{ 
+            display: 'flex', 
+            justifyContent: 'flex-end', 
+            px: 1, 
+            mb: 1 
+          }}>
+            <Tooltip title="Collapse sidebar" arrow>
+              <IconButton 
+                onClick={() => setIsCollapsed(true)}
+                size="small"
+                sx={{
+                  color: 'text.secondary',
+                  '&:hover': {
+                    backgroundColor: 'rgba(0, 0, 0, 0.04)'
+                  }
+                }}
+              >
+                <ChevronLeft />
+              </IconButton>
+            </Tooltip>
+          </Box>
+        )}
+
         <Divider sx={{ mb: 2 }} />
         
         <List>
           {menuItems.map((item) => (
             <ListItem key={item.text} disablePadding>
-              <ListItemButton 
-                selected={location.pathname === item.path}
-                onClick={() => navigate(item.path)}
+              <Tooltip 
+                title={isCollapsed ? item.text : ""} 
+                placement="right"
+                arrow
               >
-                <ListItemIcon>
-                  {item.icon}
-                </ListItemIcon>
-                <ListItemText primary={item.text} />
-              </ListItemButton>
+                <ListItemButton
+                  component={Link}
+                  to={item.path}
+                  selected={location.pathname === item.path}
+                  sx={{
+                    borderRadius: 1,
+                    mx: 1,
+                    mb: 0.5,
+                    minHeight: 48,
+                    justifyContent: isCollapsed ? 'center' : 'flex-start',
+                    '&.Mui-selected': {
+                      backgroundColor: 'rgba(49, 130, 206, 0.1)',
+                      '&:hover': {
+                        backgroundColor: 'rgba(49, 130, 206, 0.15)',
+                      },
+                    },
+                    '&:hover': {
+                      backgroundColor: 'rgba(0, 0, 0, 0.04)',
+                    },
+                  }}
+                >
+                  <ListItemIcon sx={{ 
+                    minWidth: isCollapsed ? 'auto' : 40,
+                    justifyContent: 'center'
+                  }}>
+                    {item.icon}
+                  </ListItemIcon>
+                  {!isCollapsed && (
+                    <ListItemText 
+                      primary={item.text}
+                      primaryTypographyProps={{
+                        fontSize: '0.9rem',
+                        fontWeight: location.pathname === item.path ? 600 : 400,
+                      }}
+                    />
+                  )}
+                </ListItemButton>
+              </Tooltip>
             </ListItem>
           ))}
         </List>
-        
-        <Divider sx={{ my: 2 }} />
-        
-        <List>
-          <ListItem disablePadding>
-            <ListItemButton onClick={() => setExpanded(!expanded)}>
-              <ListItemIcon>
-                <Label />
-              </ListItemIcon>
-              <ListItemText primary="Tags" />
-              {expanded ? <ExpandLess /> : <ExpandMore />}
-            </ListItemButton>
-          </ListItem>
-          
-          <Collapse in={expanded} timeout="auto" unmountOnExit>
-            <List component="div" disablePadding>
+
+        {!isCollapsed && (
+          <>
+            <Divider sx={{ my: 2 }} />
+
+            <Box sx={{ px: 2, mb: 2 }}>
               <TextField
-                fullWidth
                 size="small"
                 placeholder="Search tags..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
+                fullWidth
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
-                      <Search fontSize="small" />
+                      <Search sx={{ fontSize: 20, color: 'text.secondary' }} />
                     </InputAdornment>
                   ),
                 }}
-                sx={{ mb: 2 }}
               />
-              {visibleTags.map((tag) => (
-                <ListItemButton
-                  key={tag}
-                  onClick={() => handleTagClick(tag)}
-                  sx={{ 
-                    pl: 4,
+            </Box>
+
+            <Box sx={{ px: 2 }}>
+              <ListItemButton
+                onClick={() => setExpanded(!expanded)}
+                sx={{
+                  borderRadius: 1,
+                  mb: 0.5,
+                  '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.04)' }
+                }}
+              >
+                <ListItemIcon>
+                  <Tag />
+                </ListItemIcon>
+                <ListItemText 
+                  primary="Tags"
+                  primaryTypographyProps={{
+                    fontSize: '0.9rem',
+                    fontWeight: expanded ? 600 : 400,
+                  }}
+                />
+                {expanded ? <ExpandLess /> : <ExpandMore />}
+              </ListItemButton>
+
+              <Collapse in={expanded} timeout="auto" unmountOnExit>
+                <List component="div" disablePadding>
+                  {visibleTags.map((tag) => (
+                    <ListItemButton
+                      key={tag}
+                      onClick={() => handleTagClick(tag)}
+                      sx={{ 
+                        pl: 4,
+                        borderRadius: 1,
+                        mb: 0.5,
+                        '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.04)' }
+                      }}
+                    >
+                      <ListItemIcon sx={{ minWidth: 32 }}>
+                        <Label sx={{ fontSize: 18 }} />
+                      </ListItemIcon>
+                      <ListItemText 
+                        primary={tag}
+                        primaryTypographyProps={{
+                          fontSize: '0.9rem',
+                        }}
+                      />
+                    </ListItemButton>
+                  ))}
+                  {!showAllTags && hasMoreTags && (
+                    <ListItemButton
+                      onClick={() => setShowAllTags(true)}
+                      sx={{ 
+                        pl: 4,
+                        borderRadius: 1,
+                        mb: 0.5,
+                        '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.04)' }
+                      }}
+                    >
+                      <ListItemText 
+                        primary={`Show ${filteredTags.length - MAX_VISIBLE_TAGS} more`}
+                        primaryTypographyProps={{
+                          fontSize: '0.9rem',
+                          color: 'primary.main'
+                        }}
+                      />
+                    </ListItemButton>
+                  )}
+                  {showAllTags && hasMoreTags && (
+                    <ListItemButton
+                      onClick={() => setShowAllTags(false)}
+                      sx={{ 
+                        pl: 4,
+                        borderRadius: 1,
+                        mb: 0.5,
+                        '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.04)' }
+                      }}
+                    >
+                      <ListItemText 
+                        primary="Show less"
+                        primaryTypographyProps={{
+                          fontSize: '0.9rem',
+                          color: 'primary.main'
+                        }}
+                      />
+                    </ListItemButton>
+                  )}
+                </List>
+              </Collapse>
+            </Box>
+            
+            <Divider sx={{ my: 2 }} />
+            
+            <Box sx={{ px: 2 }}>
+              <ListItem disablePadding>
+                <ListItemButton 
+                  onClick={() => navigate('/recent')}
+                  sx={{
                     borderRadius: 1,
+                    mb: 0.5,
                     '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.04)' }
                   }}
                 >
-                  <ListItemText 
-                    primary={tag}
-                    primaryTypographyProps={{
-                      fontSize: '0.9rem',
-                      color: 'text.secondary'
-                    }}
-                  />
+                  <ListItemIcon>
+                    <History />
+                  </ListItemIcon>
+                  <ListItemText primary="Recent" />
                 </ListItemButton>
-              ))}
-              {hasMoreTags && !showAllTags && (
-                <ListItemButton
-                  onClick={() => setShowAllTags(true)}
-                  sx={{ 
-                    pl: 4,
-                    borderRadius: 1,
-                    '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.04)' }
-                  }}
-                >
-                  <ListItemText 
-                    primary={`Show ${filteredTags.length - MAX_VISIBLE_TAGS} more tags`}
-                    primaryTypographyProps={{
-                      fontSize: '0.9rem',
-                      color: 'primary.main'
-                    }}
-                  />
-                </ListItemButton>
-              )}
-              {showAllTags && hasMoreTags && (
-                <ListItemButton
-                  onClick={() => setShowAllTags(false)}
-                  sx={{ 
-                    pl: 4,
-                    borderRadius: 1,
-                    '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.04)' }
-                  }}
-                >
-                  <ListItemText 
-                    primary="Show less"
-                    primaryTypographyProps={{
-                      fontSize: '0.9rem',
-                      color: 'primary.main'
-                    }}
-                  />
-                </ListItemButton>
-              )}
-            </List>
-          </Collapse>
-        </List>
-        
-        <Divider sx={{ my: 2 }} />
-        
-        <ListItem disablePadding>
-          <ListItemButton onClick={() => navigate('/recent')}>
-            <ListItemIcon>
-              <History />
-            </ListItemIcon>
-            <ListItemText primary="Recent" />
-          </ListItemButton>
-        </ListItem>
-        
+              </ListItem>
+            </Box>
+          </>
+        )}
         
         <Box sx={{ flexGrow: 1 }} />
         
-        <Box sx={{ p: 2, borderTop: '1px solid rgba(0, 0, 0, 0.08)' }}>
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <Avatar sx={{ width: 32, height: 32, bgcolor: '#4299E1' }}>U</Avatar>
-            <Box sx={{ ml: 1.5 }}>
-              <Typography variant="subtitle2">User Name</Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.75rem' }}>
-                user@example.com
-              </Typography>
-            </Box>
-          </Box>
+        {/* Theme Toggle Button */}
+        <Box sx={{ 
+          p: 2, 
+          borderTop: '1px solid rgba(0, 0, 0, 0.08)'
+        }}>
+          <Tooltip title={isCollapsed ? (isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode") : ""} arrow placement="right">
+            <Button
+              onClick={() => setIsDarkMode(!isDarkMode)}
+              fullWidth
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: isCollapsed ? 'center' : 'flex-start',
+                color: isDarkMode ? 'text.primary' : 'text.secondary',
+                textTransform: 'none',
+                py: 1,
+                px: isCollapsed ? 1 : 2,
+                '&:hover': {
+                  backgroundColor: 'rgba(0, 0, 0, 0.04)'
+                }
+              }}
+            >
+              {isDarkMode ? <DarkMode /> : <LightMode />}
+              {!isCollapsed && (
+                <Typography 
+                  variant="body2" 
+                  sx={{ 
+                    ml: 1,
+                    fontWeight: 500
+                  }}
+                >
+                  {isDarkMode ? 'Dark Mode' : 'Light Mode'}
+                </Typography>
+              )}
+            </Button>
+          </Tooltip>
         </Box>
       </Box>
-
-      <NewNoteDialog
-        open={newNoteDialogOpen}
-        onClose={() => setNewNoteDialogOpen(false)}
-        onSave={handleNewNote}
-      />
     </Drawer>
   );
 };
