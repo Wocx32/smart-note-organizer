@@ -57,7 +57,7 @@ const Layout = () => {
           </Box>
         </Box>
       </Box>
-      <Box sx={{ width: '100%', borderTop: '1px solid black', bgcolor: 'white' }}>
+      <Box sx={{ width: '100%', bgcolor: 'white' }}>
         <Footer />
       </Box>
     </Box>
