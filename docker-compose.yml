@@ -1,11 +1,7 @@
 
 services:
   frontend:
-    build:
-      context: ./frontend
-      dockerfile: ../dockerfiles/frontend.dockerfile
-      args:
-        - VITE_API_URL=https://notes.wocx.xyz
+    image: ghcr.io/wocx32/smart-note-organizer/frontend:latest
     networks:
       - default
       - traefik
@@ -22,9 +18,7 @@ services:
       - "traefik.http.services.notes-front.loadbalancer.server.port=3000"
 
   backend:
-    build:
-      context: ./backend
-      dockerfile: ../dockerfiles/backend.dockerfile
+    image: ghcr.io/wocx32/smart-note-organizer/backend:latest
     env_file:
       - .env
     networks:
