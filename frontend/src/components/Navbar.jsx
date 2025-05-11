@@ -8,7 +8,7 @@ import { useTheme } from '../context/ThemeContext';
 const Navbar = ({ onMenuClick }) => {
   const navigate = useNavigate();
   const { isDarkMode, toggleTheme } = useTheme();
-  
+
   const menuItems = [
     { text: 'Home', path: '/', icon: <HomeIcon /> },
     { text: 'My Notes', path: '/notes', icon: <Book /> },

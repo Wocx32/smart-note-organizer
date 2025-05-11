@@ -360,44 +360,44 @@ const SearchPage = () => {
             gap: { xs: 1, sm: 2 },
             width: { xs: '100%', sm: 'auto' }
           }}>
-            <Button
-              variant="outlined"
+          <Button
+            variant="outlined"
               startIcon={<Tune sx={{ fontSize: { xs: 20, sm: 24 } }} />}
-              onClick={handleFilterClick}
-              sx={{
-                borderRadius: '50px',
+            onClick={handleFilterClick}
+            sx={{
+              borderRadius: '50px',
                 height: { xs: '40px', sm: '48px' },
                 px: { xs: 2, sm: 3 },
-                borderColor: 'divider',
-                color: 'text.primary',
+              borderColor: 'divider',
+              color: 'text.primary',
                 fontSize: { xs: '0.9rem', sm: '1rem' },
                 flex: { xs: 1, sm: 'none' },
-                '&:hover': {
-                  borderColor: 'primary.main',
-                  backgroundColor: 'action.hover',
-                },
-              }}
-            >
-              Filters
-            </Button>
-            <Button
-              variant="contained"
+              '&:hover': {
+                borderColor: 'primary.main',
+                backgroundColor: 'action.hover',
+              },
+            }}
+          >
+            Filters
+          </Button>
+          <Button
+            variant="contained"
               startIcon={<Search sx={{ fontSize: { xs: 20, sm: 24 } }} />}
-              onClick={() => handleSearchSubmit({ key: 'Enter' })}
-              sx={{
-                borderRadius: '50px',
+            onClick={() => handleSearchSubmit({ key: 'Enter' })}
+            sx={{
+              borderRadius: '50px',
                 height: { xs: '40px', sm: '48px' },
                 px: { xs: 2, sm: 3 },
-                backgroundColor: 'primary.main',
+              backgroundColor: 'primary.main',
                 fontSize: { xs: '0.9rem', sm: '1rem' },
                 flex: { xs: 1, sm: 'none' },
-                '&:hover': {
-                  backgroundColor: 'primary.dark',
-                },
-              }}
-            >
-              Search
-            </Button>
+              '&:hover': {
+                backgroundColor: 'primary.dark',
+              },
+            }}
+          >
+            Search
+          </Button>
           </Box>
         </Box>
 
