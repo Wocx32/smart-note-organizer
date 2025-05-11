@@ -296,12 +296,26 @@ const SearchPage = () => {
   };
 
   return (
-    <Box sx={{ maxWidth: '1200px', margin: '0 auto', px: 3 }}>
-      <Box sx={{ mb: 4 }}>
-        <Typography variant="h4" fontWeight="bold" gutterBottom sx={{ fontSize: '2.5rem', mb: 3 }}>
+    <Box sx={{ maxWidth: '1200px', margin: '0 auto', px: { xs: 2, sm: 3 } }}>
+      <Box sx={{ mb: { xs: 3, sm: 4 } }}>
+        <Typography 
+          variant="h4" 
+          fontWeight="bold" 
+          gutterBottom 
+          sx={{ 
+            fontSize: { xs: '1.5rem', sm: '2.5rem' }, 
+            mb: { xs: 2, sm: 3 },
+            textAlign: { xs: 'center', sm: 'left' }
+          }}
+        >
           Search
         </Typography>
-        <Box sx={{ display: 'flex', gap: 2, mb: 3 }}>
+        <Box sx={{ 
+          display: 'flex', 
+          flexDirection: { xs: 'column', sm: 'row' },
+          gap: { xs: 1, sm: 2 }, 
+          mb: { xs: 2, sm: 3 } 
+        }}>
           <TextField
             fullWidth
             variant="outlined"
@@ -312,13 +326,13 @@ const SearchPage = () => {
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
-                  <Search />
+                  <Search sx={{ fontSize: { xs: 20, sm: 24 } }} />
                 </InputAdornment>
               ),
               endAdornment: searchQuery && (
                 <InputAdornment position="end">
                   <IconButton onClick={handleClearSearch} edge="end">
-                    <Clear />
+                    <Clear sx={{ fontSize: { xs: 20, sm: 24 } }} />
                   </IconButton>
                 </InputAdornment>
               ),
@@ -326,8 +340,8 @@ const SearchPage = () => {
             sx={{
               '& .MuiOutlinedInput-root': {
                 borderRadius: '50px',
-                height: '48px',
-                fontSize: '1.1rem',
+                height: { xs: '40px', sm: '48px' },
+                fontSize: { xs: '0.9rem', sm: '1.1rem' },
                 backgroundColor: 'background.paper',
                 '& fieldset': {
                   borderColor: 'divider',
@@ -341,57 +355,83 @@ const SearchPage = () => {
               },
             }}
           />
-          <Button
-            variant="outlined"
-            startIcon={<Tune />}
-            onClick={handleFilterClick}
-            sx={{
-              borderRadius: '50px',
-              height: '48px',
-              px: 3,
-              borderColor: 'divider',
-              color: 'text.primary',
-              '&:hover': {
-                borderColor: 'primary.main',
-                backgroundColor: 'action.hover',
-              },
-            }}
-          >
-            Filters
-          </Button>
-          <Button
-            variant="contained"
-            startIcon={<Search />}
-            onClick={() => handleSearchSubmit({ key: 'Enter' })}
-            sx={{
-              borderRadius: '50px',
-              height: '48px',
-              px: 3,
-              backgroundColor: 'primary.main',
-              '&:hover': {
-                backgroundColor: 'primary.dark',
-              },
-            }}
-          >
-            Search
-          </Button>
+          <Box sx={{ 
+            display: 'flex', 
+            gap: { xs: 1, sm: 2 },
+            width: { xs: '100%', sm: 'auto' }
+          }}>
+            <Button
+              variant="outlined"
+              startIcon={<Tune sx={{ fontSize: { xs: 20, sm: 24 } }} />}
+              onClick={handleFilterClick}
+              sx={{
+                borderRadius: '50px',
+                height: { xs: '40px', sm: '48px' },
+                px: { xs: 2, sm: 3 },
+                borderColor: 'divider',
+                color: 'text.primary',
+                fontSize: { xs: '0.9rem', sm: '1rem' },
+                flex: { xs: 1, sm: 'none' },
+                '&:hover': {
+                  borderColor: 'primary.main',
+                  backgroundColor: 'action.hover',
+                },
+              }}
+            >
+              Filters
+            </Button>
+            <Button
+              variant="contained"
+              startIcon={<Search sx={{ fontSize: { xs: 20, sm: 24 } }} />}
+              onClick={() => handleSearchSubmit({ key: 'Enter' })}
+              sx={{
+                borderRadius: '50px',
+                height: { xs: '40px', sm: '48px' },
+                px: { xs: 2, sm: 3 },
+                backgroundColor: 'primary.main',
+                fontSize: { xs: '0.9rem', sm: '1rem' },
+                flex: { xs: 1, sm: 'none' },
+                '&:hover': {
+                  backgroundColor: 'primary.dark',
+                },
+              }}
+            >
+              Search
+            </Button>
+          </Box>
         </Box>
 
         {!searchQuery && recentSearches.length > 0 && (
-          <Box sx={{ mb: 4 }}>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-              <Typography variant="h6" fontWeight="medium" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <History fontSize="small" />
+          <Box sx={{ mb: { xs: 3, sm: 4 } }}>
+            <Box sx={{ 
+              display: 'flex', 
+              flexDirection: { xs: 'column', sm: 'row' },
+              justifyContent: 'space-between', 
+              alignItems: { xs: 'flex-start', sm: 'center' }, 
+              mb: 2,
+              gap: { xs: 1, sm: 0 }
+            }}>
+              <Typography 
+                variant="h6" 
+                fontWeight="medium" 
+                sx={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  gap: 1,
+                  fontSize: { xs: '1rem', sm: '1.25rem' }
+                }}
+              >
+                <History sx={{ fontSize: { xs: 20, sm: 24 } }} />
                 Recent Searches
               </Typography>
               <Button
                 size="small"
                 onClick={handleClearHistory}
-                startIcon={<CleaningServices sx={{ fontSize: '1.2rem' }} />}
+                startIcon={<CleaningServices sx={{ fontSize: { xs: 18, sm: '1.2rem' } }} />}
                 sx={{
                   color: 'error.main',
                   textTransform: 'none',
-                  fontSize: '1rem',
+                  fontSize: { xs: '0.9rem', sm: '1rem' },
                   py: 0.5,
                   '&:hover': {
                     backgroundColor: 'error.lighter',
@@ -410,18 +450,19 @@ const SearchPage = () => {
                   sx={{
                     borderRadius: 2,
                     mb: 1,
+                    py: { xs: 1, sm: 1.5 },
                     '&:hover': {
                       backgroundColor: 'action.hover',
                     },
                   }}
                 >
                   <ListItemIcon>
-                    <Search sx={{ color: 'text.secondary' }} />
+                    <Search sx={{ color: 'text.secondary', fontSize: { xs: 20, sm: 24 } }} />
                   </ListItemIcon>
                   <ListItemText 
                     primary={search}
                     primaryTypographyProps={{
-                      fontSize: '1.1rem',
+                      fontSize: { xs: '0.9rem', sm: '1.1rem' },
                     }}
                   />
                 </ListItem>
@@ -438,11 +479,12 @@ const SearchPage = () => {
               sx={{ 
                 borderBottom: 1, 
                 borderColor: 'divider', 
-                mb: 3,
+                mb: { xs: 2, sm: 3 },
                 '& .MuiTab-root': {
-                  fontSize: '1.1rem',
+                  fontSize: { xs: '0.9rem', sm: '1.1rem' },
                   textTransform: 'none',
-                  minWidth: 120,
+                  minWidth: { xs: 100, sm: 120 },
+                  px: { xs: 1, sm: 2 }
                 }
               }}
             >
@@ -452,7 +494,7 @@ const SearchPage = () => {
             </Tabs>
 
             {searchResults.length > 0 ? (
-              <Grid container spacing={3}>
+              <Grid container spacing={{ xs: 2, sm: 3 }}>
                 {searchResults.map((result) => (
                   <Grid item xs={12} key={result.id}>
                     <Card
@@ -469,19 +511,33 @@ const SearchPage = () => {
                       }}
                       onClick={() => handleResultClick(result)}
                     >
-                      <CardContent sx={{ p: 3 }}>
-                        <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                          <ListItemIcon sx={{ minWidth: 40 }}>
-                            {result.type === 'note' ? <NoteAlt sx={{ fontSize: '2rem' }} /> : <School sx={{ fontSize: '2rem' }} />}
+                      <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', mb: { xs: 1.5, sm: 2 } }}>
+                          <ListItemIcon sx={{ minWidth: { xs: 36, sm: 40 } }}>
+                            {result.type === 'note' ? 
+                              <NoteAlt sx={{ fontSize: { xs: '1.5rem', sm: '2rem' } }} /> : 
+                              <School sx={{ fontSize: { xs: '1.5rem', sm: '2rem' } }} />
+                            }
                           </ListItemIcon>
-                          <Typography variant="h6" component="div" sx={{ fontSize: '1.3rem' }}>
+                          <Typography 
+                            variant="h6" 
+                            component="div" 
+                            sx={{ 
+                              fontSize: { xs: '1.1rem', sm: '1.3rem' },
+                              wordBreak: 'break-word'
+                            }}
+                          >
                             {result.title}
                           </Typography>
                         </Box>
                         <Typography
                           variant="body1"
                           color="text.secondary"
-                          sx={{ mb: 2, fontSize: '1.1rem' }}
+                          sx={{ 
+                            mb: { xs: 1.5, sm: 2 }, 
+                            fontSize: { xs: '0.9rem', sm: '1.1rem' },
+                            wordBreak: 'break-word'
+                          }}
                         >
                           {result.summary}
                         </Typography>
@@ -492,8 +548,8 @@ const SearchPage = () => {
                               label={tag}
                               size="small"
                               sx={{
-                                height: 24,
-                                fontSize: '0.9rem',
+                                height: { xs: 20, sm: 24 },
+                                fontSize: { xs: '0.8rem', sm: '0.9rem' },
                                 backgroundColor: 'rgba(0,0,0,0.06)',
                               }}
                             />
@@ -508,14 +564,26 @@ const SearchPage = () => {
               <Box
                 sx={{
                   textAlign: 'center',
-                  py: 6,
+                  py: { xs: 4, sm: 6 },
                   color: 'text.secondary',
                 }}
               >
-                <Typography variant="h6" gutterBottom sx={{ fontSize: '1.3rem' }}>
+                <Typography 
+                  variant="h6" 
+                  gutterBottom 
+                  sx={{ 
+                    fontSize: { xs: '1.1rem', sm: '1.3rem' },
+                    mb: { xs: 1, sm: 2 }
+                  }}
+                >
                   No results found
                 </Typography>
-                <Typography variant="body1" sx={{ fontSize: '1.1rem' }}>
+                <Typography 
+                  variant="body1" 
+                  sx={{ 
+                    fontSize: { xs: '0.9rem', sm: '1.1rem' }
+                  }}
+                >
                   Try adjusting your search or filters
                 </Typography>
               </Box>
@@ -532,14 +600,22 @@ const SearchPage = () => {
         PaperProps={{
           sx: {
             borderRadius: 2,
+            m: { xs: 2, sm: 3 }
           }
         }}
       >
-        <DialogTitle sx={{ pb: 1 }}>Filter Results</DialogTitle>
+        <DialogTitle sx={{ pb: 1, fontSize: { xs: '1.1rem', sm: '1.25rem' } }}>
+          Filter Results
+        </DialogTitle>
         <DialogContent>
-          <Stack spacing={3}>
+          <Stack spacing={{ xs: 2, sm: 3 }}>
             <Box>
-              <Typography variant="subtitle1" fontWeight="medium" gutterBottom>
+              <Typography 
+                variant="subtitle1" 
+                fontWeight="medium" 
+                gutterBottom
+                sx={{ fontSize: { xs: '0.9rem', sm: '1rem' } }}
+              >
                 Content Type
               </Typography>
               <FormGroup>
@@ -548,59 +624,101 @@ const SearchPage = () => {
                     <Checkbox
                       checked={filterOptions.notes}
                       onChange={(e) => setFilterOptions(prev => ({ ...prev, notes: e.target.checked }))}
+                      size="small"
                     />
                   }
                   label="Notes"
+                  sx={{ '& .MuiFormControlLabel-label': { fontSize: { xs: '0.9rem', sm: '1rem' } } }}
                 />
                 <FormControlLabel
                   control={
                     <Checkbox
                       checked={filterOptions.flashcards}
                       onChange={(e) => setFilterOptions(prev => ({ ...prev, flashcards: e.target.checked }))}
+                      size="small"
                     />
                   }
                   label="Flashcards"
+                  sx={{ '& .MuiFormControlLabel-label': { fontSize: { xs: '0.9rem', sm: '1rem' } } }}
                 />
               </FormGroup>
             </Box>
 
             <Box>
-              <Typography variant="subtitle1" fontWeight="medium" gutterBottom>
+              <Typography 
+                variant="subtitle1" 
+                fontWeight="medium" 
+                gutterBottom
+                sx={{ fontSize: { xs: '0.9rem', sm: '1rem' } }}
+              >
                 Date Range
               </Typography>
-              <Stack direction="row" spacing={1}>
+              <Stack 
+                direction="row" 
+                spacing={1} 
+                sx={{ 
+                  flexWrap: 'wrap',
+                  gap: { xs: 0.5, sm: 1 }
+                }}
+              >
                 {['all', 'today', 'week', 'month', 'year'].map((range) => (
                   <Chip
                     key={range}
                     label={range.charAt(0).toUpperCase() + range.slice(1)}
                     onClick={() => handleDateRangeChange(range)}
                     color={filterOptions.dateRange === range ? 'primary' : 'default'}
-                    sx={{ textTransform: 'capitalize' }}
+                    sx={{ 
+                      textTransform: 'capitalize',
+                      fontSize: { xs: '0.8rem', sm: '0.9rem' },
+                      height: { xs: 24, sm: 32 }
+                    }}
                   />
                 ))}
               </Stack>
             </Box>
 
             <Box>
-              <Typography variant="subtitle1" fontWeight="medium" gutterBottom>
+              <Typography 
+                variant="subtitle1" 
+                fontWeight="medium" 
+                gutterBottom
+                sx={{ fontSize: { xs: '0.9rem', sm: '1rem' } }}
+              >
                 Tags
               </Typography>
-              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+              <Box sx={{ 
+                display: 'flex', 
+                flexWrap: 'wrap', 
+                gap: { xs: 0.5, sm: 1 } 
+              }}>
                 {allTags.map((tag) => (
                   <Chip
                     key={tag}
                     label={tag}
                     onClick={() => handleTagFilterChange(tag)}
                     color={filterOptions.tags.includes(tag) ? 'primary' : 'default'}
+                    sx={{ 
+                      fontSize: { xs: '0.8rem', sm: '0.9rem' },
+                      height: { xs: 24, sm: 32 }
+                    }}
                   />
                 ))}
               </Box>
             </Box>
           </Stack>
         </DialogContent>
-        <DialogActions sx={{ p: 2 }}>
-          <Button onClick={handleFilterClose}>Cancel</Button>
-          <Button onClick={handleFilterApply} variant="contained">
+        <DialogActions sx={{ p: { xs: 1.5, sm: 2 } }}>
+          <Button 
+            onClick={handleFilterClose}
+            sx={{ fontSize: { xs: '0.9rem', sm: '1rem' } }}
+          >
+            Cancel
+          </Button>
+          <Button 
+            onClick={handleFilterApply} 
+            variant="contained"
+            sx={{ fontSize: { xs: '0.9rem', sm: '1rem' } }}
+          >
             Apply Filters
           </Button>
         </DialogActions>

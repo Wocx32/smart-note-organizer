@@ -4,11 +4,21 @@ import Sidebar from './Sidebar';
 import Footer from './Footer';
 import { Box, Toolbar } from '@mui/material';
 import { useTheme } from '../context/ThemeContext';
+import { useState } from 'react';
 
 const drawerWidth = 240; // Match the sidebar width
 
 const Layout = () => {
   const { isDarkMode } = useTheme();
+  const [mobileOpen, setMobileOpen] = useState(false);
+
+  const handleDrawerToggle = () => {
+    setMobileOpen(!mobileOpen);
+  };
+
+  const handleDrawerClose = () => {
+    setMobileOpen(false);
+  };
 
   return (
     <Box sx={{ 
@@ -22,9 +32,13 @@ const Layout = () => {
       backgroundSize: 'cover',
       color: 'text.primary'
     }}>
-      <Navbar drawerWidth={drawerWidth} />
+      <Navbar onMenuClick={handleDrawerToggle} />
       <Box sx={{ display: 'flex', flex: 1, minHeight: 'calc(100vh - 64px)', pb: 4 }}>
-        <Sidebar />
+        <Sidebar 
+          drawerOpen={mobileOpen} 
+          onDrawerClose={handleDrawerClose}
+          onTagSelect={() => setMobileOpen(false)}
+        />
         <Box 
           component="main" 
           sx={{ 

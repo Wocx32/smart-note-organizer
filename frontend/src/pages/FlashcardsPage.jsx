@@ -523,36 +523,51 @@ const FlashcardsPage = () => {
     <Box>
       {!studyMode ? (
         <>
-          <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Typography variant="h4" fontWeight="bold">Flashcards</Typography>
-            <Box sx={{ display: 'flex', gap: 2 }}>
+          <Box sx={{ 
+            mb: { xs: 2, sm: 4 }, 
+            display: 'flex', 
+            flexDirection: { xs: 'column', sm: 'row' }, 
+            justifyContent: 'space-between', 
+            alignItems: { xs: 'center', sm: 'center' }, 
+            gap: { xs: 2, sm: 0 } 
+          }}>
+            <Typography variant="h4" fontWeight="bold" sx={{ 
+              fontSize: { xs: '1.5rem', sm: '2rem' },
+              textAlign: { xs: 'center', sm: 'left' },
+              width: { xs: '100%', sm: 'auto' }
+            }}>Flashcards</Typography>
+            <Box sx={{ display: 'flex', gap: 2, flexDirection: { xs: 'column', sm: 'row' }, width: { xs: '100%', sm: 'auto' } }}>
               <Button
                 variant="outlined"
-                startIcon={<School sx={{ fontSize: 24 }} />}
+                startIcon={<School sx={{ fontSize: { xs: 20, sm: 24 } }} />}
                 onClick={startStudyMode}
                 disabled={flashcards.length === 0}
                 sx={{
                   borderColor: 'rgba(0, 0, 0, 0.23)',
                   color: 'text.primary',
                   textTransform: 'none',
-                  fontSize: '1rem',
-                  py: 1.5,
-                  px: 2.5
+                  fontSize: { xs: '0.9rem', sm: '1rem' },
+                  py: { xs: 1, sm: 1.5 },
+                  px: { xs: 2, sm: 2.5 },
+                  borderRadius: '50px',
+                  width: { xs: '100%', sm: 'auto' }
                 }}
               >
                 Study Mode
               </Button>
               <Button
                 variant="contained"
-                startIcon={<Add sx={{ fontSize: 24 }} />}
+                startIcon={<Add sx={{ fontSize: { xs: 20, sm: 24 } }} />}
                 onClick={() => setCreateDialogOpen(true)}
                 sx={{
                   backgroundColor: '#3182ce',
                   boxShadow: 'none',
                   textTransform: 'none',
-                  fontSize: '1rem',
-                  py: 1.5,
-                  px: 2.5,
+                  fontSize: { xs: '0.9rem', sm: '1rem' },
+                  py: { xs: 1, sm: 1.5 },
+                  px: { xs: 2, sm: 2.5 },
+                  borderRadius: '50px',
+                  width: { xs: '100%', sm: 'auto' },
                   '&:hover': {
                     backgroundColor: '#2b6cb0',
                     boxShadow: 'none',
@@ -564,96 +579,11 @@ const FlashcardsPage = () => {
             </Box>
           </Box>
 
-          {/* Create Flashcard Dialog */}
-          <Dialog
-            open={createDialogOpen}
-            onClose={() => setCreateDialogOpen(false)}
-            maxWidth="sm"
-            fullWidth
-          >
-            <DialogTitle>Create New Flashcard</DialogTitle>
-            <DialogContent>
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 2 }}>
-                <TextField
-                  label="Front"
-                  multiline
-                  rows={3}
-                  value={newCard.front}
-                  onChange={(e) => setNewCard(prev => ({ ...prev, front: e.target.value }))}
-                  placeholder="Enter the question or term"
-                />
-                <TextField
-                  label="Back"
-                  multiline
-                  rows={3}
-                  value={newCard.back}
-                  onChange={(e) => setNewCard(prev => ({ ...prev, back: e.target.value }))}
-                  placeholder="Enter the answer or definition"
-                />
-                <TextField // Changed to TextField for creating new decks on the fly
-                  label="Deck"
-                  value={newCard.deck}
-                  onChange={(e) => setNewCard(prev => ({ ...prev, deck: e.target.value }))}
-                  placeholder="Enter deck name (e.g., React Basics)"
-                />
-                {/* Original Select for existing decks - you might want a way to choose OR create a new deck
-                <FormControl fullWidth>
-                  <InputLabel>Deck</InputLabel>
-                  <Select
-                    value={newCard.deck}
-                    onChange={(e) => setNewCard(prev => ({ ...prev, deck: e.target.value }))}
-                    label="Deck"
-                  >
-                    {decks.filter(d => d.id !== 'all').map((deck) => (
-                      <MenuItem key={deck.id} value={deck.id}>{deck.name}</MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-                */}
-                <Box>
-                  <TextField
-                    label="Add Tags"
-                    value={currentTag}
-                    onChange={(e) => setCurrentTag(e.target.value)}
-                    onKeyPress={(e) => {
-                      if (e.key === 'Enter') {
-                        e.preventDefault();
-                        handleAddTag();
-                      }
-                    }}
-                    placeholder="Press Enter to add tags"
-                    fullWidth
-                  />
-                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mt: 1 }}>
-                    {newCard.tags.map((tag, index) => (
-                      <Chip
-                        key={index}
-                        label={tag}
-                        onDelete={() => handleRemoveTag(tag)}
-                        size="small"
-                      />
-                    ))}
-                  </Box>
-                </Box>
-              </Box>
-            </DialogContent>
-            <DialogActions>
-              <Button onClick={() => setCreateDialogOpen(false)}>Cancel</Button>
-              <Button
-                variant="contained"
-                onClick={handleCreateFlashcard}
-                disabled={!newCard.front || !newCard.back || !newCard.deck}
-              >
-                Create
-              </Button>
-            </DialogActions>
-          </Dialog>
-
           <Paper
             elevation={0}
             sx={{
               p: 0,
-              mb: 4,
+              mb: { xs: 2, sm: 4 },
               borderRadius: 2,
               border: '1px solid rgba(0, 0, 0, 0.08)'
             }}
@@ -664,7 +594,12 @@ const FlashcardsPage = () => {
               sx={{
                 borderBottom: 1,
                 borderColor: 'divider',
-                px: 2
+                px: { xs: 1, sm: 2 },
+                '& .MuiTab-root': {
+                  fontSize: { xs: '0.8rem', sm: '0.875rem' },
+                  minWidth: { xs: 'auto', sm: '160px' },
+                  px: { xs: 1, sm: 2 }
+                }
               }}
             >
               <Tab label="All Flashcards" />
@@ -672,88 +607,64 @@ const FlashcardsPage = () => {
               <Tab label="Recent" />
             </Tabs>
 
-            <Box sx={{ p: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 2 }}>
+            <Box sx={{ p: { xs: 1, sm: 2 }, display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, alignItems: 'stretch', justifyContent: 'space-between', gap: 2 }}>
               <TextField
                 placeholder="Search flashcards and decks..."
                 variant="outlined"
                 size="small"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                sx={{ width: { xs: '100%', sm: '300px' } }}
+                sx={{ 
+                  width: { xs: '100%', sm: '500px' },
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: '50px',
+                    height: { xs: '40px', sm: '48px' }
+                  },
+                  '& .MuiInputBase-input': {
+                    fontSize: { xs: '0.9rem', sm: '1rem' }
+                  }
+                }}
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
-                      <Search />
+                      <Search sx={{ fontSize: { xs: 20, sm: 24 } }} />
                     </InputAdornment>
                   ),
                 }}
               />
 
-              <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+              <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', width: { xs: '100%', sm: 'auto' } }}>
                 <Button
                   variant="outlined"
-                  startIcon={<FilterList sx={{ fontSize: 24 }} />}
+                  startIcon={<FilterList sx={{ fontSize: { xs: 20, sm: 24 } }} />}
                   onClick={handleFilterClick}
-                  size="medium"
                   sx={{
-                    borderColor: 'rgba(0, 0, 0, 0.12)',
+                    borderColor: 'rgba(0, 0, 0, 0.23)',
                     color: 'text.primary',
                     textTransform: 'none',
-                    fontSize: '1rem',
-                    py: 1.5,
-                    px: 2.5
+                    fontSize: { xs: '0.9rem', sm: '1rem' },
+                    py: { xs: 1, sm: 1.5 },
+                    px: { xs: 2, sm: 2.5 },
+                    borderRadius: '50px',
+                    width: { xs: '100%', sm: 'auto' }
                   }}
                 >
                   Filter
                 </Button>
-                <Menu
-                  anchorEl={filterAnchorEl}
-                  open={Boolean(filterAnchorEl)}
-                  onClose={handleFilterClose}
-                  PaperProps={{
-                    elevation: 2,
-                    sx: {
-                      minWidth: 150,
-                      '& .MuiMenuItem-root': {
-                        fontSize: '0.9rem',
-                        py: 1.5
-                      }
-                    }
-                  }}
-                >
-                  <MenuItem 
-                    onClick={() => handleFilterSelect('recent')}
-                    selected={currentFilter === 'recent'}
-                  >
-                    Recently Added
-                  </MenuItem>
-                  <MenuItem 
-                    onClick={() => handleFilterSelect('alphabetical')}
-                    selected={currentFilter === 'alphabetical'}
-                  >
-                    Alphabetical
-                  </MenuItem>
-                  <MenuItem 
-                    onClick={() => handleFilterSelect('byDeck')}
-                    selected={currentFilter === 'byDeck'}
-                  >
-                    By Deck
-                  </MenuItem>
-                </Menu>
-
                 <Button
                   variant="outlined"
-                  startIcon={<Download sx={{ fontSize: 24 }} />}
-                  size="medium"
+                  startIcon={<Download sx={{ fontSize: { xs: 20, sm: 24 } }} />}
                   onClick={exportToAnki}
                   disabled={filteredFlashcards.length === 0}
                   sx={{
-                    borderColor: 'rgba(0, 0, 0, 0.12)',
+                    borderColor: 'rgba(0, 0, 0, 0.23)',
                     color: 'text.primary',
                     textTransform: 'none',
-                    fontSize: '1rem',
-                    py: 1.5,
-                    px: 2.5
+                    fontSize: { xs: '0.9rem', sm: '1rem' },
+                    py: { xs: 1, sm: 1.5 },
+                    px: { xs: 2, sm: 2.5 },
+                    borderRadius: '50px',
+                    width: { xs: '100%', sm: 'auto' }
                   }}
                 >
                   Export
@@ -765,16 +676,16 @@ const FlashcardsPage = () => {
           {activeTab === 0 && (
             <>
               {filteredFlashcards.length === 0 && selectedDeck === 'all' && (
-                <Typography sx={{ textAlign: 'center', p: 3 }}>
+                <Typography sx={{ textAlign: 'center', p: { xs: 2, sm: 3 }, fontSize: { xs: '0.9rem', sm: '1rem' } }}>
                   No flashcards yet. Click "Create Flashcard" to get started!
                 </Typography>
               )}
               {filteredFlashcards.length === 0 && selectedDeck !== 'all' && (
-                <Typography sx={{ textAlign: 'center', p: 3 }}>
+                <Typography sx={{ textAlign: 'center', p: { xs: 2, sm: 3 }, fontSize: { xs: '0.9rem', sm: '1rem' } }}>
                   No flashcards in this deck.
                 </Typography>
               )}
-              <Grid container spacing={3}>
+              <Grid container spacing={{ xs: 2, sm: 3 }}>
                 {filteredFlashcards.map((card) => (
                   <Grid item xs={12} sm={6} md={4} key={card.id}>
                     <Card
@@ -792,20 +703,18 @@ const FlashcardsPage = () => {
                         }
                       }}
                     >
-                      <CardContent sx={{ p: 3, pb: 2, flexGrow: 1 }}>
+                      <CardContent sx={{ p: { xs: 2, sm: 3 }, pb: { xs: 1, sm: 2 }, flexGrow: 1 }}>
                         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
                           <Typography
-                            variant="caption"
-                            color="white"
+                            variant="subtitle2"
                             sx={{
                               p: 0.5,
                               px: 1,
                               borderRadius: 1,
-                              background: 'linear-gradient(45deg, #3182ce 30%, #4299E1 90%)',
-                              backgroundClip: 'text',
-                              textFillColor: 'transparent',
-                              WebkitBackgroundClip: 'text',
-                              WebkitTextFillColor: 'transparent',
+                              backgroundColor: '#3182ce',
+                              color: 'white',
+                              fontSize: { xs: '0.8rem', sm: '0.9rem' },
+                              fontWeight: 200,
                               display: 'inline-block',
                               mb: 1
                             }}
@@ -813,26 +722,31 @@ const FlashcardsPage = () => {
                             {card.deck}
                           </Typography>
                           <IconButton
-                            size="medium"
+                            size="small"
                             onClick={(e) => handleMenuOpen(e, card)}
+                            sx={{ p: { xs: 0.5, sm: 1 } }}
                           >
-                            <MoreVert sx={{ fontSize: 24 }} />
+                            <MoreVert sx={{ fontSize: { xs: 20, sm: 24 } }} />
                           </IconButton>
                         </Box>
 
-                        <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 2, wordBreak: 'break-word' }}>
+                        <Typography
+                          variant="subtitle1"
+                          fontWeight="bold"
+                          sx={{ mb: { xs: 1, sm: 2 }, wordBreak: 'break-word', fontSize: { xs: '1rem', sm: '1.1rem' } }}
+                        >
                           {card.front}
                         </Typography>
 
-                        <Divider sx={{ my: 2 }} />
+                        <Divider sx={{ my: { xs: 1.5, sm: 2 } }} />
 
-                        <Typography variant="body2" color="text.secondary" sx={{wordBreak: 'break-word'}}>
+                        <Typography variant="body1" color="text.secondary" sx={{ wordBreak: 'break-word', fontSize: { xs: '0.9rem', sm: '1rem' } }}>
                           {card.back}
                         </Typography>
                       </CardContent>
 
                       <Box sx={{
-                        p: 2,
+                        p: { xs: 1.5, sm: 2 },
                         pt: 0,
                         display: 'flex',
                         justifyContent: 'flex-start',
@@ -844,10 +758,10 @@ const FlashcardsPage = () => {
                             <Chip
                               key={index}
                               label={tag}
-                              size="medium"
+                              size="small"
                               sx={{
-                                height: 28,
-                                fontSize: '0.9rem',
+                                height: { xs: 24, sm: 28 },
+                                fontSize: { xs: '0.8rem', sm: '0.9rem' },
                                 backgroundColor: 'rgba(0,0,0,0.06)'
                               }}
                             />
@@ -950,8 +864,24 @@ const FlashcardsPage = () => {
         </>
       ) : (
         <Box>
-          <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Typography variant="h4" fontWeight="bold">
+          <Box sx={{ 
+            mb: { xs: 2, sm: 4 }, 
+            display: 'flex', 
+            flexDirection: { xs: 'column', sm: 'row' }, 
+            justifyContent: { xs: 'space-between', sm: 'center' }, 
+            alignItems: { xs: 'center', sm: 'center' }, 
+            gap: { xs: 2, sm: 0 },
+            position: 'relative'
+          }}>
+            <Typography 
+              variant="h4" 
+              fontWeight="bold"
+              sx={{ 
+                fontSize: { xs: '1.2rem', sm: '2rem' }, 
+                textAlign: { xs: 'center', sm: 'center' }, 
+                width: { xs: '100%', sm: 'auto' }
+              }}
+            >
               {currentStudySession ? `Study Mode - ${currentStudySession.noteTitle}` : 'Study Mode'}
             </Typography>
             <Button
@@ -960,7 +890,11 @@ const FlashcardsPage = () => {
               sx={{
                 borderColor: 'rgba(0, 0, 0, 0.23)',
                 color: 'text.primary',
-                textTransform: 'none'
+                textTransform: 'none',
+                width: { xs: '100%', sm: 'auto' },
+                mt: { xs: 1, sm: 0 },
+                position: { sm: 'absolute' },
+                right: { sm: 0 }
               }}
             >
               Exit Study Mode
@@ -972,9 +906,10 @@ const FlashcardsPage = () => {
             flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
-            py: 4
+            py: { xs: 2, sm: 4 },
+            px: { xs: 1, sm: 0 }
           }}>
-            <Typography variant="subtitle1" color="text.secondary" sx={{ mb: 2 }}>
+            <Typography variant="subtitle1" color="text.secondary" sx={{ mb: 2, fontSize: { xs: '1rem', sm: '1.1rem' }, textAlign: 'center' }}>
               Card {currentCardIndex + 1} of {filteredFlashcards.length}
             </Typography>
 
@@ -984,15 +919,15 @@ const FlashcardsPage = () => {
               sx={{
                 width: '100%',
                 maxWidth: 600,
-                minHeight: 300, // Use minHeight to allow content to expand
+                minHeight: { xs: 180, sm: 300 },
                 display: 'flex',
                 flexDirection: 'column',
                 justifyContent: 'center',
                 alignItems: 'center',
                 borderRadius: 2,
                 border: '1px solid rgba(0, 0, 0, 0.08)',
-                p: 4,
-                mb: 3,
+                p: { xs: 2, sm: 4 },
+                mb: { xs: 2, sm: 3 },
                 cursor: 'pointer',
                 transition: 'transform 0.2s, box-shadow 0.2s',
                 '&:hover': {
@@ -1002,10 +937,10 @@ const FlashcardsPage = () => {
               }}
             >
               <Typography
-                variant={showAnswer ? 'h6' : 'h5'} // Adjusted variant for potentially longer answers
+                variant={showAnswer ? 'h5' : 'h4'}
                 fontWeight={showAnswer ? 'normal' : 'bold'}
                 align="center"
-                sx={{wordBreak: 'break-word'}}
+                sx={{ wordBreak: 'break-word', fontSize: showAnswer ? { xs: '1.1rem', sm: '1.5rem' } : { xs: '1.3rem', sm: '1.75rem' } }}
               >
                 {showAnswer ? currentCard.back : currentCard.front}
               </Typography>
@@ -1014,14 +949,43 @@ const FlashcardsPage = () => {
                 <Typography
                   variant="body2"
                   color="text.secondary"
-                  sx={{ mt: 3, fontStyle: 'italic' }}
+                  sx={{ mt: 3, fontStyle: 'italic', fontSize: { xs: '0.95rem', sm: '1rem' } }}
                 >
-                  Click to reveal answer
+                  Tap to reveal answer
                 </Typography>
               )}
             </Card>
 
-            <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2, mb: 4 }}>
+            <Box sx={{ 
+              display: 'flex', 
+              flexDirection: { xs: 'column', sm: 'row' }, 
+              justifyContent: 'center', 
+              gap: 2, 
+              mb: { xs: 2, sm: 4 }, 
+              width: { xs: '100%', sm: 'auto' } 
+            }}>
+              <Button
+                variant="contained"
+                endIcon={<ArrowForward sx={{ fontSize: 24 }} />}
+                onClick={handleNextCard}
+                disabled={filteredFlashcards.length <= 1}
+                sx={{
+                  backgroundColor: '#3182ce',
+                  boxShadow: 'none',
+                  textTransform: 'none',
+                  fontSize: '1rem',
+                  py: 1.5,
+                  px: 2.5,
+                  width: { xs: '100%', sm: 'auto' },
+                  order: { xs: 1, sm: 3 },
+                  '&:hover': {
+                    backgroundColor: '#2b6cb0',
+                    boxShadow: 'none',
+                  }
+                }}
+              >
+                Next
+              </Button>
               <Button
                 variant="outlined"
                 startIcon={<ArrowBack sx={{ fontSize: 24 }} />}
@@ -1033,7 +997,9 @@ const FlashcardsPage = () => {
                   textTransform: 'none',
                   fontSize: '1rem',
                   py: 1.5,
-                  px: 2.5
+                  px: 2.5,
+                  width: { xs: '100%', sm: 'auto' },
+                  order: { xs: 2, sm: 1 }
                 }}
               >
                 Previous
@@ -1048,38 +1014,20 @@ const FlashcardsPage = () => {
                   textTransform: 'none',
                   fontSize: '1rem',
                   py: 1.5,
-                  px: 2.5
+                  px: 2.5,
+                  width: { xs: '100%', sm: 'auto' },
+                  order: { xs: 3, sm: 2 }
                 }}
               >
                 Reset
               </Button>
-              <Button
-                variant="contained"
-                endIcon={<ArrowForward sx={{ fontSize: 24 }} />}
-                onClick={handleNextCard}
-                disabled={filteredFlashcards.length <= 1}
-                sx={{
-                  backgroundColor: '#3182ce',
-                  boxShadow: 'none',
-                  textTransform: 'none',
-                  fontSize: '1rem',
-                  py: 1.5,
-                  px: 2.5,
-                  '&:hover': {
-                    backgroundColor: '#2b6cb0',
-                    boxShadow: 'none',
-                  }
-                }}
-              >
-                Next
-              </Button>
             </Box>
 
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 2 }}>
-              <Typography variant="body2" color="text.secondary">
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 2, flexDirection: { xs: 'column', sm: 'row' }, width: { xs: '100%', sm: 'auto' } }}>
+              <Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: '0.95rem', sm: '1rem' }, mb: { xs: 1, sm: 0 } }}>
                 Studying from deck:
               </Typography>
-              <FormControl size="small" sx={{ minWidth: 80, m: 0 }}>
+              <FormControl size="small" sx={{ minWidth: 80, m: 0, width: { xs: '100%', sm: 'auto' } }}>
                 <Select
                   value={selectedDeck}
                   onChange={e => {
@@ -1099,6 +1047,7 @@ const FlashcardsPage = () => {
                   }}
                   displayEmpty
                   sx={{ fontSize: '1rem', borderRadius: 2 }}
+                  fullWidth={true}
                 >
                   <MenuItem value="all">All</MenuItem>
                   {decks.filter(deck => deck.id !== 'all').map(deck => (
@@ -1214,6 +1163,92 @@ const FlashcardsPage = () => {
         </DialogActions>
       </Dialog>
 
+      {/* Create Flashcard Dialog */}
+      <Dialog
+        open={createDialogOpen}
+        onClose={() => {
+          setCreateDialogOpen(false);
+          setNewCard({ front: '', back: '', deck: '', tags: [] });
+          setCurrentTag('');
+        }}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>Create New Flashcard</DialogTitle>
+        <DialogContent>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 2 }}>
+            <TextField
+              label="Front"
+              multiline
+              rows={3}
+              value={newCard.front}
+              onChange={(e) => setNewCard(prev => ({ ...prev, front: e.target.value }))}
+              placeholder="Enter the question or term"
+            />
+            <TextField
+              label="Back"
+              multiline
+              rows={3}
+              value={newCard.back}
+              onChange={(e) => setNewCard(prev => ({ ...prev, back: e.target.value }))}
+              placeholder="Enter the answer or definition"
+            />
+            <TextField
+              label="Deck"
+              value={newCard.deck}
+              onChange={(e) => setNewCard(prev => ({ ...prev, deck: e.target.value }))}
+              placeholder="Enter deck name"
+            />
+            <Box>
+              <TextField
+                label="Add Tags"
+                value={currentTag}
+                onChange={(e) => setCurrentTag(e.target.value)}
+                onKeyPress={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    handleAddTag();
+                  }
+                }}
+                placeholder="Press Enter to add tags"
+                fullWidth
+              />
+              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mt: 1 }}>
+                {newCard.tags.map((tag, index) => (
+                  <Chip
+                    key={index}
+                    label={tag}
+                    onDelete={() => handleRemoveTag(tag)}
+                    size="medium"
+                    sx={{
+                      height: 28,
+                      fontSize: '0.9rem',
+                      backgroundColor: 'rgba(0,0,0,0.06)'
+                    }}
+                  />
+                ))}
+              </Box>
+            </Box>
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => {
+            setCreateDialogOpen(false);
+            setNewCard({ front: '', back: '', deck: '', tags: [] });
+            setCurrentTag('');
+          }}>
+            Cancel
+          </Button>
+          <Button
+            variant="contained"
+            onClick={handleCreateFlashcard}
+            disabled={!newCard.front || !newCard.back || !newCard.deck}
+          >
+            Create
+          </Button>
+        </DialogActions>
+      </Dialog>
+
       {/* Snackbar for notifications */}
       <Snackbar
         open={snackbar.open}
@@ -1269,6 +1304,90 @@ const FlashcardsPage = () => {
         >
           <Delete sx={{ fontSize: 20, mr: 1.5 }} />
           Delete
+        </MenuItem>
+      </Menu>
+
+      {/* Filter Menu */}
+      <Menu
+        anchorEl={filterAnchorEl}
+        open={Boolean(filterAnchorEl)}
+        onClose={handleFilterClose}
+        anchorOrigin={{
+          vertical: 'center',
+          horizontal: 'center',
+        }}
+        transformOrigin={{
+          vertical: 'center',
+          horizontal: 'center',
+        }}
+        PaperProps={{
+          sx: {
+            mt: 1,
+            minWidth: { xs: '280px', sm: '220px' },
+            borderRadius: 2,
+            boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
+            position: 'fixed',
+            top: { xs: '50%', sm: 'auto' },
+            left: { xs: '50%', sm: 'auto' },
+            transform: { xs: 'translate(-50%, -50%)', sm: 'none' }
+          }
+        }}
+      >
+        <MenuItem 
+          onClick={() => {
+            setCurrentFilter('all');
+            handleFilterClose();
+          }}
+          selected={currentFilter === 'all'}
+          sx={{ 
+            fontSize: { xs: '1rem', sm: '1rem' },
+            py: { xs: 1.5, sm: 1.5 },
+            justifyContent: 'center'
+          }}
+        >
+          All Flashcards
+        </MenuItem>
+        <MenuItem 
+          onClick={() => {
+            setCurrentFilter('recent');
+            handleFilterClose();
+          }}
+          selected={currentFilter === 'recent'}
+          sx={{ 
+            fontSize: { xs: '1rem', sm: '1rem' },
+            py: { xs: 1.5, sm: 1.5 },
+            justifyContent: 'center'
+          }}
+        >
+          Most Recent
+        </MenuItem>
+        <MenuItem 
+          onClick={() => {
+            setCurrentFilter('alphabetical');
+            handleFilterClose();
+          }}
+          selected={currentFilter === 'alphabetical'}
+          sx={{ 
+            fontSize: { xs: '1rem', sm: '1rem' },
+            py: { xs: 1.5, sm: 1.5 },
+            justifyContent: 'center'
+          }}
+        >
+          Alphabetical
+        </MenuItem>
+        <MenuItem 
+          onClick={() => {
+            setCurrentFilter('byDeck');
+            handleFilterClose();
+          }}
+          selected={currentFilter === 'byDeck'}
+          sx={{ 
+            fontSize: { xs: '1rem', sm: '1rem' },
+            py: { xs: 1.5, sm: 1.5 },
+            justifyContent: 'center'
+          }}
+        >
+          By Deck
         </MenuItem>
       </Menu>
     </Box>

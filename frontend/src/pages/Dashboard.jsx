@@ -335,49 +335,61 @@ const Dashboard = () => {
       <Box 
         sx={{ 
           textAlign: 'center', 
-          mb: 6,
-          py: 4
+          mb: { xs: 4, sm: 6 },
+          py: { xs: 2, sm: 4 }
         }}
       >
         <Box sx={{ 
           display: 'flex', 
+          flexDirection: { xs: 'column', sm: 'row' },
           alignItems: 'center', 
           justifyContent: 'center', 
-          gap: 2,
-          mb: 2
+          gap: { xs: 1.5, sm: 2 },
+          mb: { xs: 1, sm: 2 }
         }}>
           <MenuBook sx={{ 
-            fontSize: 80,
+            fontSize: { xs: 60, sm: 80 },
             color: '#3182ce',
-            filter: 'drop-shadow(0px 4px 8px rgba(0, 0, 0, 0.1))'
+            filter: 'drop-shadow(0px 4px 8px rgba(0, 0, 0, 0.1))',
+            order: { xs: 0, sm: 0 }
           }} />
-          <Typography 
-            variant="h2" 
-            fontWeight="bold" 
-            sx={{ 
-              background: 'linear-gradient(90deg, #3182ce 0%, #4299E1 50%, #00f3ff 100%)',
-              backgroundClip: 'text',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              color: 'transparent',
-              fontFamily: 'monospace',
-              letterSpacing: 1
-            }}
-          >
-            {typedHeading}
-            <Box component="span" sx={{
-              display: 'inline-block',
-              width: '1ch',
-              color: '#3182ce',
-              opacity: showCursor && typedHeading.length === fullHeading.length ? 1 : 0,
-              fontWeight: 'bold',
-              fontSize: '1.5rem',
-              ml: 0.5,
-              transition: 'opacity 0.2s'
-            }}>
-              |
-            </Box>
-          </Typography>
+          <Box sx={{ 
+            display: 'flex', 
+            flexDirection: { xs: 'column', sm: 'row' },
+            alignItems: 'center',
+            order: { xs: 1, sm: 1 }
+          }}>
+            <Typography 
+              variant="h2" 
+              fontWeight="bold" 
+              sx={{ 
+                background: 'linear-gradient(90deg, #3182ce 0%, #4299E1 50%, #00f3ff 100%)',
+                backgroundClip: 'text',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                color: 'transparent',
+                fontFamily: 'monospace',
+                letterSpacing: 1,
+                fontSize: { xs: '1.8rem', sm: '2.5rem', md: '3rem' },
+                lineHeight: 1.2,
+                whiteSpace: 'nowrap'
+              }}
+            >
+              {typedHeading}
+              <Box component="span" sx={{
+                display: 'inline-block',
+                width: '1ch',
+                color: '#3182ce',
+                opacity: showCursor && typedHeading.length === fullHeading.length ? 1 : 0,
+                fontWeight: 'bold',
+                fontSize: { xs: '1rem', sm: '1.5rem' },
+                ml: 0.5,
+                transition: 'opacity 0.2s'
+              }}>
+                |
+              </Box>
+            </Typography>
+          </Box>
         </Box>
         <Typography 
           variant="h6" 
@@ -385,7 +397,9 @@ const Dashboard = () => {
           sx={{ 
             maxWidth: '600px', 
             mx: 'auto',
-            lineHeight: 1.6
+            lineHeight: 1.6,
+            fontSize: { xs: '1rem', sm: '1.25rem' },
+            px: { xs: 2, sm: 0 }
           }}
         >
           Your intelligent companion for organizing notes, creating flashcards, and mastering your study materials with ease.
@@ -393,20 +407,20 @@ const Dashboard = () => {
       </Box>
 
       {/* Stats Section */}
-      <Grid container spacing={4} justifyContent="center" sx={{ mb: 4 }}>
+      <Grid container spacing={{ xs: 2, sm: 4 }} justifyContent="center" sx={{ mb: { xs: 3, sm: 4 } }}>
         {stats.map((stat) => (
-          <Grid item xs={12} sm={3} key={stat.title}>
+          <Grid item xs={12} sm={4} md={3} key={stat.title}>
             <Tooltip title={stat.tooltip} arrow>
               <Card
                 elevation={0}
                 onClick={() => handleStatClick(stat.type)}
                 sx={{
-                  p: 3,
+                  p: { xs: 2, sm: 3 },
                   borderRadius: 2,
                   border: '1px solid rgba(0, 0, 0, 0.08)',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: 2,
+                  gap: { xs: 1.5, sm: 2 },
                   height: '100%',
                   cursor: 'pointer',
                   transition: 'all 0.2s ease-in-out',
@@ -419,8 +433,8 @@ const Dashboard = () => {
               >
                 <Box
                   sx={{
-                    width: 60,
-                    height: 60,
+                    width: { xs: 45, sm: 60 },
+                    height: { xs: 45, sm: 60 },
                     borderRadius: 2,
                     backgroundColor: stat.color,
                     display: 'flex',
@@ -436,10 +450,10 @@ const Dashboard = () => {
                   {stat.icon}
                 </Box>
                 <Box>
-                  <Typography variant="h4" fontWeight="bold">
+                  <Typography variant="h4" fontWeight="bold" sx={{ fontSize: { xs: '1.5rem', sm: '2rem' } }}>
                     {stat.value}
                   </Typography>
-                  <Typography variant="body2" color="text.secondary">
+                  <Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: '0.9rem', sm: '1rem' } }}>
                     {stat.title}
                   </Typography>
                 </Box>
@@ -450,21 +464,27 @@ const Dashboard = () => {
       </Grid>
 
       {/* Action Buttons */}
-      <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2, mb: 4 }}>
+      <Box sx={{ 
+        display: 'flex', 
+        flexDirection: { xs: 'column', sm: 'row' },
+        justifyContent: 'center', 
+        gap: { xs: 1.5, sm: 2 }, 
+        mb: { xs: 3, sm: 4 },
+        px: { xs: 2, sm: 0 }
+      }}>
         <Button
           variant="contained"
           startIcon={<NoteAlt />}
           onClick={() => setNewNoteDialogOpen(true)}
+          fullWidth={false}
           sx={{
             backgroundColor: '#3182ce',
             boxShadow: 'none',
             borderRadius: '50px',
-            px: 3,
-            py: 1.5,
-            '&:hover': {
-              backgroundColor: '#2b6cb0',
-              boxShadow: 'none',
-            }
+            px: { xs: 2, sm: 3 },
+            py: { xs: 1, sm: 1.5 },
+            fontSize: { xs: '0.9rem', sm: '1rem' },
+            width: { xs: '100%', sm: 'auto' }
           }}
         >
           Create New Note
@@ -473,16 +493,15 @@ const Dashboard = () => {
           variant="contained"
           startIcon={<PlayArrow />}
           onClick={handleStartStudy}
+          fullWidth={false}
           sx={{
             backgroundColor: '#48BB78',
             boxShadow: 'none',
             borderRadius: '50px',
-            px: 3,
-            py: 1.5,
-            '&:hover': {
-              backgroundColor: '#38A169',
-              boxShadow: 'none',
-            }
+            px: { xs: 2, sm: 3 },
+            py: { xs: 1, sm: 1.5 },
+            fontSize: { xs: '0.9rem', sm: '1rem' },
+            width: { xs: '100%', sm: 'auto' }
           }}
         >
           Start Study Mode
@@ -490,23 +509,25 @@ const Dashboard = () => {
       </Box>
 
       {/* Import Section */}
-      <Box sx={{ display: 'flex', justifyContent: 'center', mb: 4 }}>
+      <Box sx={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        mb: { xs: 3, sm: 4 },
+        px: { xs: 2, sm: 0 }
+      }}>
         <Button
           variant="outlined"
           startIcon={<Upload />}
           onClick={() => setImportDialogOpen(true)}
+          fullWidth={false}
           sx={{
             borderColor: 'rgba(0, 0, 0, 0.23)',
             color: 'text.primary',
             borderRadius: '50px',
-            px: 4,
-            py: 2,
-            fontSize: '1.1rem',
-            minWidth: '200px',
-            '&:hover': {
-              borderColor: 'primary.main',
-              backgroundColor: 'rgba(0, 0, 0, 0.04)',
-            }
+            px: { xs: 2, sm: 4 },
+            py: { xs: 1, sm: 2 },
+            fontSize: { xs: '0.9rem', sm: '1.1rem' },
+            minWidth: { xs: '100%', sm: '200px' }
           }}
         >
           Import Files
@@ -517,15 +538,23 @@ const Dashboard = () => {
       <Paper 
         elevation={0} 
         sx={{ 
-          p: 4, 
+          p: { xs: 2, sm: 4 }, 
           borderRadius: 2,
           border: '1px solid rgba(0, 0, 0, 0.08)',
-          mb: 4
+          mb: { xs: 3, sm: 4 },
+          mx: { xs: 2, sm: 0 }
         }}
       >
-        <Typography variant="h4" fontWeight="bold" sx={{ mb: 3, fontSize: '2rem' }}>
-          Summarize
-        </Typography>
+        <Box sx={{ 
+          display: 'flex', 
+          flexDirection: { xs: 'column', sm: 'row' },
+          justifyContent: 'space-between', 
+          alignItems: { xs: 'center', sm: 'center' }, 
+          mb: 3,
+          gap: { xs: 1, sm: 0 }
+        }}>
+          <Typography variant="h4" fontWeight="bold" sx={{ fontSize: { xs: '1.3rem', sm: '1.7rem' } }}>Summarize</Typography>
+        </Box>
         
         <TextField
           fullWidth
@@ -538,7 +567,7 @@ const Dashboard = () => {
         />
 
         <Box sx={{ mb: 3 }}>
-          <FormGroup row sx={{ gap: 3 }}>
+          <FormGroup row sx={{ gap: { xs: 1, sm: 3 }, flexWrap: { xs: 'wrap', sm: 'nowrap' } }}>
             <FormControlLabel
               control={
                 <Checkbox 
@@ -562,18 +591,21 @@ const Dashboard = () => {
           </FormGroup>
         </Box>
 
-        <Box sx={{ display: 'flex', gap: 2, mb: 3 }}>
+        <Box sx={{ 
+          display: 'flex', 
+          flexDirection: { xs: 'column', sm: 'row' },
+          gap: { xs: 1, sm: 2 }, 
+          mb: 3 
+        }}>
           <Button
             variant="outlined"
             startIcon={<Upload />}
             onClick={() => setImportDialogOpen(true)}
+            fullWidth={false}
             sx={{
               borderColor: 'rgba(0, 0, 0, 0.23)',
               color: 'text.primary',
-              '&:hover': {
-                borderColor: 'primary.main',
-                backgroundColor: 'rgba(0, 0, 0, 0.04)',
-              }
+              width: { xs: '100%', sm: 'auto' }
             }}
           >
             Import Files
@@ -583,11 +615,10 @@ const Dashboard = () => {
             startIcon={<AutoAwesome />}
             onClick={handleProcessContent}
             disabled={!content.trim() || isProcessing || (!generateOptions.summary && !generateOptions.flashcards)}
+            fullWidth={false}
             sx={{
               backgroundColor: '#3182ce',
-              '&:hover': {
-                backgroundColor: '#2b6cb0',
-              }
+              width: { xs: '100%', sm: 'auto' }
             }}
           >
             {isProcessing ? 'Processing...' : 'Generate'}
@@ -602,7 +633,7 @@ const Dashboard = () => {
 
         {generatedSummary && generateOptions.summary && (
           <Box sx={{ mb: 3 }}>
-            <Typography variant="h6" sx={{ mb: 2 }}>Generated Summary</Typography>
+            <Typography variant="h6" sx={{ mb: 2, fontSize: { xs: '1.1rem', sm: '1.25rem' } }}>Generated Summary</Typography>
             <Paper 
               elevation={0} 
               sx={{ 
@@ -611,7 +642,7 @@ const Dashboard = () => {
                 borderRadius: 1
               }}
             >
-              <Typography variant="body1">
+              <Typography variant="body1" sx={{ fontSize: { xs: '0.9rem', sm: '1rem' } }}>
                 {generatedSummary}
               </Typography>
             </Paper>
@@ -620,7 +651,7 @@ const Dashboard = () => {
 
         {generatedFlashcards.length > 0 && generateOptions.flashcards && (
           <Box sx={{ mb: 3 }}>
-            <Typography variant="h6" sx={{ mb: 2 }}>Generated Flashcards</Typography>
+            <Typography variant="h6" sx={{ mb: 2, fontSize: { xs: '1.1rem', sm: '1.25rem' } }}>Generated Flashcards</Typography>
             <Grid container spacing={2}>
               {generatedFlashcards.map((card, index) => (
                 <Grid item xs={12} sm={6} key={index}>
@@ -632,16 +663,16 @@ const Dashboard = () => {
                       borderRadius: 1
                     }}
                   >
-                    <Typography variant="subtitle2" color="primary" gutterBottom>
+                    <Typography variant="subtitle2" color="primary" gutterBottom sx={{ fontSize: { xs: '0.9rem', sm: '1rem' } }}>
                       Question:
                     </Typography>
-                    <Typography variant="body1" sx={{ mb: 2 }}>
+                    <Typography variant="body1" sx={{ mb: 2, fontSize: { xs: '0.9rem', sm: '1rem' } }}>
                       {card.front}
                     </Typography>
-                    <Typography variant="subtitle2" color="primary" gutterBottom>
+                    <Typography variant="subtitle2" color="primary" gutterBottom sx={{ fontSize: { xs: '0.9rem', sm: '1rem' } }}>
                       Answer:
                     </Typography>
-                    <Typography variant="body1">
+                    <Typography variant="body1" sx={{ fontSize: { xs: '0.9rem', sm: '1rem' } }}>
                       {card.back}
                     </Typography>
                   </Paper>
@@ -656,11 +687,10 @@ const Dashboard = () => {
             variant="contained"
             startIcon={<Save />}
             onClick={handleSaveProcessedContent}
+            fullWidth={false}
             sx={{
               backgroundColor: '#48BB78',
-              '&:hover': {
-                backgroundColor: '#38A169',
-              }
+              width: { xs: '100%', sm: 'auto' }
             }}
           >
             Save Content
@@ -672,14 +702,22 @@ const Dashboard = () => {
       <Paper 
         elevation={0} 
         sx={{ 
-          p: 4, 
+          p: { xs: 2, sm: 4 }, 
           borderRadius: 2,
           border: '1px solid rgba(0, 0, 0, 0.08)',
-          mb: 4
+          mb: { xs: 3, sm: 4 },
+          mx: { xs: 2, sm: 0 }
         }}
       >
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-          <Typography variant="h4" fontWeight="bold" sx={{ fontSize: '1.7rem' }}>Recent Notes</Typography>
+        <Box sx={{ 
+          display: 'flex', 
+          flexDirection: { xs: 'column', sm: 'row' },
+          justifyContent: 'space-between', 
+          alignItems: { xs: 'center', sm: 'center' }, 
+          mb: 3,
+          gap: { xs: 1, sm: 0 }
+        }}>
+          <Typography variant="h4" fontWeight="bold" sx={{ fontSize: { xs: '1.3rem', sm: '1.7rem' } }}>Recent Notes</Typography>
           <Button 
             variant="contained"
             size="medium" 
@@ -689,11 +727,9 @@ const Dashboard = () => {
               backgroundColor: '#3182ce',
               borderRadius: '50px',
               textTransform: 'none',
-              px: 2.5,
-              fontSize: '1.1rem',
-              '&:hover': {
-                backgroundColor: '#2b6cb0',
-              }
+              px: { xs: 2, sm: 2.5 },
+              fontSize: { xs: '0.9rem', sm: '1.1rem' },
+              width: { xs: '100%', sm: 'auto' }
             }}
           >
             View All
@@ -707,7 +743,7 @@ const Dashboard = () => {
               alignItems="flex-start"
               onClick={() => navigate(`/notes/${note.id}`)}
               sx={{ 
-                px: 2, 
+                px: { xs: 1, sm: 2 }, 
                 borderRadius: 1,
                 mb: 1,
                 cursor: 'pointer',
@@ -717,17 +753,17 @@ const Dashboard = () => {
               }}
             >
               <ListItemText
-                primary={<Typography sx={{ fontSize: '1.2rem', fontWeight: 600 }}>{note.title}</Typography>}
+                primary={<Typography sx={{ fontSize: { xs: '1rem', sm: '1.2rem' }, fontWeight: 600 }}>{note.title}</Typography>}
                 secondary={
                   <Box sx={{ mt: 1, display: 'flex', gap: 1, flexWrap: 'wrap' }}>
                     {note.tags.map((tag) => (
                       <Chip
                         key={tag}
                         label={tag}
-                        size="medium"
+                        size="small"
                         sx={{
-                          height: 28,
-                          fontSize: '0.9rem',
+                          height: 24,
+                          fontSize: { xs: '0.8rem', sm: '0.9rem' },
                           backgroundColor: 'rgba(0,0,0,0.06)',
                         }}
                       />
@@ -735,7 +771,7 @@ const Dashboard = () => {
                   </Box>
                 }
               />
-              <Typography variant="caption" color="text.secondary" sx={{ fontSize: '1rem' }}>
+              <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: '0.8rem', sm: '1rem' } }}>
                 {note.date}
               </Typography>
             </ListItem>
@@ -747,14 +783,22 @@ const Dashboard = () => {
       <Paper 
         elevation={0} 
         sx={{ 
-          p: 4, 
+          p: { xs: 2, sm: 4 }, 
           borderRadius: 2,
           border: '1px solid rgba(0, 0, 0, 0.08)',
-          mb: 4
+          mb: { xs: 3, sm: 4 },
+          mx: { xs: 2, sm: 0 }
         }}
       >
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-          <Typography variant="h4" fontWeight="bold" sx={{ fontSize: '1.7rem' }}>Favorite Notes</Typography>
+        <Box sx={{ 
+          display: 'flex', 
+          flexDirection: { xs: 'column', sm: 'row' },
+          justifyContent: 'space-between', 
+          alignItems: { xs: 'center', sm: 'center' }, 
+          mb: 3,
+          gap: { xs: 1, sm: 0 }
+        }}>
+          <Typography variant="h4" fontWeight="bold" sx={{ fontSize: { xs: '1.3rem', sm: '1.7rem' } }}>Favorite Notes</Typography>
           <Button 
             variant="contained"
             size="small" 
@@ -764,10 +808,9 @@ const Dashboard = () => {
               backgroundColor: '#3182ce',
               borderRadius: '50px',
               textTransform: 'none',
-              px: 2,
-              '&:hover': {
-                backgroundColor: '#2b6cb0',
-              }
+              px: { xs: 2, sm: 2.5 },
+              fontSize: { xs: '0.9rem', sm: '1.1rem' },
+              width: { xs: '100%', sm: 'auto' }
             }}
           >
             View All
@@ -781,7 +824,7 @@ const Dashboard = () => {
               alignItems="flex-start"
               onClick={() => navigate(`/notes/${note.id}`)}
               sx={{ 
-                px: 2, 
+                px: { xs: 1, sm: 2 }, 
                 borderRadius: 1,
                 mb: 1,
                 cursor: 'pointer',
@@ -791,17 +834,17 @@ const Dashboard = () => {
               }}
             >
               <ListItemText
-                primary={<Typography sx={{ fontSize: '1.2rem', fontWeight: 600 }}>{note.title}</Typography>}
+                primary={<Typography sx={{ fontSize: { xs: '1rem', sm: '1.2rem' }, fontWeight: 600 }}>{note.title}</Typography>}
                 secondary={
                   <Box sx={{ mt: 1, display: 'flex', gap: 1, flexWrap: 'wrap' }}>
                     {note.tags.map((tag) => (
                       <Chip
                         key={tag}
                         label={tag}
-                        size="medium"
+                        size="small"
                         sx={{
-                          height: 28,
-                          fontSize: '0.9rem',
+                          height: 24,
+                          fontSize: { xs: '0.8rem', sm: '0.9rem' },
                           backgroundColor: 'rgba(0,0,0,0.06)',
                         }}
                       />
@@ -809,7 +852,7 @@ const Dashboard = () => {
                   </Box>
                 }
               />
-              <Typography variant="caption" color="text.secondary" sx={{ fontSize: '1rem' }}>
+              <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: '0.8rem', sm: '1rem' } }}>
                 {note.date}
               </Typography>
             </ListItem>
@@ -829,14 +872,22 @@ const Dashboard = () => {
       <Paper 
         elevation={0} 
         sx={{ 
-          p: 4, 
+          p: { xs: 2, sm: 4 }, 
           borderRadius: 2,
           border: '1px solid rgba(0, 0, 0, 0.08)',
-          mb: 4
+          mb: { xs: 3, sm: 4 },
+          mx: { xs: 2, sm: 0 }
         }}
       >
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-          <Typography variant="h4" fontWeight="bold" sx={{ fontSize: '1.7rem' }}>Explore Decks</Typography>
+        <Box sx={{ 
+          display: 'flex', 
+          flexDirection: { xs: 'column', sm: 'row' },
+          justifyContent: 'space-between', 
+          alignItems: { xs: 'center', sm: 'center' }, 
+          mb: 3,
+          gap: { xs: 1, sm: 0 }
+        }}>
+          <Typography variant="h4" fontWeight="bold" sx={{ fontSize: { xs: '1.3rem', sm: '1.7rem' } }}>Explore Decks</Typography>
           <Button 
             variant="contained"
             size="small" 
@@ -846,10 +897,9 @@ const Dashboard = () => {
               backgroundColor: '#3182ce',
               borderRadius: '50px',
               textTransform: 'none',
-              px: 2,
-              '&:hover': {
-                backgroundColor: '#2b6cb0',
-              }
+              px: { xs: 2, sm: 2.5 },
+              fontSize: { xs: '0.9rem', sm: '1.1rem' },
+              width: { xs: '100%', sm: 'auto' }
             }}
           >
             View All
@@ -857,7 +907,7 @@ const Dashboard = () => {
         </Box>
         <Divider sx={{ mb: 3 }} />
 
-        <Grid container spacing={3}>
+        <Grid container spacing={{ xs: 2, sm: 3 }}>
           {decks
             .filter(deck => deck.id !== 'all' && deck.id !== 'PROCESSED')
             .sort((a, b) => a.name.localeCompare(b.name))
@@ -878,66 +928,72 @@ const Dashboard = () => {
                     }
                   }}
                 >
-                  <CardContent sx={{ p: 3, flexGrow: 1 }}>
+                  <CardContent sx={{ p: { xs: 2, sm: 3 }, flexGrow: 1 }}>
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                      <Typography variant="h6" fontWeight="bold" sx={{wordBreak: 'break-word'}}>
+                      <Typography variant="h6" fontWeight="bold" sx={{ 
+                        wordBreak: 'break-word',
+                        fontSize: { xs: '1rem', sm: '1.25rem' }
+                      }}>
                         {deck.name}
                       </Typography>
-                      <School sx={{ color: 'primary.main', fontSize: 36 }} />
+                      <School sx={{ color: 'primary.main', fontSize: { xs: 28, sm: 36 } }} />
                     </Box>
 
-                    <Typography variant="body2" color="text.secondary" sx={{ mb: 1, fontSize: '1.1rem' }}>
+                    <Typography variant="body2" color="text.secondary" sx={{ mb: 1, fontSize: { xs: '0.9rem', sm: '1.1rem' } }}>
                       {deck.count} flashcard{deck.count === 1 ? '' : 's'}
                     </Typography>
-                  </CardContent>
-                  <Box sx={{ mt: 'auto', p: 2, pt: 0, display: 'flex', gap: 1 }}>
-                    <Button
-                      variant="outlined"
-                      size="small"
-                      onClick={() => navigate('/flashcards', { state: { selectedDeck: deck.id } })}
-                      sx={{
-                        flex: 1,
-                        borderColor: 'rgba(0, 0, 0, 0.23)',
-                        color: 'text.primary',
-                        textTransform: 'none'
-                      }}
-                    >
-                      View
-                    </Button>
-                    <Button
-                      variant="contained"
-                      size="small"
-                      onClick={() => {
-                        localStorage.setItem('currentStudySession', JSON.stringify({
-                          flashcards: deck.cards,
-                          source: 'deck',
-                          deckName: deck.name
-                        }));
-                        localStorage.setItem('studyMode', 'true');
-                        navigate('/flashcards');
-                      }}
-                      disabled={deck.count === 0}
-                      sx={{
-                        flex: 1,
-                        backgroundColor: '#3182ce',
-                        boxShadow: 'none',
-                        textTransform: 'none',
-                        '&:hover': {
-                          backgroundColor: '#2b6cb0',
+                  
+                    <Box sx={{ mt: 'auto', pt: 2, display: 'flex', gap: 1 }}>
+                      <Button
+                        variant="outlined"
+                        size="small"
+                        onClick={() => navigate('/flashcards', { state: { selectedDeck: deck.id } })}
+                        fullWidth
+                        sx={{
+                          borderColor: 'rgba(0, 0, 0, 0.23)',
+                          color: 'text.primary',
+                          textTransform: 'none',
+                          fontSize: { xs: '0.8rem', sm: '0.9rem' }
+                        }}
+                      >
+                        View
+                      </Button>
+                      <Button
+                        variant="contained"
+                        size="small"
+                        onClick={() => {
+                          localStorage.setItem('currentStudySession', JSON.stringify({
+                            flashcards: deck.cards,
+                            source: 'deck',
+                            deckName: deck.name
+                          }));
+                          localStorage.setItem('studyMode', 'true');
+                          navigate('/flashcards');
+                        }}
+                        disabled={deck.count === 0}
+                        fullWidth
+                        sx={{
+                          backgroundColor: '#3182ce',
                           boxShadow: 'none',
-                        }
-                      }}
-                    >
-                      Study
-                    </Button>
-                  </Box>
+                          textTransform: 'none',
+                          fontSize: { xs: '0.8rem', sm: '0.9rem' },
+                          '&:hover': {
+                            backgroundColor: '#2b6cb0',
+                            boxShadow: 'none',
+                          }
+                        }}
+                      >
+                        Study
+                      </Button>
+                    </Box>
+                  </CardContent>
                 </Card>
               </Grid>
             ))}
           {decks.filter(deck => deck.id !== 'all' && deck.id !== 'PROCESSED').length === 0 && (
             <Grid item xs={12}>
               <Box sx={{ textAlign: 'center', py: 4 }}>
-                <Typography variant="body1" color="text.secondary">
+                <Typography variant="body1" color="text.secondary" sx={{ fontSize: { xs: '0.9rem', sm: '1rem' } }}>
                   No decks available yet. Create some flashcards to get started!
                 </Typography>
               </Box>

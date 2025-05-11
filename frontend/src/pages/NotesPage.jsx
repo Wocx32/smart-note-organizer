@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import {
   Box,
   Typography,
@@ -71,6 +71,7 @@ const NotesPage = () => {
   const [selectedNotes, setSelectedNotes] = useState([]);
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
   const navigate = useNavigate();
+  const location = useLocation();
 
   // Load notes from localStorage on component mount
   useEffect(() => {
@@ -85,10 +86,15 @@ const NotesPage = () => {
 
     window.addEventListener('smart_notes_updated', handleNotesUpdate);
 
+    // Check for selected tag in location state
+    if (location.state?.selectedTag) {
+      setSelectedTag(location.state.selectedTag);
+    }
+
     return () => {
       window.removeEventListener('smart_notes_updated', handleNotesUpdate);
     };
-  }, []);
+  }, [location.state]);
 
   const handleSortClick = (event) => {
     setSortAnchorEl(event.currentTarget);
@@ -357,29 +363,46 @@ const NotesPage = () => {
           flex: 1,
           display: 'flex',
           flexDirection: 'column',
-          pl: 0,
-          pr: { xs: 0, md: 4 },
-          pt: 4,
-          pb: 4,
+          pl: { xs: 2, md: 0 },
+          pr: { xs: 2, md: 4 },
+          pt: { xs: 2, md: 4 },
+          pb: { xs: 2, md: 4 },
           minHeight: '100vh',
           maxWidth: '100%',
           boxSizing: 'border-box',
         }}
       >
         <Box>
-          <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Typography variant="h4" fontWeight="bold">My Notes</Typography>
-            <Box sx={{ display: 'flex', gap: 2 }}>
+          <Box sx={{ 
+            mb: { xs: 3, md: 4 }, 
+            display: 'flex', 
+            flexDirection: { xs: 'column', sm: 'row' },
+            justifyContent: 'space-between', 
+            alignItems: { xs: 'center', sm: 'center' },
+            gap: { xs: 2, sm: 0 }
+          }}>
+            <Typography variant="h4" fontWeight="bold" sx={{ 
+              fontSize: { xs: '1.5rem', sm: '2rem' },
+              textAlign: { xs: 'center', sm: 'left' }
+            }}>My Notes</Typography>
+            <Box sx={{ 
+              display: 'flex', 
+              flexDirection: { xs: 'column', sm: 'row' },
+              gap: { xs: 1, sm: 2 },
+              width: { xs: '100%', sm: 'auto' }
+            }}>
               {selectedNotes.length > 0 && (
                 <Button
                   variant="outlined"
                   color="error"
                   startIcon={<Delete />}
                   onClick={handleBulkDelete}
+                  fullWidth={false}
                   sx={{
                     borderColor: 'error.main',
                     color: 'error.main',
-                    textTransform: 'none'
+                    textTransform: 'none',
+                    width: { xs: '100%', sm: 'auto' }
                   }}
                 >
                   Delete Selected ({selectedNotes.length})
@@ -389,14 +412,16 @@ const NotesPage = () => {
                 variant="outlined"
                 startIcon={<Upload />}
                 onClick={() => setImportDialogOpen(true)}
+                fullWidth={false}
                 sx={{
                   borderColor: 'rgba(0, 0, 0, 0.23)',
                   color: 'text.primary',
                   textTransform: 'none',
-                  fontSize: '1rem',
-                  py: 1.5,
-                  px: 2.5,
-                  borderRadius: '50px'
+                  fontSize: { xs: '0.9rem', sm: '1rem' },
+                  py: { xs: 1, sm: 1.5 },
+                  px: { xs: 2, sm: 2.5 },
+                  borderRadius: '50px',
+                  width: { xs: '100%', sm: 'auto' }
                 }}
               >
                 Import
@@ -408,14 +433,16 @@ const NotesPage = () => {
                   setEditingNote(null);
                   setNewNoteDialogOpen(true);
                 }}
+                fullWidth={false}
                 sx={{
                   backgroundColor: '#3182ce',
                   boxShadow: 'none',
                   textTransform: 'none',
-                  fontSize: '1rem',
-                  py: 1.5,
-                  px: 2.5,
+                  fontSize: { xs: '0.9rem', sm: '1rem' },
+                  py: { xs: 1, sm: 1.5 },
+                  px: { xs: 2, sm: 2.5 },
                   borderRadius: '50px',
+                  width: { xs: '100%', sm: 'auto' },
                   '&:hover': {
                     backgroundColor: '#2b6cb0',
                     boxShadow: 'none',
@@ -431,7 +458,7 @@ const NotesPage = () => {
             elevation={0}
             sx={{
               p: 0,
-              mb: 4,
+              mb: { xs: 3, md: 4 },
               borderRadius: 2,
               border: '1px solid rgba(0, 0, 0, 0.08)'
             }}
@@ -442,7 +469,12 @@ const NotesPage = () => {
               sx={{
                 borderBottom: 1,
                 borderColor: 'divider',
-                px: 2
+                px: { xs: 1, sm: 2 },
+                '& .MuiTab-root': {
+                  fontSize: { xs: '0.8rem', sm: '0.9rem' },
+                  minWidth: { xs: '60px', sm: '80px' },
+                  padding: { xs: '6px 8px', sm: '12px 16px' }
+                }
               }}
             >
               <Tab label="All Notes" />
@@ -450,7 +482,14 @@ const NotesPage = () => {
               <Tab label="Favorites" />
             </Tabs>
 
-            <Box sx={{ p: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 2 }}>
+            <Box sx={{ 
+              p: { xs: 1.5, sm: 2 }, 
+              display: 'flex', 
+              flexDirection: { xs: 'column', sm: 'row' },
+              alignItems: { xs: 'stretch', sm: 'center' }, 
+              justifyContent: 'space-between', 
+              gap: { xs: 1.5, sm: 2 }
+            }}>
               <TextField
                 placeholder="Search notes..."
                 variant="outlined"
@@ -461,7 +500,7 @@ const NotesPage = () => {
                   width: { xs: '100%', sm: '700px' },
                   '& .MuiOutlinedInput-root': {
                     borderRadius: '50px',
-                    fontSize: '1.1rem',
+                    fontSize: { xs: '0.9rem', sm: '1.1rem' },
                     backgroundColor: 'background.paper',
                     '& fieldset': {
                       borderColor: 'divider',
@@ -477,97 +516,55 @@ const NotesPage = () => {
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
-                      <Search />
+                      <Search sx={{ fontSize: { xs: 20, sm: 24 } }} />
                     </InputAdornment>
                   ),
                 }}
               />
-
-              <Box sx={{ display: 'flex', gap: 1 }}>
-                <Box sx={{ display: 'flex', border: '1px solid rgba(0, 0, 0, 0.12)', borderRadius: 1 }}>
-                  <IconButton
-                    size="medium"
-                    onClick={() => handleViewChange('list')}
-                    sx={{
-                      color: viewMode === 'list' ? 'primary.main' : 'text.secondary',
-                      bgcolor: viewMode === 'list' ? 'primary.light' : 'transparent',
-                      borderRadius: '4px 0 0 4px',
-                      '&:hover': { bgcolor: viewMode === 'list' ? 'primary.light' : 'rgba(0, 0, 0, 0.04)' },
-                    }}
-                  >
-                    <ViewList sx={{ fontSize: 24 }} />
-                  </IconButton>
-                  <IconButton
-                    size="medium"
-                    onClick={() => handleViewChange('grid')}
-                    sx={{
-                      color: viewMode === 'grid' ? 'primary.main' : 'text.secondary',
-                      bgcolor: viewMode === 'grid' ? 'primary.light' : 'transparent',
-                      borderRadius: '0 4px 4px 0',
-                      '&:hover': { bgcolor: viewMode === 'grid' ? 'primary.light' : 'rgba(0, 0, 0, 0.04)' },
-                    }}
-                  >
-                    <ViewModule sx={{ fontSize: 24 }} />
-                  </IconButton>
-                </Box>
-
+              <Box sx={{ 
+                display: 'flex', 
+                gap: { xs: 1, sm: 2 },
+                width: { xs: '100%', sm: 'auto' }
+              }}>
                 <Button
                   variant="outlined"
-                  startIcon={<Sort sx={{ fontSize: 24 }} />}
+                  startIcon={<Sort sx={{ fontSize: { xs: 20, sm: 24 } }} />}
                   onClick={handleSortClick}
                   size="medium"
+                  fullWidth={false}
                   sx={{
                     borderColor: 'rgba(0, 0, 0, 0.12)',
                     color: 'text.primary',
                     textTransform: 'none',
-                    fontSize: '1rem',
-                    py: 1.5,
-                    px: 2.5,
-                    borderRadius: '50px'
+                    fontSize: { xs: '0.9rem', sm: '1rem' },
+                    py: { xs: 1, sm: 1.5 },
+                    px: { xs: 2, sm: 2.5 },
+                    borderRadius: '50px',
+                    width: { xs: '100%', sm: 'auto' }
                   }}
                 >
                   Sort
                 </Button>
-                <Menu
-                  anchorEl={sortAnchorEl}
-                  open={Boolean(sortAnchorEl)}
-                  onClose={handleSortClose}
-                >
-                  <MenuItem onClick={() => handleSortChange('recent')}>Most Recent</MenuItem>
-                  <MenuItem onClick={() => handleSortChange('title')}>Alphabetical</MenuItem>
-                </Menu>
 
                 <Button
                   variant="outlined"
-                  startIcon={<FilterList sx={{ fontSize: 24 }} />}
+                  startIcon={<FilterList sx={{ fontSize: { xs: 20, sm: 24 } }} />}
                   onClick={handleFilterClick}
                   size="medium"
+                  fullWidth={false}
                   sx={{
                     borderColor: 'rgba(0, 0, 0, 0.12)',
                     color: 'text.primary',
                     textTransform: 'none',
-                    fontSize: '1rem',
-                    py: 1.5,
-                    px: 2.5,
-                    borderRadius: '50px'
+                    fontSize: { xs: '0.9rem', sm: '1rem' },
+                    py: { xs: 1, sm: 1.5 },
+                    px: { xs: 2, sm: 2.5 },
+                    borderRadius: '50px',
+                    width: { xs: '100%', sm: 'auto' }
                   }}
                 >
                   Filter
                 </Button>
-                <Menu
-                  anchorEl={filterAnchorEl}
-                  open={Boolean(filterAnchorEl)}
-                  onClose={handleFilterClose}
-                >
-                  {allTags.length === 0 ? (
-                    <MenuItem disabled>No tags available</MenuItem>
-                  ) : (
-                    allTags.map((tag) => (
-                      <MenuItem key={tag} onClick={() => { handleTagSelect(tag); handleFilterClose(); }}>{tag}</MenuItem>
-                    ))
-                  )}
-                  <MenuItem onClick={() => { setSelectedTag(null); handleFilterClose(); }}>Clear Filter</MenuItem>
-                </Menu>
               </Box>
             </Box>
           </Paper>
@@ -580,20 +577,20 @@ const NotesPage = () => {
                 onChange={handleSelectAll}
                 size="small"
               />
-              <Typography variant="body2" component="span" sx={{ ml: 1 }}>
+              <Typography variant="body2" component="span" sx={{ ml: 1, fontSize: { xs: '0.8rem', sm: '0.875rem' } }}>
                 Select All
               </Typography>
             </Box>
           )}
 
           {filteredNotes.length === 0 && (
-            <Typography variant="body1" color="text.secondary" sx={{ textAlign: 'center', mt: 4 }}>
+            <Typography variant="body1" color="text.secondary" sx={{ textAlign: 'center', mt: 4, fontSize: { xs: '0.9rem', sm: '1rem' } }}>
               No notes found. Try adjusting your search or filters, or create a new note!
             </Typography>
           )}
 
           {viewMode === 'grid' ? (
-            <Grid container spacing={3}>
+            <Grid container spacing={{ xs: 2, sm: 3 }}>
               {filteredNotes.map((note) => (
                 <Grid key={note.id} item xs={12} sm={6} md={4}>
                   <Card
@@ -614,7 +611,7 @@ const NotesPage = () => {
                     onClick={(e) => handleNoteClick(note.id, e)}
                   >
                     <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', alignItems: 'flex-start', p: 0 }}>
-                      <CardContent sx={{ p: 3, pb: 2, width: '100%' }}>
+                      <CardContent sx={{ p: { xs: 2, sm: 3 }, pb: { xs: 1, sm: 2 }, width: '100%' }}>
                         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
                           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                             <Checkbox
@@ -623,7 +620,11 @@ const NotesPage = () => {
                               onClick={(e) => e.stopPropagation()}
                               size="small"
                             />
-                            <Typography variant="h6" component="div" sx={{ fontWeight: 600, mb: 1 }}>
+                            <Typography variant="h6" component="div" sx={{ 
+                              fontWeight: 600, 
+                              mb: 1,
+                              fontSize: { xs: '1rem', sm: '1.25rem' }
+                            }}>
                               {note.title}
                             </Typography>
                           </Box>
@@ -631,42 +632,53 @@ const NotesPage = () => {
                             {note.favorite && (
                               <Bookmark
                                 sx={{
-                                  fontSize: 20,
+                                  fontSize: { xs: 18, sm: 20 },
                                   color: 'primary.main',
                                   mr: 1
                                 }}
                               />
                             )}
-                            <IconButton size="medium" onClick={(e) => handleMenuClick(e, note)}>
-                              <MoreVert sx={{ fontSize: 24 }} />
+                            <IconButton size="small" onClick={(e) => handleMenuClick(e, note)}>
+                              <MoreVert sx={{ fontSize: { xs: 20, sm: 24 } }} />
                             </IconButton>
                           </Box>
                         </Box>
 
-                        <Typography variant="body2" color="text.secondary" component="div" sx={{ mb: 2,  maxHeight: '60px', overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical' }}>
+                        <Typography variant="body2" color="text.secondary" component="div" sx={{ 
+                          mb: 2,  
+                          maxHeight: '60px', 
+                          overflow: 'hidden', 
+                          textOverflow: 'ellipsis', 
+                          display: '-webkit-box', 
+                          WebkitLineClamp: 3, 
+                          WebkitBoxOrient: 'vertical',
+                          fontSize: { xs: '0.8rem', sm: '0.875rem' }
+                        }}>
                           {note.summary}
                         </Typography>
                       </CardContent>
 
-                      <Box sx={{ mt: 'auto', p: 2, pt: 0, width: '100%' }}>
+                      <Box sx={{ mt: 'auto', p: { xs: 1.5, sm: 2 }, pt: 0, width: '100%' }}>
                         <Divider sx={{ my: 1 }} />
-                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mb: 1, minHeight: '20px' /* Ensure space even if no tags */ }}>
+                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mb: 1, minHeight: '20px' }}>
                           {note.tags && note.tags.map((tag) => (
                             <Chip
                               key={tag}
                               label={tag}
-                              size="medium"
+                              size="small"
                               sx={{
-                                height: 28,
-                                fontSize: '0.9rem',
+                                height: { xs: 24, sm: 28 },
+                                fontSize: { xs: '0.75rem', sm: '0.9rem' },
                                 backgroundColor: 'rgba(0,0,0,0.06)'
                               }}
                             />
                           ))}
                         </Box>
                         <Box sx={{ display: 'flex', alignItems: 'center', color: 'text.secondary' }}>
-                          <Event sx={{ fontSize: 16, mr: 0.5 }} />
-                          <Typography variant="caption" component="span">{note.date}</Typography>
+                          <Event sx={{ fontSize: { xs: 14, sm: 16 }, mr: 0.5 }} />
+                          <Typography variant="caption" component="span" sx={{ fontSize: { xs: '0.7rem', sm: '0.75rem' } }}>
+                            {note.date}
+                          </Typography>
                         </Box>
                       </Box>
                     </Box>
@@ -688,7 +700,7 @@ const NotesPage = () => {
                   {index > 0 && <Divider />}
                   <Box
                     sx={{
-                      p: 3,
+                      p: { xs: 2, sm: 3 },
                       display: 'flex',
                       alignItems: 'flex-start',
                       '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.02)' },
@@ -696,42 +708,59 @@ const NotesPage = () => {
                     }}
                     onClick={(e) => handleNoteClick(note.id, e)}
                   >
-                    <Box sx={{ display: 'flex', alignItems: 'center', mr: 2 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', mr: { xs: 1, sm: 2 } }}>
                       <Checkbox
                         checked={selectedNotes.includes(note.id)}
                         onChange={() => handleNoteSelect(note.id)}
                         onClick={(e) => e.stopPropagation()}
                         size="small"
                       />
-                      <Avatar sx={{ bgcolor: '#E2E8F0', color: '#4A5568' }}>
-                        <Description />
+                      <Avatar sx={{ 
+                        bgcolor: '#E2E8F0', 
+                        color: '#4A5568',
+                        width: { xs: 32, sm: 40 },
+                        height: { xs: 32, sm: 40 }
+                      }}>
+                        <Description sx={{ fontSize: { xs: 18, sm: 24 } }} />
                       </Avatar>
                     </Box>
 
                     <Box sx={{ flexGrow: 1 }}>
                       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-                        <Typography variant="h6" component="div" fontWeight={500}>
+                        <Typography variant="h6" component="div" sx={{ 
+                          fontWeight: 500,
+                          fontSize: { xs: '1rem', sm: '1.25rem' }
+                        }}>
                           {note.title}
                         </Typography>
                         <IconButton size="small" onClick={(e) => { e.stopPropagation(); handleMenuClick(e, note); }}>
-                          <MoreVert fontSize="small" />
+                          <MoreVert sx={{ fontSize: { xs: 18, sm: 20 } }} />
                         </IconButton>
                       </Box>
 
-                      <Typography variant="body2" color="text.secondary" component="div" sx={{ mb: 2, maxHeight: '40px', overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical'  }}>
+                      <Typography variant="body2" color="text.secondary" component="div" sx={{ 
+                        mb: 2, 
+                        maxHeight: '40px', 
+                        overflow: 'hidden', 
+                        textOverflow: 'ellipsis', 
+                        display: '-webkit-box', 
+                        WebkitLineClamp: 2, 
+                        WebkitBoxOrient: 'vertical',
+                        fontSize: { xs: '0.8rem', sm: '0.875rem' }
+                      }}>
                         {note.summary}
                       </Typography>
 
                       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap', minHeight: '20px' /* Ensure space even if no tags */ }}>
+                        <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap', minHeight: '20px' }}>
                           {note.tags && note.tags.map((tag) => (
                             <Chip
                               key={tag}
                               label={tag}
                               size="small"
                               sx={{
-                                height: 20,
-                                fontSize: '0.7rem',
+                                height: { xs: 20, sm: 24 },
+                                fontSize: { xs: '0.7rem', sm: '0.75rem' },
                                 backgroundColor: 'rgba(0,0,0,0.06)'
                               }}
                             />
@@ -739,8 +768,10 @@ const NotesPage = () => {
                         </Box>
 
                         <Box sx={{ display: 'flex', alignItems: 'center', color: 'text.secondary' }}>
-                          <Event sx={{ fontSize: 16, mr: 0.5 }} />
-                          <Typography variant="caption" component="span">{note.date}</Typography>
+                          <Event sx={{ fontSize: { xs: 14, sm: 16 }, mr: 0.5 }} />
+                          <Typography variant="caption" component="span" sx={{ fontSize: { xs: '0.7rem', sm: '0.75rem' } }}>
+                            {note.date}
+                          </Typography>
                         </Box>
                       </Box>
                     </Box>
@@ -801,6 +832,101 @@ const NotesPage = () => {
             <Delete sx={{ mr: 1, fontSize: 20 }} />
             Delete
           </MenuItem>
+        </Menu>
+
+        <Menu
+          anchorEl={sortAnchorEl}
+          open={Boolean(sortAnchorEl)}
+          onClose={handleSortClose}
+          anchorOrigin={{
+            vertical: 'bottom',
+            horizontal: 'left',
+          }}
+          transformOrigin={{
+            vertical: 'top',
+            horizontal: 'left',
+          }}
+          PaperProps={{
+            sx: {
+              mt: 1,
+              minWidth: { xs: '200px', sm: '220px' },
+              borderRadius: 2,
+              boxShadow: '0 4px 20px rgba(0,0,0,0.1)'
+            }
+          }}
+        >
+          <MenuItem 
+            onClick={() => handleSortChange('recent')}
+            selected={sortBy === 'recent'}
+            sx={{ 
+              fontSize: { xs: '0.9rem', sm: '1rem' },
+              py: { xs: 1, sm: 1.5 }
+            }}
+          >
+            Most Recent
+          </MenuItem>
+          <MenuItem 
+            onClick={() => handleSortChange('title')}
+            selected={sortBy === 'title'}
+            sx={{ 
+              fontSize: { xs: '0.9rem', sm: '1rem' },
+              py: { xs: 1, sm: 1.5 }
+            }}
+          >
+            Title (A-Z)
+          </MenuItem>
+        </Menu>
+
+        <Menu
+          anchorEl={filterAnchorEl}
+          open={Boolean(filterAnchorEl)}
+          onClose={handleFilterClose}
+          anchorOrigin={{
+            vertical: 'bottom',
+            horizontal: 'left',
+          }}
+          transformOrigin={{
+            vertical: 'top',
+            horizontal: 'left',
+          }}
+          PaperProps={{
+            sx: {
+              mt: 1,
+              minWidth: { xs: '200px', sm: '220px' },
+              borderRadius: 2,
+              boxShadow: '0 4px 20px rgba(0,0,0,0.1)'
+            }
+          }}
+        >
+          <MenuItem 
+            onClick={() => {
+              setSelectedTag(null);
+              handleFilterClose();
+            }}
+            selected={!selectedTag}
+            sx={{ 
+              fontSize: { xs: '0.9rem', sm: '1rem' },
+              py: { xs: 1, sm: 1.5 }
+            }}
+          >
+            All Tags
+          </MenuItem>
+          {allTags.map((tag) => (
+            <MenuItem
+              key={tag}
+              onClick={() => {
+                setSelectedTag(tag);
+                handleFilterClose();
+              }}
+              selected={selectedTag === tag}
+              sx={{ 
+                fontSize: { xs: '0.9rem', sm: '1rem' },
+                py: { xs: 1, sm: 1.5 }
+              }}
+            >
+              {tag}
+            </MenuItem>
+          ))}
         </Menu>
 
         <Dialog

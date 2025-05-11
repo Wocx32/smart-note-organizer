@@ -41,7 +41,7 @@ import { useTheme } from '../context/ThemeContext';
 const drawerWidth = 240;
 const collapsedWidth = 65;
 
-const Sidebar = ({ onTagSelect }) => {
+const Sidebar = ({ onTagSelect, drawerOpen, onDrawerClose }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { isDarkMode, toggleTheme } = useTheme();
@@ -85,7 +85,15 @@ const Sidebar = ({ onTagSelect }) => {
   }, [isCollapsed]);
 
   const handleTagClick = (tag) => {
-    onTagSelect(tag);
+    if (onTagSelect) {
+      onTagSelect(tag);
+    }
+    // Navigate to notes page with the selected tag
+    navigate('/notes', { state: { selectedTag: tag } });
+    // Close the mobile drawer if it's open
+    if (onDrawerClose) {
+      onDrawerClose();
+    }
   };
 
   const filteredTags = tags.filter(tag => 
@@ -217,7 +225,7 @@ const Sidebar = ({ onTagSelect }) => {
                     <ListItemText 
                       primary={item.text}
                       primaryTypographyProps={{
-                        fontSize: '1.3rem',
+                        fontSize: { xs: '1rem', sm: '1.3rem' },
                         fontWeight: location.pathname === item.path ? 600 : 400,
                       }}
                     />
@@ -269,7 +277,7 @@ const Sidebar = ({ onTagSelect }) => {
                 <ListItemText 
                   primary="Tags"
                   primaryTypographyProps={{
-                    fontSize: '1.3rem',
+                    fontSize: { xs: '1rem', sm: '1.3rem' },
                     fontWeight: expanded ? 600 : 400,
                   }}
                 />
@@ -295,7 +303,7 @@ const Sidebar = ({ onTagSelect }) => {
                       <ListItemText 
                         primary={tag}
                         primaryTypographyProps={{
-                          fontSize: '0.9rem',
+                          fontSize: { xs: '0.85rem', sm: '0.9rem' },
                         }}
                       />
                     </ListItemButton>
@@ -313,7 +321,7 @@ const Sidebar = ({ onTagSelect }) => {
                       <ListItemText 
                         primary={`Show ${filteredTags.length - MAX_VISIBLE_TAGS} more`}
                         primaryTypographyProps={{
-                          fontSize: '0.9rem',
+                          fontSize: { xs: '0.85rem', sm: '0.9rem' },
                           color: 'primary.main'
                         }}
                       />
@@ -332,7 +340,7 @@ const Sidebar = ({ onTagSelect }) => {
                       <ListItemText 
                         primary="Show less"
                         primaryTypographyProps={{
-                          fontSize: '0.9rem',
+                          fontSize: { xs: '0.85rem', sm: '0.9rem' },
                           color: 'primary.main'
                         }}
                       />
@@ -344,23 +352,7 @@ const Sidebar = ({ onTagSelect }) => {
             
             <Divider sx={{ my: 2 }} />
             
-            <Box sx={{ px: 2 }}>
-              <ListItem disablePadding>
-                <ListItemButton 
-                  onClick={() => navigate('/recent')}
-                  sx={{
-                    borderRadius: 1,
-                    mb: 0.5,
-                    '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.04)' }
-                  }}
-                >
-                  <ListItemIcon>
-                    <History />
-                  </ListItemIcon>
-                  <ListItemText primary="Recent" />
-                </ListItemButton>
-              </ListItem>
-            </Box>
+            <Box sx={{ flexGrow: 1 }} />
           </>
         )}
         
@@ -408,7 +400,8 @@ const Sidebar = ({ onTagSelect }) => {
                   variant="body2" 
                   sx={{ 
                     ml: 1,
-                    fontWeight: 500
+                    fontWeight: 500,
+                    fontSize: { xs: '1rem', sm: '1.3rem' }
                   }}
                 >
                   {isDarkMode ? 'Dark Mode' : 'Light Mode'}
@@ -418,6 +411,253 @@ const Sidebar = ({ onTagSelect }) => {
           </Tooltip>
         </Box>
       </Box>
+
+      {/* Update the mobile Drawer to use props */}
+      <Drawer
+        variant="temporary"
+        open={drawerOpen}
+        onClose={onDrawerClose}
+        sx={{
+          display: { xs: 'block', sm: 'none' },
+          '& .MuiDrawer-paper': {
+            width: drawerWidth,
+            boxSizing: 'border-box',
+            backgroundColor: 'background.default',
+            color: 'text.primary',
+            borderRight: '0.5px solid',
+            borderColor: 'divider',
+            height: '100%',
+            top: 0
+          }
+        }}
+      >
+        <Box sx={{ 
+          display: 'flex', 
+          flexDirection: 'column', 
+          height: '100%', 
+          pt: 2
+        }}>
+          <Box sx={{ 
+            display: 'flex', 
+            justifyContent: 'flex-end', 
+            px: 2, 
+            mb: 2 
+          }}>
+            <IconButton 
+              onClick={onDrawerClose}
+              size="small"
+              sx={{
+                color: 'text.secondary',
+                '&:hover': {
+                  backgroundColor: 'rgba(0, 0, 0, 0.04)'
+                }
+              }}
+            >
+              <ChevronLeft />
+            </IconButton>
+          </Box>
+
+          <Divider sx={{ mb: 2 }} />
+          
+          <List>
+            {menuItems.map((item) => (
+              <ListItem key={item.text} disablePadding>
+                <ListItemButton
+                  component={Link}
+                  to={item.path}
+                  selected={location.pathname === item.path}
+                  onClick={onDrawerClose}
+                  sx={{
+                    borderRadius: 1,
+                    mx: 1,
+                    mb: 0.5,
+                    minHeight: 48,
+                    '&.Mui-selected': {
+                      backgroundColor: 'rgba(49, 130, 206, 0.1)',
+                      '&:hover': {
+                        backgroundColor: 'rgba(49, 130, 206, 0.15)',
+                      },
+                    },
+                    '&:hover': {
+                      backgroundColor: 'rgba(0, 0, 0, 0.04)',
+                    },
+                  }}
+                >
+                  <ListItemIcon sx={{ 
+                    minWidth: 40,
+                    justifyContent: 'center',
+                    '& .MuiSvgIcon-root': {
+                      fontSize: '1.7rem'
+                    }
+                  }}>
+                    {item.icon}
+                  </ListItemIcon>
+                  <ListItemText 
+                    primary={item.text}
+                    primaryTypographyProps={{
+                      fontSize: { xs: '1rem', sm: '1.3rem' },
+                      fontWeight: location.pathname === item.path ? 600 : 400,
+                    }}
+                  />
+                </ListItemButton>
+              </ListItem>
+            ))}
+          </List>
+
+          <Divider sx={{ my: 2 }} />
+
+          <Box sx={{ px: 2, mb: 2 }}>
+            <TextField
+              size="small"
+              placeholder="Search tags..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              fullWidth
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <Search sx={{ fontSize: '1.5rem', color: 'text.secondary' }} />
+                  </InputAdornment>
+                ),
+              }}
+              sx={{
+                '& .MuiInputBase-input': {
+                  fontSize: '1.2rem'
+                }
+              }}
+            />
+          </Box>
+
+          <Box sx={{ px: 2 }}>
+            <ListItemButton
+              onClick={() => setExpanded(!expanded)}
+              sx={{
+                borderRadius: 1,
+                mb: 0.5,
+                '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.04)' }
+              }}
+            >
+              <ListItemIcon>
+                <Tag sx={{ fontSize: '1.9rem' }} />
+              </ListItemIcon>
+              <ListItemText 
+                primary="Tags"
+                primaryTypographyProps={{
+                  fontSize: { xs: '1rem', sm: '1.3rem' },
+                  fontWeight: expanded ? 600 : 400,
+                }}
+              />
+              {expanded ? <ExpandLess sx={{ fontSize: '1.9rem' }} /> : <ExpandMore sx={{ fontSize: '1.5rem' }} />}
+            </ListItemButton>
+
+            <Collapse in={expanded} timeout="auto" unmountOnExit>
+              <List component="div" disablePadding>
+                {visibleTags.map((tag) => (
+                  <ListItemButton
+                    key={tag}
+                    onClick={() => handleTagClick(tag)}
+                    sx={{ 
+                      pl: 4,
+                      borderRadius: 1,
+                      mb: 0.5,
+                      '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.04)' }
+                    }}
+                  >
+                    <ListItemIcon sx={{ minWidth: 32 }}>
+                      <Label sx={{ fontSize: '1.1rem' }} />
+                    </ListItemIcon>
+                    <ListItemText 
+                      primary={tag}
+                      primaryTypographyProps={{
+                        fontSize: { xs: '0.85rem', sm: '0.9rem' },
+                      }}
+                    />
+                  </ListItemButton>
+                ))}
+                {!showAllTags && hasMoreTags && (
+                  <ListItemButton
+                    onClick={() => setShowAllTags(true)}
+                    sx={{ 
+                      pl: 4,
+                      borderRadius: 1,
+                      mb: 0.5,
+                      '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.04)' }
+                    }}
+                  >
+                    <ListItemText 
+                      primary={`Show ${filteredTags.length - MAX_VISIBLE_TAGS} more`}
+                      primaryTypographyProps={{
+                        fontSize: { xs: '0.85rem', sm: '0.9rem' },
+                        color: 'primary.main'
+                      }}
+                    />
+                  </ListItemButton>
+                )}
+                {showAllTags && hasMoreTags && (
+                  <ListItemButton
+                    onClick={() => setShowAllTags(false)}
+                    sx={{ 
+                      pl: 4,
+                      borderRadius: 1,
+                      mb: 0.5,
+                      '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.04)' }
+                    }}
+                  >
+                    <ListItemText 
+                      primary="Show less"
+                      primaryTypographyProps={{
+                        fontSize: { xs: '0.85rem', sm: '0.9rem' },
+                        color: 'primary.main'
+                      }}
+                    />
+                  </ListItemButton>
+                )}
+              </List>
+            </Collapse>
+          </Box>
+          
+          <Divider sx={{ my: 2 }} />
+          
+          <Box sx={{ flexGrow: 1 }} />
+          
+          <Box
+            sx={{
+              p: 2,
+              borderTop: '1px solid',
+              borderColor: 'divider'
+            }}
+          >
+            <Button
+              onClick={toggleTheme}
+              fullWidth
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'flex-start',
+                color: 'text.primary',
+                textTransform: 'none',
+                p: 2,
+                borderRadius: 1,
+                '&:hover': {
+                  backgroundColor: 'action.hover'
+                }
+              }}
+            >
+              {isDarkMode ? <DarkMode sx={{ fontSize: 28 }} /> : <LightMode sx={{ fontSize: 28 }} />}
+              <Typography 
+                variant="body2" 
+                sx={{ 
+                  ml: 1,
+                  fontWeight: 500,
+                  fontSize: { xs: '1rem', sm: '1.3rem' }
+                }}
+              >
+                {isDarkMode ? 'Dark Mode' : 'Light Mode'}
+              </Typography>
+            </Button>
+          </Box>
+        </Box>
+      </Drawer>
     </Drawer>
   );
 };

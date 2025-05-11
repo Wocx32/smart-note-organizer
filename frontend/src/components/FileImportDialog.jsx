@@ -182,7 +182,7 @@ const FileImportDialog = ({ open, onClose, onImport }) => {
       const renderContext = { canvasContext: context, viewport: viewport };
       await page.render(renderContext).promise;
 
-      setProcessingStatus(`OCRing ${file.name} (page ${i} of ${pdfDoc.numPages})...`);
+      setProcessingStatus(`Processing ${file.name} (page ${i} of ${pdfDoc.numPages})...`);
       const { data } = await worker.recognize(canvas, {}, {
         // logger: m => { if (m.status === 'recognizing text') setProgress(m.progress * 100); }
       });
@@ -192,7 +192,7 @@ const FileImportDialog = ({ open, onClose, onImport }) => {
   };
 
   const processImage = async (file, worker) => {
-    setProcessingStatus(`OCRing ${file.name}...`);
+    setProcessingStatus(`Processing ${file.name}...`);
     setProgress(0);
     const { data } = await worker.recognize(file, {}, {
       // logger: m => { if (m.status === 'recognizing text') setProgress(m.progress * 100); }

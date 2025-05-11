@@ -3,18 +3,12 @@ import { Link, useNavigate } from 'react-router-dom';
 import { AppBar, Toolbar, Typography, Button, IconButton, Drawer, List, ListItem, ListItemButton, ListItemText, Box } from '@mui/material';
 import { Menu as MenuIcon, Book, Lightbulb, Search as SearchIcon, Home as HomeIcon } from '@mui/icons-material';
 import React from 'react';
+import { useTheme } from '../context/ThemeContext';
 
-const Navbar = () => {
+const Navbar = ({ onMenuClick }) => {
   const navigate = useNavigate();
-  const [drawerOpen, setDrawerOpen] = useState(false);
+  const { isDarkMode, toggleTheme } = useTheme();
   
-  const toggleDrawer = (open) => (event) => {
-    if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
-      return;
-    }
-    setDrawerOpen(open);
-  };
-
   const menuItems = [
     { text: 'Home', path: '/', icon: <HomeIcon /> },
     { text: 'My Notes', path: '/notes', icon: <Book /> },
@@ -33,15 +27,19 @@ const Navbar = () => {
           zIndex: (theme) => theme.zIndex.drawer + 1
         }}
       >
-        <Toolbar>
+        <Toolbar sx={{ px: { xs: 1, sm: 2 } }}>
           <IconButton
             edge="start"
             color="inherit"
             aria-label="menu"
-            onClick={toggleDrawer(true)}
-            sx={{ mr: 2, display: { sm: 'none' } }}
+            onClick={onMenuClick}
+            sx={{ 
+              mr: { xs: 1, sm: 2 }, 
+              display: { sm: 'none' },
+              p: { xs: 0.5, sm: 1 }
+            }}
           >
-            <MenuIcon />
+            <MenuIcon sx={{ fontSize: { xs: '1.5rem', sm: '1.75rem' } }} />
           </IconButton>
           
           <Typography
@@ -50,30 +48,32 @@ const Navbar = () => {
             to="/"
             sx={{ 
               flexGrow: 0, 
-              mr: 4, 
+              mr: { xs: 2, sm: 4 }, 
               textDecoration: 'none', 
               color: 'inherit',
               fontWeight: 700,
               display: 'flex',
               alignItems: 'center',
-              fontSize: '2rem'
+              fontSize: { xs: '1.5rem', sm: '2rem' }
             }}
           >
-            <Book sx={{ mr: 0.2, fontSize: '2rem' }} />
+            <Book sx={{ mr: 0.2, fontSize: { xs: '1.5rem', sm: '2rem' } }} />
             SmartNotes
           </Typography>
           
-          <Box sx={{ display: { xs: 'none', sm: 'flex' }, gap: 2 }}>
+          <Box sx={{ display: { xs: 'none', sm: 'flex' }, gap: { xs: 1, sm: 2 } }}>
             {menuItems.map((item) => (
               <Button 
                 key={item.text}
                 component={Link}
                 to={item.path}
                 color="inherit"
-                startIcon={React.cloneElement(item.icon, { sx: { fontSize: '1.5rem' } })}
+                startIcon={React.cloneElement(item.icon, { sx: { fontSize: { xs: '1.25rem', sm: '1.5rem' } } })}
                 sx={{ 
                   textTransform: 'none',
-                  fontSize: '1.1rem'
+                  fontSize: { xs: '0.9rem', sm: '1.1rem' },
+                  py: { xs: 0.5, sm: 1 },
+                  px: { xs: 1, sm: 2 }
                 }}
               >
                 {item.text}
@@ -90,8 +90,9 @@ const Navbar = () => {
               '&:hover': {
                 backgroundColor: 'action.hover'
               },
+              p: { xs: 0.5, sm: 1 },
               '& .MuiSvgIcon-root': {
-                fontSize: '2.5rem'
+                fontSize: { xs: '1.75rem', sm: '2.5rem' }
               }
             }}
           >
@@ -99,36 +100,6 @@ const Navbar = () => {
           </IconButton>
         </Toolbar>
       </AppBar>
-      
-      <Drawer
-        anchor="left"
-        open={drawerOpen}
-        onClose={toggleDrawer(false)}
-        sx={{
-          '& .MuiDrawer-paper': {
-            backgroundColor: 'background.default',
-            color: 'text.primary'
-          }
-        }}
-      >
-        <Box
-          sx={{ width: 250 }}
-          role="presentation"
-          onClick={toggleDrawer(false)}
-          onKeyDown={toggleDrawer(false)}
-        >
-          <List>
-            {menuItems.map((item) => (
-              <ListItem key={item.text} disablePadding>
-                <ListItemButton component={Link} to={item.path}>
-                  <Box sx={{ mr: 2 }}>{item.icon}</Box>
-                  <ListItemText primary={item.text} />
-                </ListItemButton>
-              </ListItem>
-            ))}
-          </List>
-        </Box>
-      </Drawer>
     </>
   );
 };
