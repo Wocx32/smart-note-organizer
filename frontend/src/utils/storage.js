@@ -11,18 +11,22 @@ export const getNotes = () => {
 
 export const saveNotes = (notes) => {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(notes));
-  // Dispatch custom event when notes are updated
-  window.dispatchEvent(new CustomEvent(NOTES_UPDATED_EVENT));
+  console.log("NOTES UPDATED")
+  window.dispatchEvent(new Event(NOTES_UPDATED_EVENT));
 };
 
 export const addNote = (note) => {
   const notes = getNotes();
+  // Only generate a new ID if one isn't provided
   const newNote = {
     ...note,
-    id: Date.now(), // Use timestamp as unique ID
+    id: note.id || Date.now().toString(), // Use provided ID or generate new one
   };
+  
   notes.unshift(newNote); // Add to beginning of array
+  console.log("notes before addNote", getNotes())
   saveNotes(notes);
+  console.log("notes after addNote", getNotes())
   
   // Update tags when adding a new note
   updateTagsFromNotes(notes);
@@ -35,6 +39,7 @@ export const updateNote = (updatedNote) => {
   const index = notes.findIndex(note => note.id === updatedNote.id);
   if (index !== -1) {
     notes[index] = updatedNote;
+    console.log("notes updated via updateNote")
     saveNotes(notes);
     
     // Update tags when updating a note
@@ -45,6 +50,7 @@ export const updateNote = (updatedNote) => {
 export const deleteNote = (noteId) => {
   const notes = getNotes();
   const filteredNotes = notes.filter(note => note.id !== noteId);
+  console.log("notes updated via deleteNote")
   saveNotes(filteredNotes);
   
   // Update tags when deleting a note
