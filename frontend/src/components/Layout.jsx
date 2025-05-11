@@ -23,7 +23,7 @@ const Layout = () => {
       color: 'text.primary'
     }}>
       <Navbar drawerWidth={drawerWidth} />
-      <Box sx={{ display: 'flex', flex: 1, minHeight: 'calc(100vh - 64px - 80px)' }}>
+      <Box sx={{ display: 'flex', flex: 1, minHeight: 'calc(100vh - 64px)', pb: 4 }}>
         <Sidebar />
         <Box 
           component="main" 
@@ -57,7 +57,9 @@ const Layout = () => {
           </Box>
         </Box>
       </Box>
-      <Footer />
+      <Box sx={{ width: '100%', bgcolor: 'white' }}>
+        <Footer />
+      </Box>
     </Box>
   );
 };

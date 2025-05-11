@@ -113,7 +113,7 @@ const Sidebar = ({ onTagSelect }) => {
           borderRight: '0.5px solid black',
           borderColor: 'divider',
           backgroundColor: 'background.default',
-          height: 'calc(100vh - 64px - 50px)',
+          height: 'calc(100vh - 64px)',
           position: 'fixed',
           top: '64px',
           transition: 'width 0.2s ease-in-out',
