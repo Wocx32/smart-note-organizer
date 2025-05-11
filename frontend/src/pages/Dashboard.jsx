@@ -671,10 +671,12 @@ const Dashboard = () => {
             <ListItem 
               key={note.id}
               alignItems="flex-start"
+              onClick={() => navigate(`/notes/${note.id}`)}
               sx={{ 
                 px: 2, 
                 borderRadius: 1,
                 mb: 1,
+                cursor: 'pointer',
                 '&:hover': { 
                   backgroundColor: 'rgba(0, 0, 0, 0.04)' 
                 }
