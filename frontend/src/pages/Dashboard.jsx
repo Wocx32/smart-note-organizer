@@ -68,7 +68,7 @@ const Dashboard = () => {
     if (typedHeading.length < fullHeading.length) {
       timeout = setTimeout(() => {
         setTypedHeading(fullHeading.slice(0, typedHeading.length + 1));
-      }, 80);
+      }, 40);
     } else {
       // Blinking cursor effect
       const cursorInterval = setInterval(() => {
