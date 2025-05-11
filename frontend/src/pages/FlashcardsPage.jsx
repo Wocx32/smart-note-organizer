@@ -796,7 +796,7 @@ const FlashcardsPage = () => {
                         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
                           <Typography
                             variant="caption"
-                            color="primary"
+                            color="white"
                             sx={{
                               p: 0.5,
                               px: 1,

@@ -59,6 +59,25 @@ const Dashboard = () => {
     flashcards: false
   });
   const [decks, setDecks] = useState([]);
+  const fullHeading = 'Smart Note Organizer';
+  const [typedHeading, setTypedHeading] = useState('');
+  const [showCursor, setShowCursor] = useState(true);
+
+  useEffect(() => {
+    let timeout;
+    if (typedHeading.length < fullHeading.length) {
+      timeout = setTimeout(() => {
+        setTypedHeading(fullHeading.slice(0, typedHeading.length + 1));
+      }, 80);
+    } else {
+      // Blinking cursor effect
+      const cursorInterval = setInterval(() => {
+        setShowCursor((prev) => !prev);
+      }, 500);
+      return () => clearInterval(cursorInterval);
+    }
+    return () => clearTimeout(timeout);
+  }, [typedHeading, fullHeading]);
 
   useEffect(() => {
     // Load notes from localStorage
@@ -340,10 +359,24 @@ const Dashboard = () => {
               backgroundClip: 'text',
               textFillColor: 'transparent',
               WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent'
+              WebkitTextFillColor: 'transparent',
+              fontFamily: 'monospace',
+              letterSpacing: 1
             }}
           >
-            Smart Note Organizer
+            {typedHeading}
+            <Box component="span" sx={{
+              display: 'inline-block',
+              width: '1ch',
+              color: '#3182ce',
+              opacity: showCursor && typedHeading.length === fullHeading.length ? 1 : 0,
+              fontWeight: 'bold',
+              fontSize: '1.5rem',
+              ml: 0.5,
+              transition: 'opacity 0.2s'
+            }}>
+              |
+            </Box>
           </Typography>
         </Box>
         <Typography 
