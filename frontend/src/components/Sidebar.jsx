@@ -205,7 +205,10 @@ const Sidebar = ({ onTagSelect }) => {
                 >
                   <ListItemIcon sx={{ 
                     minWidth: isCollapsed ? 'auto' : 40,
-                    justifyContent: 'center'
+                    justifyContent: 'center',
+                    '& .MuiSvgIcon-root': {
+                      fontSize: '1.7rem'
+                    }
                   }}>
                     {item.icon}
                   </ListItemIcon>
@@ -213,7 +216,7 @@ const Sidebar = ({ onTagSelect }) => {
                     <ListItemText 
                       primary={item.text}
                       primaryTypographyProps={{
-                        fontSize: '0.9rem',
+                        fontSize: '1.3rem',
                         fontWeight: location.pathname === item.path ? 600 : 400,
                       }}
                     />
@@ -238,9 +241,14 @@ const Sidebar = ({ onTagSelect }) => {
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
-                      <Search sx={{ fontSize: 20, color: 'text.secondary' }} />
+                      <Search sx={{ fontSize: '1.5rem', color: 'text.secondary' }} />
                     </InputAdornment>
                   ),
+                }}
+                sx={{
+                  '& .MuiInputBase-input': {
+                    fontSize: '1.2rem'
+                  }
                 }}
               />
             </Box>
@@ -255,16 +263,16 @@ const Sidebar = ({ onTagSelect }) => {
                 }}
               >
                 <ListItemIcon>
-                  <Tag />
+                  <Tag sx={{ fontSize: '1.9rem' }} />
                 </ListItemIcon>
                 <ListItemText 
                   primary="Tags"
                   primaryTypographyProps={{
-                    fontSize: '0.9rem',
+                    fontSize: '1.3rem',
                     fontWeight: expanded ? 600 : 400,
                   }}
                 />
-                {expanded ? <ExpandLess /> : <ExpandMore />}
+                {expanded ? <ExpandLess sx={{ fontSize: '1.9rem' }} /> : <ExpandMore sx={{ fontSize: '1.5rem' }} />}
               </ListItemButton>
 
               <Collapse in={expanded} timeout="auto" unmountOnExit>
@@ -281,7 +289,7 @@ const Sidebar = ({ onTagSelect }) => {
                       }}
                     >
                       <ListItemIcon sx={{ minWidth: 32 }}>
-                        <Label sx={{ fontSize: 18 }} />
+                        <Label sx={{ fontSize: '1.1rem' }} />
                       </ListItemIcon>
                       <ListItemText 
                         primary={tag}

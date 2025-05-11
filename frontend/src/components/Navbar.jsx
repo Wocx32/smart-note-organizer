@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AppBar, Toolbar, Typography, Button, IconButton, Drawer, List, ListItem, ListItemButton, ListItemText, Box } from '@mui/material';
 import { Menu as MenuIcon, Book, Lightbulb, Search as SearchIcon } from '@mui/icons-material';
+import React from 'react';
 
 const Navbar = ({ drawerWidth }) => {
   const navigate = useNavigate();
@@ -54,9 +55,10 @@ const Navbar = ({ drawerWidth }) => {
               fontWeight: 700,
               display: 'flex',
               alignItems: 'center',
+              fontSize: '2rem'
             }}
           >
-            <Book sx={{ mr: 1 }} />
+            <Book sx={{ mr: 0.2, fontSize: '2rem' }} />
             SmartNotes
           </Typography>
           
@@ -67,8 +69,11 @@ const Navbar = ({ drawerWidth }) => {
                 component={Link}
                 to={item.path}
                 color="inherit"
-                startIcon={item.icon}
-                sx={{ textTransform: 'none' }}
+                startIcon={React.cloneElement(item.icon, { sx: { fontSize: '1.5rem' } })}
+                sx={{ 
+                  textTransform: 'none',
+                  fontSize: '1.1rem'
+                }}
               >
                 {item.text}
               </Button>
@@ -83,6 +88,9 @@ const Navbar = ({ drawerWidth }) => {
             sx={{ 
               '&:hover': {
                 backgroundColor: 'rgba(255, 255, 255, 0.1)'
+              },
+              '& .MuiSvgIcon-root': {
+                fontSize: '2.5rem'
               }
             }}
           >
