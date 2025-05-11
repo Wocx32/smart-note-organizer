@@ -13,7 +13,14 @@ import {
   Paper,
   Chip,
   Container,
-  Tooltip
+  Tooltip,
+  TextField,
+  CircularProgress,
+  Alert,
+  Snackbar,
+  FormGroup,
+  FormControlLabel,
+  Checkbox
 } from '@mui/material';
 import { 
   Description, 
@@ -22,7 +29,11 @@ import {
   NoteAlt,
   PlayArrow,
   MenuBook,
-  Upload
+  Upload,
+  AutoAwesome,
+  Save,
+  Summarize,
+  Quiz
 } from '@mui/icons-material';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -37,6 +48,15 @@ const Dashboard = () => {
   const [tags, setTags] = useState([]);
   const [newNoteDialogOpen, setNewNoteDialogOpen] = useState(false);
   const [importDialogOpen, setImportDialogOpen] = useState(false);
+  const [content, setContent] = useState('');
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [generatedSummary, setGeneratedSummary] = useState('');
+  const [generatedFlashcards, setGeneratedFlashcards] = useState([]);
+  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
+  const [generateOptions, setGenerateOptions] = useState({
+    summary: true,
+    flashcards: false
+  });
 
   useEffect(() => {
     // Load notes from localStorage
@@ -127,6 +147,100 @@ const Dashboard = () => {
 
     const savedNotes = newNotes.map(note => addNote(note));
     setNotes(prevNotes => [...savedNotes, ...prevNotes]);
+  };
+
+  const handleOptionChange = (event) => {
+    setGenerateOptions({
+      ...generateOptions,
+      [event.target.name]: event.target.checked
+    });
+  };
+
+  const handleProcessContent = async () => {
+    if (!content.trim()) return;
+    setIsProcessing(true);
+    try {
+      const response = await fetch('http://127.0.0.1:8000/process', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          text: content,
+          options: generateOptions
+        }),
+      });
+      const data = await response.json();
+      if (generateOptions.summary) {
+        setGeneratedSummary(data.summary || '');
+      }
+      if (generateOptions.flashcards) {
+        setGeneratedFlashcards(data.flashcards || []);
+      }
+      setSnackbar({
+        open: true,
+        message: 'Content processed successfully!',
+        severity: 'success'
+      });
+    } catch (error) {
+      console.error('Error processing content:', error);
+      setSnackbar({
+        open: true,
+        message: 'Failed to process content. Please try again.',
+        severity: 'error'
+      });
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleSaveProcessedContent = () => {
+    const newNote = {
+      id: Date.now().toString(),
+      title: content.substring(0, 50) + (content.length > 50 ? '...' : ''),
+      content: content,
+      summary: generatedSummary,
+      date: new Date().toLocaleDateString('en-US', {
+        month: 'long',
+        day: 'numeric',
+        year: 'numeric'
+      }),
+      recent: true,
+      favorite: false,
+      tags: ['PROCESSED'],
+      flashcards: generatedFlashcards
+    };
+
+    addNote(newNote);
+    setNotes(prevNotes => [newNote, ...prevNotes]);
+    
+    // Store flashcards in localStorage
+    if (generatedFlashcards.length > 0) {
+      const existingFlashcards = JSON.parse(localStorage.getItem('flashcards') || '[]');
+      const newFlashcards = generatedFlashcards.map(card => ({
+        id: Date.now() + Math.random(),
+        front: card.front,
+        back: card.back,
+        deck: 'PROCESSED',
+        tags: ['PROCESSED']
+      }));
+      localStorage.setItem('flashcards', JSON.stringify([...existingFlashcards, ...newFlashcards]));
+    }
+
+    setSnackbar({
+      open: true,
+      message: 'Content saved successfully!',
+      severity: 'success'
+    });
+
+    // Reset the form
+    setContent('');
+    setGeneratedSummary('');
+    setGeneratedFlashcards([]);
+  };
+
+  const handleSnackbarClose = () => {
+    setSnackbar(prev => ({ ...prev, open: false }));
   };
 
   // Calculate stats
@@ -335,13 +449,169 @@ const Dashboard = () => {
         </Button>
       </Box>
 
+      {/* Content Processing Section */}
+      <Paper 
+        elevation={0} 
+        sx={{ 
+          p: 4, 
+          borderRadius: 2,
+          border: '1px solid rgba(0, 0, 0, 0.08)',
+          mb: 4
+        }}
+      >
+        <Typography variant="h5" fontWeight="bold" sx={{ mb: 3 }}>
+          Summarize
+        </Typography>
+        
+        <TextField
+          fullWidth
+          multiline
+          rows={6}
+          placeholder="Enter your text here or import files to process..."
+          value={content}
+          onChange={(e) => setContent(e.target.value)}
+          sx={{ mb: 3 }}
+        />
+
+        <Box sx={{ mb: 3 }}>
+          <FormGroup row sx={{ gap: 3 }}>
+            <FormControlLabel
+              control={
+                <Checkbox 
+                  checked={generateOptions.summary}
+                  onChange={handleOptionChange}
+                  name="summary"
+                />
+              }
+              label="Generate Summary"
+            />
+            <FormControlLabel
+              control={
+                <Checkbox 
+                  checked={generateOptions.flashcards}
+                  onChange={handleOptionChange}
+                  name="flashcards"
+                />
+              }
+              label="Generate Flashcards"
+            />
+          </FormGroup>
+        </Box>
+
+        <Box sx={{ display: 'flex', gap: 2, mb: 3 }}>
+          <Button
+            variant="outlined"
+            startIcon={<Upload />}
+            onClick={() => setImportDialogOpen(true)}
+            sx={{
+              borderColor: 'rgba(0, 0, 0, 0.23)',
+              color: 'text.primary',
+              '&:hover': {
+                borderColor: 'primary.main',
+                backgroundColor: 'rgba(0, 0, 0, 0.04)',
+              }
+            }}
+          >
+            Import Files
+          </Button>
+          <Button
+            variant="contained"
+            startIcon={<AutoAwesome />}
+            onClick={handleProcessContent}
+            disabled={!content.trim() || isProcessing || (!generateOptions.summary && !generateOptions.flashcards)}
+            sx={{
+              backgroundColor: '#3182ce',
+              '&:hover': {
+                backgroundColor: '#2b6cb0',
+              }
+            }}
+          >
+            {isProcessing ? 'Processing...' : 'Generate'}
+          </Button>
+        </Box>
+
+        {isProcessing && (
+          <Box sx={{ display: 'flex', justifyContent: 'center', my: 3 }}>
+            <CircularProgress />
+          </Box>
+        )}
+
+        {generatedSummary && generateOptions.summary && (
+          <Box sx={{ mb: 3 }}>
+            <Typography variant="h6" sx={{ mb: 2 }}>Generated Summary</Typography>
+            <Paper 
+              elevation={0} 
+              sx={{ 
+                p: 2, 
+                bgcolor: 'background.default',
+                borderRadius: 1
+              }}
+            >
+              <Typography variant="body1">
+                {generatedSummary}
+              </Typography>
+            </Paper>
+          </Box>
+        )}
+
+        {generatedFlashcards.length > 0 && generateOptions.flashcards && (
+          <Box sx={{ mb: 3 }}>
+            <Typography variant="h6" sx={{ mb: 2 }}>Generated Flashcards</Typography>
+            <Grid container spacing={2}>
+              {generatedFlashcards.map((card, index) => (
+                <Grid item xs={12} sm={6} key={index}>
+                  <Paper 
+                    elevation={0} 
+                    sx={{ 
+                      p: 2, 
+                      bgcolor: 'background.default',
+                      borderRadius: 1
+                    }}
+                  >
+                    <Typography variant="subtitle2" color="primary" gutterBottom>
+                      Question:
+                    </Typography>
+                    <Typography variant="body1" sx={{ mb: 2 }}>
+                      {card.front}
+                    </Typography>
+                    <Typography variant="subtitle2" color="primary" gutterBottom>
+                      Answer:
+                    </Typography>
+                    <Typography variant="body1">
+                      {card.back}
+                    </Typography>
+                  </Paper>
+                </Grid>
+              ))}
+            </Grid>
+          </Box>
+        )}
+
+        {((generatedSummary && generateOptions.summary) || (generatedFlashcards.length > 0 && generateOptions.flashcards)) && (
+          <Button
+            variant="contained"
+            startIcon={<Save />}
+            onClick={handleSaveProcessedContent}
+            sx={{
+              backgroundColor: '#48BB78',
+              '&:hover': {
+                backgroundColor: '#38A169',
+              }
+            }}
+          >
+            Save Content
+          </Button>
+        )}
+      </Paper>
+
       {/* Recent Notes Section */}
       <Paper 
         elevation={0} 
         sx={{ 
           p: 4, 
           borderRadius: 2,
-          border: '1px solid rgba(0, 0, 0, 0.08)'
+          border: '1px solid rgba(0, 0, 0, 0.08)',
+          mb: 4
         }}
       >
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
@@ -417,6 +687,21 @@ const Dashboard = () => {
         onClose={() => setImportDialogOpen(false)}
         onImport={handleImportFiles}
       />
+
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={3000}
+        onClose={handleSnackbarClose}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+      >
+        <Alert
+          onClose={handleSnackbarClose}
+          severity={snackbar.severity}
+          sx={{ width: '100%' }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Container>
   );
 };

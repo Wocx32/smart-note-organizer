@@ -207,7 +207,7 @@ const Sidebar = ({ onTagSelect }) => {
                     minWidth: isCollapsed ? 'auto' : 40,
                     justifyContent: 'center',
                     '& .MuiSvgIcon-root': {
-                      fontSize: '1.7rem'
+                      fontSize: isCollapsed ? '2.2rem' : '1.7rem'
                     }
                   }}>
                     {item.icon}

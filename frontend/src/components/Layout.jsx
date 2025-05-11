@@ -8,41 +8,42 @@ const drawerWidth = 240; // Match the sidebar width
 
 const Layout = () => {
   return (
-    <Box sx={{ display: 'flex', height: '100vh', overflow: 'hidden' }}>
+    <Box sx={{ display: 'flex', minHeight: '100vh', flexDirection: 'column' }}>
       <Navbar drawerWidth={drawerWidth} />
-      <Sidebar />
-      <Box 
-        component="main" 
-        sx={{ 
-          flexGrow: 1, 
-          p: 3,
-          overflow: 'auto',
-          height: '100vh',
-          display: 'flex',
-          flexDirection: 'column',
-          '&::-webkit-scrollbar': {
-            width: '8px',
-            height: '8px',
-          },
-          '&::-webkit-scrollbar-track': {
-            background: '#f1f1f1',
-            borderRadius: '4px',
-          },
-          '&::-webkit-scrollbar-thumb': {
-            background: '#c5c5c5',
-            borderRadius: '4px',
-            '&:hover': {
-              background: '#a8a8a8',
+      <Box sx={{ display: 'flex', flex: 1 }}>
+        <Sidebar />
+        <Box 
+          component="main" 
+          sx={{ 
+            flexGrow: 1, 
+            p: 3,
+            overflow: 'auto',
+            display: 'flex',
+            flexDirection: 'column',
+            '&::-webkit-scrollbar': {
+              width: '8px',
+              height: '8px',
             },
-          },
-        }}
-      >
-        <Toolbar />
-        <Box sx={{ flexGrow: 1, pb: 8 }}>
-          <Outlet />
+            '&::-webkit-scrollbar-track': {
+              background: '#f1f1f1',
+              borderRadius: '4px',
+            },
+            '&::-webkit-scrollbar-thumb': {
+              background: '#c5c5c5',
+              borderRadius: '4px',
+              '&:hover': {
+                background: '#a8a8a8',
+              },
+            },
+          }}
+        >
+          <Toolbar />
+          <Box sx={{ flexGrow: 1 }}>
+            <Outlet />
+          </Box>
         </Box>
-        <Footer />
       </Box>
+      <Footer />
     </Box>
   );
 };

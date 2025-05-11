@@ -7,14 +7,9 @@ const Footer = () => {
       sx={{
         py: 2,
         px: 3,
-        mt: 'auto',
         backgroundColor: '#ffffff',
         borderTop: '1px solid rgba(0, 0, 0, 0.08)',
-        width: '100%',
-        position: 'fixed',
-        bottom: 0,
-        left: 0,
-        right: 0
+        width: '100%'
       }}
     >
       <Divider sx={{ mb: 2 }} />
