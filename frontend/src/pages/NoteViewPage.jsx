@@ -150,60 +150,114 @@ const NoteViewPage = () => {
   }
 
   return (
-    <Box sx={{ p: 3, maxWidth: '800px', margin: '0 auto' }}>
-      <Box sx={{ mb: 3, display: 'flex', alignItems: 'center', gap: 2 }}>
-        <IconButton onClick={handleBack} size="small">
-          <ArrowBack />
-        </IconButton>
-        <Typography variant="h4" component="h1" sx={{ flexGrow: 1 }}>
-          {note.title}
-        </Typography>
-        <Box sx={{ display: 'flex', gap: 1 }}>
-          <Button
-            variant="outlined"
-            startIcon={<School />}
-            onClick={handleStartStudy}
-            size="small"
-            disabled={!note?.flashcards?.length}
-            sx={{
-              borderColor: 'rgba(0, 0, 0, 0.23)',
-              color: 'text.primary',
-              textTransform: 'none'
+    <Box sx={{ 
+      p: { xs: 2, sm: 3 }, 
+      maxWidth: '800px', 
+      margin: '0 auto',
+      width: '100%',
+      boxSizing: 'border-box'
+    }}>
+      <Box sx={{ 
+        mb: { xs: 2, sm: 3 }, 
+        display: 'flex', 
+        flexDirection: { xs: 'column', sm: 'row' },
+        alignItems: { xs: 'flex-start', sm: 'center' }, 
+        gap: { xs: 1, sm: 2 }
+      }}>
+        <Box sx={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          width: { xs: '100%', sm: 'auto' },
+          mb: { xs: 1, sm: 0 }
+        }}>
+          <IconButton onClick={handleBack} size="small">
+            <ArrowBack />
+          </IconButton>
+          <Typography 
+            variant="h4" 
+            component="h1" 
+            sx={{ 
+              flexGrow: 1,
+              fontSize: { xs: '1.5rem', sm: '2rem' },
+              ml: 1
             }}
           >
-            Study Flashcards
-          </Button>
-          <IconButton onClick={handleFavoriteToggle} size="small">
-            {note.favorite ? (
-              <Bookmark sx={{ color: 'primary.main' }} />
-            ) : (
-              <BookmarkBorder />
-            )}
-          </IconButton>
-          <Button
-            variant="outlined"
-            startIcon={<Edit />}
-            onClick={handleEdit}
-            size="small"
-          >
-            Edit
-          </Button>
-          <Button
-            variant="outlined"
-            color="error"
-            startIcon={<Delete />}
-            onClick={handleDelete}
-            size="small"
-          >
-            Delete
-          </Button>
+            {note.title}
+          </Typography>
+        </Box>
+        <Box sx={{ 
+          display: 'flex', 
+          flexDirection: 'column',
+          gap: 1,
+          width: { xs: '100%', sm: 'auto' }
+        }}>
+          <Box sx={{ 
+            display: 'flex', 
+            gap: 1,
+            width: '100%'
+          }}>
+            <Button
+              variant="outlined"
+              startIcon={<School />}
+              onClick={handleStartStudy}
+              size="small"
+              disabled={!note?.flashcards?.length}
+              sx={{
+                borderColor: 'rgba(0, 0, 0, 0.23)',
+                color: 'text.primary',
+                textTransform: 'none',
+                fontSize: { xs: '0.8rem', sm: '0.9rem' },
+                flex: 1
+              }}
+            >
+              Study Flashcards
+            </Button>
+            <IconButton onClick={handleFavoriteToggle} size="small">
+              {note.favorite ? (
+                <Bookmark sx={{ color: 'primary.main' }} />
+              ) : (
+                <BookmarkBorder />
+              )}
+            </IconButton>
+          </Box>
+          <Box sx={{ 
+            display: 'flex', 
+            gap: 1,
+            width: '100%'
+          }}>
+            <Button
+              variant="outlined"
+              startIcon={<Edit />}
+              onClick={handleEdit}
+              size="small"
+              sx={{
+                fontSize: { xs: '0.8rem', sm: '0.9rem' },
+                flex: 1
+              }}
+            >
+              Edit
+            </Button>
+            <Button
+              variant="outlined"
+              color="error"
+              startIcon={<Delete />}
+              onClick={handleDelete}
+              size="small"
+              sx={{
+                fontSize: { xs: '0.8rem', sm: '0.9rem' },
+                flex: 1
+              }}
+            >
+              Delete
+            </Button>
+          </Box>
         </Box>
       </Box>
 
       <Paper
         elevation={0}
         sx={{
-          p: 3,
+          p: { xs: 2, sm: 3 },
           borderRadius: 2,
           border: '1px solid rgba(0, 0, 0, 0.08)',
           mb: 3
@@ -215,7 +269,8 @@ const NoteViewPage = () => {
           sx={{
             whiteSpace: 'pre-wrap',
             mb: 3,
-            lineHeight: 1.6
+            lineHeight: 1.6,
+            fontSize: { xs: '0.9rem', sm: '1rem' }
           }}
         >
           {note.content}
@@ -230,13 +285,21 @@ const NoteViewPage = () => {
               label={tag}
               size="small"
               sx={{
-                backgroundColor: 'rgba(0,0,0,0.06)'
+                backgroundColor: 'rgba(0,0,0,0.06)',
+                fontSize: { xs: '0.75rem', sm: '0.875rem' },
+                height: { xs: 24, sm: 28 }
               }}
             />
           ))}
         </Box>
 
-        <Typography variant="caption" color="text.secondary">
+        <Typography 
+          variant="caption" 
+          color="text.secondary"
+          sx={{ 
+            fontSize: { xs: '0.7rem', sm: '0.75rem' }
+          }}
+        >
           Last updated: {note.date}
         </Typography>
       </Paper>

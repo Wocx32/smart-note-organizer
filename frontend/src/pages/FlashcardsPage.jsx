@@ -193,6 +193,13 @@ const FlashcardsPage = () => {
   const endStudyMode = () => {
     setStudyMode(false);
     setCurrentStudySession(null);
+    setCurrentCardIndex(0);
+    setShowAnswer(false);
+    localStorage.removeItem('studyMode');
+    localStorage.removeItem('currentStudySession');
+    // Reload flashcards from localStorage
+    const savedFlashcards = JSON.parse(localStorage.getItem('flashcards') || '[]');
+    setFlashcards(savedFlashcards);
   };
 
   const handleViewDeck = (deckId) => {

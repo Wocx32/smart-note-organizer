@@ -210,7 +210,8 @@ const Dashboard = () => {
     if (!content.trim()) return;
     setIsProcessing(true);
     try {
-      const response = await fetch('http://127.0.0.1:8000/process', {
+      const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
+      const response = await fetch(`${API_BASE_URL}/process`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -220,6 +221,11 @@ const Dashboard = () => {
           options: generateOptions
         }),
       });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
       const data = await response.json();
       if (generateOptions.summary) {
         setGeneratedSummary(data.summary || '');
@@ -236,7 +242,7 @@ const Dashboard = () => {
       console.error('Error processing content:', error);
       setSnackbar({
         open: true,
-        message: 'Failed to process content. Please try again.',
+        message: 'Failed to process content. Please check your internet connection and try again.',
         severity: 'error'
       });
     } finally {

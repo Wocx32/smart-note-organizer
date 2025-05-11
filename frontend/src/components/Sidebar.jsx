@@ -140,7 +140,8 @@ const Sidebar = ({ onTagSelect, drawerOpen, onDrawerClose }) => {
           <Box sx={{ 
             display: 'flex', 
             justifyContent: 'center', 
-            mb: 2 
+            mb: 2,
+            pr: 2  // Add right padding
           }}>
             <Tooltip title="Expand sidebar" arrow placement="right">
               <IconButton 
@@ -150,7 +151,8 @@ const Sidebar = ({ onTagSelect, drawerOpen, onDrawerClose }) => {
                   color: 'text.secondary',
                   '&:hover': {
                     backgroundColor: 'rgba(0, 0, 0, 0.04)'
-                  }
+                  },
+                  mr: 1  // Add right margin
                 }}
               >
                 <Menu />
