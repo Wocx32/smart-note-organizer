@@ -21,12 +21,14 @@ import {
   Tag,
   NoteAlt,
   PlayArrow,
-  MenuBook
+  MenuBook,
+  Upload
 } from '@mui/icons-material';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getNotes, addNote } from '../utils/storage';
 import NewNoteDialog from '../components/NewNoteDialog';
+import FileImportDialog from '../components/FileImportDialog';
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -34,6 +36,7 @@ const Dashboard = () => {
   const [flashcards, setFlashcards] = useState([]);
   const [tags, setTags] = useState([]);
   const [newNoteDialogOpen, setNewNoteDialogOpen] = useState(false);
+  const [importDialogOpen, setImportDialogOpen] = useState(false);
 
   useEffect(() => {
     // Load notes from localStorage
@@ -115,6 +118,15 @@ const Dashboard = () => {
       default:
         break;
     }
+  };
+
+  const handleImportFiles = (processedFiles) => {
+    const newNotes = processedFiles.map(noteData => ({
+      ...noteData,
+    }));
+
+    const savedNotes = newNotes.map(note => addNote(note));
+    setNotes(prevNotes => [...savedNotes, ...prevNotes]);
   };
 
   // Calculate stats
@@ -299,6 +311,30 @@ const Dashboard = () => {
         </Button>
       </Box>
 
+      {/* Import Section */}
+      <Box sx={{ display: 'flex', justifyContent: 'center', mb: 4 }}>
+        <Button
+          variant="outlined"
+          startIcon={<Upload />}
+          onClick={() => setImportDialogOpen(true)}
+          sx={{
+            borderColor: 'rgba(0, 0, 0, 0.23)',
+            color: 'text.primary',
+            borderRadius: 2,
+            px: 4,
+            py: 2,
+            fontSize: '1.1rem',
+            minWidth: '200px',
+            '&:hover': {
+              borderColor: 'primary.main',
+              backgroundColor: 'rgba(0, 0, 0, 0.04)',
+            }
+          }}
+        >
+          Import Files
+        </Button>
+      </Box>
+
       {/* Recent Notes Section */}
       <Paper 
         elevation={0} 
@@ -374,6 +410,12 @@ const Dashboard = () => {
         open={newNoteDialogOpen}
         onClose={() => setNewNoteDialogOpen(false)}
         onSave={handleCreateNote}
+      />
+
+      <FileImportDialog
+        open={importDialogOpen}
+        onClose={() => setImportDialogOpen(false)}
+        onImport={handleImportFiles}
       />
     </Container>
   );
