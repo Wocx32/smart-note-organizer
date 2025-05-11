@@ -1,19 +1,19 @@
 import { Box, Typography } from '@mui/material';
+import { useTheme } from '../context/ThemeContext';
 
 const Footer = () => {
+  const { isDarkMode } = useTheme();
+
   return (
     <Box
       component="footer"
       sx={{
         py: 2,
         px: 3,
-        backgroundColor: 'white',
+        backgroundColor: isDarkMode ? 'background.paper' : 'white',
         borderTop: '1px solid',
         borderColor: 'divider',
         width: '100%',
-        position: 'fixed',
-        bottom: 0,
-        left: 0,
       }}
     >
       <Typography
