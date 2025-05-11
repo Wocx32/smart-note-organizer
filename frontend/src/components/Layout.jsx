@@ -16,7 +16,7 @@ const Layout = () => {
       minHeight: '100vh', 
       flexDirection: 'column',
       bgcolor: isDarkMode ? 'background.default' : undefined,
-      backgroundImage: isDarkMode ? undefined : 'linear-gradient(135deg, #9cd7e4 0%, #ffffff 50%, #b9e3c9 100%)',
+      backgroundImage: isDarkMode ? undefined : 'none',
       backgroundAttachment: 'fixed',
       backgroundRepeat: 'no-repeat',
       backgroundSize: 'cover',

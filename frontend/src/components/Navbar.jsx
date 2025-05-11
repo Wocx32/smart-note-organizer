@@ -30,8 +30,7 @@ const Navbar = () => {
           backgroundColor: 'background.default',
           color: 'text.primary',
           width: '100%',
-          zIndex: (theme) => theme.zIndex.drawer + 1,
-          borderBottom: '0.5px solid black'
+          zIndex: (theme) => theme.zIndex.drawer + 1
         }}
       >
         <Toolbar>
