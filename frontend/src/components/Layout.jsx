@@ -3,12 +3,21 @@ import Navbar from './Navbar';
 import Sidebar from './Sidebar';
 import Footer from './Footer';
 import { Box, Toolbar } from '@mui/material';
+import { useTheme } from '../context/ThemeContext';
 
 const drawerWidth = 240; // Match the sidebar width
 
 const Layout = () => {
+  const { isDarkMode } = useTheme();
+
   return (
-    <Box sx={{ display: 'flex', minHeight: '100vh', flexDirection: 'column' }}>
+    <Box sx={{ 
+      display: 'flex', 
+      minHeight: '100vh', 
+      flexDirection: 'column',
+      bgcolor: 'background.default',
+      color: 'text.primary'
+    }}>
       <Navbar drawerWidth={drawerWidth} />
       <Box sx={{ display: 'flex', flex: 1 }}>
         <Sidebar />
@@ -20,19 +29,20 @@ const Layout = () => {
             overflow: 'auto',
             display: 'flex',
             flexDirection: 'column',
+            bgcolor: 'background.default',
             '&::-webkit-scrollbar': {
               width: '8px',
               height: '8px',
             },
             '&::-webkit-scrollbar-track': {
-              background: '#f1f1f1',
+              background: isDarkMode ? '#2d3748' : '#f1f1f1',
               borderRadius: '4px',
             },
             '&::-webkit-scrollbar-thumb': {
-              background: '#c5c5c5',
+              background: isDarkMode ? '#4a5568' : '#c5c5c5',
               borderRadius: '4px',
               '&:hover': {
-                background: '#a8a8a8',
+                background: isDarkMode ? '#718096' : '#a8a8a8',
               },
             },
           }}

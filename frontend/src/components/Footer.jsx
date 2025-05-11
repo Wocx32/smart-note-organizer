@@ -1,14 +1,18 @@
 import { Box, Typography, Divider } from '@mui/material';
+import { useTheme } from '../context/ThemeContext';
 
 const Footer = () => {
+  const { isDarkMode } = useTheme();
+  
   return (
     <Box
       component="footer"
       sx={{
         py: 2,
         px: 3,
-        backgroundColor: '#ffffff',
-        borderTop: '1px solid rgba(0, 0, 0, 0.08)',
+        backgroundColor: 'background.default',
+        borderTop: '1px solid',
+        borderColor: 'divider',
         width: '100%'
       }}
     >

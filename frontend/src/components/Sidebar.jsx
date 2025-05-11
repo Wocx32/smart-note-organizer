@@ -36,6 +36,7 @@ import {
   DarkMode
 } from '@mui/icons-material';
 import { getTags } from '../utils/storage';
+import { useTheme } from '../context/ThemeContext';
 
 const drawerWidth = 240;
 const collapsedWidth = 65;
@@ -43,6 +44,7 @@ const collapsedWidth = 65;
 const Sidebar = ({ onTagSelect }) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { isDarkMode, toggleTheme } = useTheme();
   const [tags, setTags] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [expanded, setExpanded] = useState(true);
@@ -52,7 +54,6 @@ const Sidebar = ({ onTagSelect }) => {
     const savedState = localStorage.getItem('sidebarCollapsed');
     return savedState ? JSON.parse(savedState) : false;
   });
-  const [isDarkMode, setIsDarkMode] = useState(false);
   const MAX_VISIBLE_TAGS = 4;
 
   // Load tags from localStorage and set up event listeners
@@ -110,8 +111,9 @@ const Sidebar = ({ onTagSelect }) => {
         [`& .MuiDrawer-paper`]: { 
           width: isCollapsed ? collapsedWidth : drawerWidth,
           boxSizing: 'border-box',
-          borderRight: '1px solid rgba(0, 0, 0, 0.08)',
-          backgroundColor: '#ffffff',
+          borderRight: '1px solid',
+          borderColor: 'divider',
+          backgroundColor: 'background.default',
           height: 'calc(100vh - 64px - 80px)',
           position: 'fixed',
           top: '64px',
@@ -368,22 +370,23 @@ const Sidebar = ({ onTagSelect }) => {
         {/* Theme Toggle Button */}
         <Box sx={{ 
           p: 2, 
-          borderTop: '1px solid rgba(0, 0, 0, 0.08)'
+          borderTop: '1px solid',
+          borderColor: 'divider'
         }}>
           <Tooltip title={isCollapsed ? (isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode") : ""} arrow placement="right">
             <Button
-              onClick={() => setIsDarkMode(!isDarkMode)}
+              onClick={toggleTheme}
               fullWidth
               sx={{
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: isCollapsed ? 'center' : 'flex-start',
-                color: isDarkMode ? 'text.primary' : 'text.secondary',
+                color: 'text.primary',
                 textTransform: 'none',
                 py: 1,
                 px: isCollapsed ? 1 : 2,
                 '&:hover': {
-                  backgroundColor: 'rgba(0, 0, 0, 0.04)'
+                  backgroundColor: 'action.hover'
                 }
               }}
             >

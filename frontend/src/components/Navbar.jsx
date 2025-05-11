@@ -4,7 +4,7 @@ import { AppBar, Toolbar, Typography, Button, IconButton, Drawer, List, ListItem
 import { Menu as MenuIcon, Book, Lightbulb, Search as SearchIcon } from '@mui/icons-material';
 import React from 'react';
 
-const Navbar = ({ drawerWidth }) => {
+const Navbar = () => {
   const navigate = useNavigate();
   const [drawerOpen, setDrawerOpen] = useState(false);
   
@@ -27,9 +27,12 @@ const Navbar = ({ drawerWidth }) => {
         position="fixed" 
         elevation={0} 
         sx={{ 
-          backgroundColor: '#1a202c',
+          backgroundColor: 'background.default',
+          color: 'text.primary',
           width: '100%',
-          zIndex: (theme) => theme.zIndex.drawer + 1
+          zIndex: (theme) => theme.zIndex.drawer + 1,
+          borderBottom: '1px solid',
+          borderColor: 'divider'
         }}
       >
         <Toolbar>
@@ -87,7 +90,7 @@ const Navbar = ({ drawerWidth }) => {
             onClick={() => navigate('/search')}
             sx={{ 
               '&:hover': {
-                backgroundColor: 'rgba(255, 255, 255, 0.1)'
+                backgroundColor: 'action.hover'
               },
               '& .MuiSvgIcon-root': {
                 fontSize: '2.5rem'
@@ -103,6 +106,12 @@ const Navbar = ({ drawerWidth }) => {
         anchor="left"
         open={drawerOpen}
         onClose={toggleDrawer(false)}
+        sx={{
+          '& .MuiDrawer-paper': {
+            backgroundColor: 'background.default',
+            color: 'text.primary'
+          }
+        }}
       >
         <Box
           sx={{ width: 250 }}

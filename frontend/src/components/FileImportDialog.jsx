@@ -80,7 +80,6 @@ const FileImportDialog = ({ open, onClose, onImport }) => {
   const [files, setFiles] = useState([]);
   const [processing, setProcessing] = useState(false);
   const [progress, setProgress] = useState(0);
-  const [overallProgress, setOverallProgress] = useState(0);
   const [processingStatus, setProcessingStatus] = useState('');
   const [error, setError] = useState(null);
   const fileInputRef = useRef(null);
@@ -171,7 +170,7 @@ const FileImportDialog = ({ open, onClose, onImport }) => {
 
     for (let i = 1; i <= pdfDoc.numPages; i++) {
       setProcessingStatus(`Rendering ${file.name} (page ${i} of ${pdfDoc.numPages})...`);
-      setProgress(0);
+      setProgress((100 / pdfDoc.numPages) * i);
 
       const page = await pdfDoc.getPage(i);
       const viewport = page.getViewport({ scale: 2.0 });
@@ -201,11 +200,36 @@ const FileImportDialog = ({ open, onClose, onImport }) => {
     return data.text;
   };
 
+  const generateAIFeatures = async (content) => {
+    try {
+      setProcessingStatus('Generating Summary, Flashcards and Tags...');
+      const response = await fetch('http://127.0.0.1:8000/process', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ text: content }),
+      });
+      const data = await response.json();
+      return {
+        tags: data.tags || [],
+        summary: data.summary || '',
+        flashcards: data.flashcards || []
+      };
+    } catch (error) {
+      console.error('[AI] Error generating features:', error);
+      return {
+        tags: [],
+        summary: content.substring(0, 150) + (content.length > 150 ? '...' : ''),
+        flashcards: []
+      };
+    }
+  };
+
   const handleImport = async () => {
     if (files.length === 0) return;
 
     setProcessing(true);
-    setOverallProgress(0);
     setError(null);
     setProcessingStatus('Initializing OCR engine...');
 
@@ -230,7 +254,6 @@ const FileImportDialog = ({ open, onClose, onImport }) => {
 
     for (let i = 0; i < totalFiles; i++) {
       const file = files[i];
-      setOverallProgress(((i) / totalFiles) * 100);
       let content = '';
       let type = '';
       try {
@@ -247,17 +270,35 @@ const FileImportDialog = ({ open, onClose, onImport }) => {
           type = 'text';
         }
 
+        // Generate AI features after OCR
+        const aiFeatures = await generateAIFeatures(content);
+
         processedFilesData.push({
           title: file.name.replace(/\.[^/.]+$/, ''),
-          content: content, type: type,
+          content: content,
+          type: type,
           date: new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
-          recent: true, favorite: false,
-          tags: [type.toUpperCase()],
-          summary: content.substring(0, 150) + (content.length > 150 ? '...' : ''),
+          recent: true,
+          favorite: false,
+          tags: [...new Set([...aiFeatures.tags, type.toUpperCase()])], // Combine AI tags with file type
+          summary: aiFeatures.summary,
+          flashcards: aiFeatures.flashcards
         });
+
+        // Store flashcards in localStorage if they exist
+        if (aiFeatures.flashcards && aiFeatures.flashcards.length > 0) {
+          const existingFlashcards = JSON.parse(localStorage.getItem('flashcards') || '[]');
+          const newFlashcards = aiFeatures.flashcards.map(card => ({
+            id: Date.now() + Math.random(),
+            front: card.front,
+            back: card.back,
+            deck: aiFeatures.tags[0] || type.toUpperCase(), // Use first AI tag as deck, or file type if no tags
+            tags: [...aiFeatures.tags, type.toUpperCase()]
+          }));
+          localStorage.setItem('flashcards', JSON.stringify([...existingFlashcards, ...newFlashcards]));
+        }
       } catch (fileError) {
         console.error(`Error processing ${file.name}:`, fileError);
-        // Check if the error is from PDF.js specifically to give a more targeted message
         if (fileError.message && (fileError.message.toLowerCase().includes('pdf') || fileError.message.toLowerCase().includes('worker'))) {
           setError(`PDF processing error for ${file.name}: ${String(fileError.message || fileError)}. Check console and PDF worker path. Skipping.`);
         } else {
@@ -266,7 +307,6 @@ const FileImportDialog = ({ open, onClose, onImport }) => {
       }
     }
 
-    setOverallProgress(100);
     setProcessingStatus(processedFilesData.length > 0 ? 'Import complete!' : 'No files successfully imported.');
     if (processedFilesData.length > 0) onImport(processedFilesData);
 
@@ -277,7 +317,6 @@ const FileImportDialog = ({ open, onClose, onImport }) => {
     setFiles([]);
     setProcessing(false);
     setProgress(0);
-    setOverallProgress(0);
     setProcessingStatus('');
     // setError(null); // Let snackbar manage its own visibility based on error state
     onClose();
@@ -333,11 +372,6 @@ const FileImportDialog = ({ open, onClose, onImport }) => {
             <LinearProgress variant="determinate" value={progress} sx={{ mb: 1, height: '8px' }} />
             <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 2 }}>
               Current task: {Math.round(progress)}%
-            </Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ mt: 1, fontWeight: 'bold' }}>Overall Progress:</Typography>
-            <LinearProgress variant="determinate" value={overallProgress} color="secondary" sx={{ mb: 1, height: '12px' }} />
-            <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
-              {Math.round(overallProgress)}%
             </Typography>
           </Box>
         )}

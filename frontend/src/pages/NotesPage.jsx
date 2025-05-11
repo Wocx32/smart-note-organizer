@@ -349,7 +349,7 @@ const NotesPage = () => {
           setNewNoteDialogOpen(true);
         }}
       />
-      <Box sx={{ flexGrow: 1, p: 3, overflow: 'auto' }}>
+      <Box sx={{ flexGrow: 1, p: 3, overflow: 'auto', maxWidth: '100%' }}>
         <Box>
           <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <Typography variant="h4" fontWeight="bold">My Notes</Typography>
@@ -535,6 +535,20 @@ const NotesPage = () => {
             </Box>
           </Paper>
 
+          {filteredNotes.length > 0 && (
+            <Box sx={{ mb: 2, display: 'flex', alignItems: 'center' }}>
+              <Checkbox
+                checked={selectedNotes.length === filteredNotes.length && filteredNotes.length > 0}
+                indeterminate={selectedNotes.length > 0 && selectedNotes.length < filteredNotes.length}
+                onChange={handleSelectAll}
+                size="small"
+              />
+              <Typography variant="body2" component="span" sx={{ ml: 1 }}>
+                Select All
+              </Typography>
+            </Box>
+          )}
+
           {filteredNotes.length === 0 && (
             <Typography variant="body1" color="text.secondary" sx={{ textAlign: 'center', mt: 4 }}>
               No notes found. Try adjusting your search or filters, or create a new note!
@@ -632,19 +646,6 @@ const NotesPage = () => {
                 overflow: 'hidden'
               }}
             >
-              {filteredNotes.length > 0 && (
-                <Box sx={{ p: 2, borderBottom: '1px solid rgba(0, 0, 0, 0.08)' }}>
-                  <Checkbox
-                    checked={selectedNotes.length === filteredNotes.length && filteredNotes.length > 0}
-                    indeterminate={selectedNotes.length > 0 && selectedNotes.length < filteredNotes.length}
-                    onChange={handleSelectAll}
-                    size="small"
-                  />
-                  <Typography variant="body2" component="span" sx={{ ml: 1 }}>
-                    Select All
-                  </Typography>
-                </Box>
-              )}
               {filteredNotes.map((note, index) => (
                 <Box key={note.id}>
                   {index > 0 && <Divider />}
