@@ -1,0 +1,45 @@
+
+services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: ../dockerfiles/frontend.dockerfile
+      args:
+        - VITE_API_URL=https://notes.wocx.xyz
+    networks:
+      - default
+      - traefik
+    depends_on:
+      - backend
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.notes-front.rule=Host(`notes.wocx.xyz`) && PathPrefix(`/`)"
+      - "traefik.http.routers.notes-front.priority=1"
+      - "traefik.http.routers.notes-front.entrypoints=websecure"
+      - "traefik.http.routers.notes-front.tls=true"
+      - "traefik.http.routers.notes-front.service=notes-front"
+      - "traefik.http.services.notes-front.loadbalancer.server.port=3000"
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: ../dockerfiles/backend.dockerfile
+    env_file:
+      - .env
+    networks:
+      - default
+      - traefik
+    restart: unless-stopped
+    labels:
+      - 'traefik.enable=true'
+      - 'traefik.http.routers.notes-back.rule=Host(`notes.wocx.xyz`) && PathPrefix(`/process`)'
+      - "traefik.http.routers.notes-back.priority=2"
+      - 'traefik.http.routers.notes-back.entrypoints=websecure'
+      - 'traefik.http.routers.notes-back.tls=true'
+      - 'traefik.http.routers.notes-back.service=notes-back'
+      - 'traefik.http.services.notes-back.loadbalancer.server.port=8000'
+
+networks:
+  traefik:
+    external: true

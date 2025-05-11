@@ -72,8 +72,9 @@ const NewNoteDialog = ({ open, onClose, onSave, initialNote }) => {
     if (!content.trim()) return;
     setIsLoading(true);
     try {
+      const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
       console.log('[AI] Sending to /process:', { text: content });
-      const response = await fetch('http://127.0.0.1:8000/process', {
+      const response = await fetch(`${API_BASE_URL}/process`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
