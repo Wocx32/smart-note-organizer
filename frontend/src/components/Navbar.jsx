@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AppBar, Toolbar, Typography, Button, IconButton, Drawer, List, ListItem, ListItemButton, ListItemText, Box } from '@mui/material';
-import { Menu as MenuIcon, Book, Lightbulb, Search as SearchIcon } from '@mui/icons-material';
+import { Menu as MenuIcon, Book, Lightbulb, Search as SearchIcon, Home as HomeIcon } from '@mui/icons-material';
 import React from 'react';
 
 const Navbar = () => {
@@ -16,7 +16,7 @@ const Navbar = () => {
   };
 
   const menuItems = [
-    { text: 'Dashboard', path: '/', icon: <Book /> },
+    { text: 'Home', path: '/', icon: <HomeIcon /> },
     { text: 'My Notes', path: '/notes', icon: <Book /> },
     { text: 'Flashcards', path: '/flashcards', icon: <Lightbulb /> },
   ];

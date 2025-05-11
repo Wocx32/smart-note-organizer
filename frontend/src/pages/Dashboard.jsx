@@ -148,7 +148,7 @@ const Dashboard = () => {
       }));
       // Set studyMode to true in localStorage
       localStorage.setItem('studyMode', 'true');
-      navigate('/flashcards');
+      navigate('/flashcards?study=1');
     } else {
       // Handle case when no flashcards exist
       alert('No flashcards available for study. Create some flashcards first!');
@@ -425,7 +425,7 @@ const Dashboard = () => {
           sx={{
             backgroundColor: '#3182ce',
             boxShadow: 'none',
-            borderRadius: 1.5,
+            borderRadius: '50px',
             px: 3,
             py: 1.5,
             '&:hover': {
@@ -443,7 +443,7 @@ const Dashboard = () => {
           sx={{
             backgroundColor: '#48BB78',
             boxShadow: 'none',
-            borderRadius: 1.5,
+            borderRadius: '50px',
             px: 3,
             py: 1.5,
             '&:hover': {
@@ -465,7 +465,7 @@ const Dashboard = () => {
           sx={{
             borderColor: 'rgba(0, 0, 0, 0.23)',
             color: 'text.primary',
-            borderRadius: 2,
+            borderRadius: '50px',
             px: 4,
             py: 2,
             fontSize: '1.1rem',
@@ -654,7 +654,7 @@ const Dashboard = () => {
             onClick={() => navigate('/notes')}
             sx={{
               backgroundColor: '#3182ce',
-              borderRadius: 1.5,
+              borderRadius: '50px',
               textTransform: 'none',
               px: 2,
               '&:hover': {
@@ -728,7 +728,7 @@ const Dashboard = () => {
             onClick={() => navigate('/notes', { state: { showFavorites: true } })}
             sx={{
               backgroundColor: '#3182ce',
-              borderRadius: 1.5,
+              borderRadius: '50px',
               textTransform: 'none',
               px: 2,
               '&:hover': {
@@ -810,7 +810,7 @@ const Dashboard = () => {
             onClick={() => navigate('/flashcards')}
             sx={{
               backgroundColor: '#3182ce',
-              borderRadius: 1.5,
+              borderRadius: '50px',
               textTransform: 'none',
               px: 2,
               '&:hover': {

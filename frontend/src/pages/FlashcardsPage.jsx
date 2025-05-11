@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import {
   Box,
   Typography,
@@ -45,6 +46,7 @@ import {
 // import { getNotes } from '../utils/storage';
 
 const FlashcardsPage = () => {
+  const location = useLocation();
   const [activeTab, setActiveTab] = useState(0);
   const [filterAnchorEl, setFilterAnchorEl] = useState(null);
   const [currentFilter, setCurrentFilter] = useState('all');
@@ -74,6 +76,17 @@ const FlashcardsPage = () => {
   const [selectedCard, setSelectedCard] = useState(null);
 
   useEffect(() => {
+    // Check for ?study=1 in the URL or studyMode in localStorage
+    const params = new URLSearchParams(location.search);
+    const studyParam = params.get('study');
+    const studyModeFlag = localStorage.getItem('studyMode');
+    if (studyParam === '1' || studyModeFlag === 'true') {
+      setStudyMode(true);
+      setCurrentCardIndex(0);
+      setShowAnswer(false);
+      localStorage.removeItem('studyMode');
+    }
+
     // Check if we're starting a study session from a note
     const storedStudySession = localStorage.getItem('currentStudySession');
     if (storedStudySession) {
@@ -138,7 +151,7 @@ const FlashcardsPage = () => {
     
     // Set all flashcards
     setFlashcards(allFlashcards);
-  }, []);
+  }, [location.search]);
 
   const handleTabChange = (event, newValue) => {
     setActiveTab(newValue);
@@ -494,6 +507,16 @@ const FlashcardsPage = () => {
         </Box>
       </Box>
     );
+  }
+
+  // Add a shuffle function
+  function shuffle(array) {
+    const arr = [...array];
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
   }
 
   return (
@@ -1048,9 +1071,38 @@ const FlashcardsPage = () => {
               </Button>
             </Box>
 
-            <Typography variant="body2" color="text.secondary">
-              Studying from deck: <strong>{currentCard.deck}</strong>
-            </Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 2 }}>
+              <Typography variant="body2" color="text.secondary">
+                Studying from deck:
+              </Typography>
+              <FormControl size="small" sx={{ minWidth: 80, m: 0 }}>
+                <Select
+                  value={selectedDeck}
+                  onChange={e => {
+                    setSelectedDeck(e.target.value);
+                    setCurrentCardIndex(0);
+                    setShowAnswer(false);
+                    setCurrentStudySession(null);
+                    if (e.target.value === 'all') {
+                      setFlashcards(shuffle(
+                        decks.find(deck => deck.id === 'all')?.cards || []
+                      ));
+                    } else {
+                      setFlashcards(
+                        decks.find(deck => deck.id === e.target.value)?.cards || []
+                      );
+                    }
+                  }}
+                  displayEmpty
+                  sx={{ fontSize: '1rem', borderRadius: 2 }}
+                >
+                  <MenuItem value="all">All</MenuItem>
+                  {decks.filter(deck => deck.id !== 'all').map(deck => (
+                    <MenuItem key={deck.id} value={deck.id}>{deck.name}</MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Box>
           </Box>
         </Box>
       )}
