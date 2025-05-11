@@ -1,11 +1,7 @@
 
 services:
   frontend:
-    build:
-      context: ./frontend
-      dockerfile: ../dockerfiles/frontend.dockerfile
-      args:
-        - VITE_API_URL=https://notes.wocx.xyz
+    image: ghcr.io/wocx32/smart-note-organizer/frontend:latest
     networks:
       - default
       - traefik
@@ -14,7 +10,7 @@ services:
     restart: unless-stopped
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.notes-front.rule=Host(`notes.wocx.xyz`) && PathPrefix(`/`)"
+      - "traefik.http.routers.notes-front.rule=Host(`smartnotes.wocx.xyz`) && PathPrefix(`/`)"
       - "traefik.http.routers.notes-front.priority=1"
       - "traefik.http.routers.notes-front.entrypoints=websecure"
       - "traefik.http.routers.notes-front.tls=true"
@@ -22,9 +18,7 @@ services:
       - "traefik.http.services.notes-front.loadbalancer.server.port=3000"
 
   backend:
-    build:
-      context: ./backend
-      dockerfile: ../dockerfiles/backend.dockerfile
+    image: ghcr.io/wocx32/smart-note-organizer/backend:latest
     env_file:
       - .env
     networks:
@@ -33,7 +27,7 @@ services:
     restart: unless-stopped
     labels:
       - 'traefik.enable=true'
-      - 'traefik.http.routers.notes-back.rule=Host(`notes.wocx.xyz`) && PathPrefix(`/process`)'
+      - 'traefik.http.routers.notes-back.rule=Host(`smartnotes.wocx.xyz`) && PathPrefix(`/process`)'
       - "traefik.http.routers.notes-back.priority=2"
       - 'traefik.http.routers.notes-back.entrypoints=websecure'
       - 'traefik.http.routers.notes-back.tls=true'
