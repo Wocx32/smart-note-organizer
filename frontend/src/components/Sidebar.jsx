@@ -81,7 +81,6 @@ const Sidebar = ({ onTagSelect, onNewNote }) => {
     // Create new note with required fields
     const newNote = {
       ...noteData,
-      id: Date.now().toString(),
       date: new Date().toLocaleDateString('en-US', {
         month: 'long',
         day: 'numeric',
@@ -95,9 +94,6 @@ const Sidebar = ({ onTagSelect, onNewNote }) => {
 
     // Add the note using the utility function
     addNote(newNote);
-
-    // Dispatch event to notify other components
-    window.dispatchEvent(new Event('smart_notes_updated'));
 
     // Navigate to the notes page
     navigate('/notes');
