@@ -355,11 +355,11 @@ const Dashboard = () => {
             variant="h2" 
             fontWeight="bold" 
             sx={{ 
-              background: 'linear-gradient(45deg, #3182ce 30%, #4299E1 90%)',
+              background: 'linear-gradient(90deg, #3182ce 0%, #4299E1 50%, #00f3ff 100%)',
               backgroundClip: 'text',
-              textFillColor: 'transparent',
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
+              color: 'transparent',
               fontFamily: 'monospace',
               letterSpacing: 1
             }}
@@ -523,7 +523,7 @@ const Dashboard = () => {
           mb: 4
         }}
       >
-        <Typography variant="h5" fontWeight="bold" sx={{ mb: 3 }}>
+        <Typography variant="h4" fontWeight="bold" sx={{ mb: 3, fontSize: '2rem' }}>
           Summarize
         </Typography>
         
@@ -679,17 +679,18 @@ const Dashboard = () => {
         }}
       >
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-          <Typography variant="h5" fontWeight="bold">Recent Notes</Typography>
+          <Typography variant="h4" fontWeight="bold" sx={{ fontSize: '1.7rem' }}>Recent Notes</Typography>
           <Button 
             variant="contained"
-            size="small" 
+            size="medium" 
             color="primary"
             onClick={() => navigate('/notes')}
             sx={{
               backgroundColor: '#3182ce',
               borderRadius: '50px',
               textTransform: 'none',
-              px: 2,
+              px: 2.5,
+              fontSize: '1.1rem',
               '&:hover': {
                 backgroundColor: '#2b6cb0',
               }
@@ -716,17 +717,17 @@ const Dashboard = () => {
               }}
             >
               <ListItemText
-                primary={note.title}
+                primary={<Typography sx={{ fontSize: '1.2rem', fontWeight: 600 }}>{note.title}</Typography>}
                 secondary={
                   <Box sx={{ mt: 1, display: 'flex', gap: 1, flexWrap: 'wrap' }}>
                     {note.tags.map((tag) => (
                       <Chip
                         key={tag}
                         label={tag}
-                        size="small"
+                        size="medium"
                         sx={{
-                          height: 20,
-                          fontSize: '0.7rem',
+                          height: 28,
+                          fontSize: '0.9rem',
                           backgroundColor: 'rgba(0,0,0,0.06)',
                         }}
                       />
@@ -734,7 +735,7 @@ const Dashboard = () => {
                   </Box>
                 }
               />
-              <Typography variant="caption" color="text.secondary">
+              <Typography variant="caption" color="text.secondary" sx={{ fontSize: '1rem' }}>
                 {note.date}
               </Typography>
             </ListItem>
@@ -753,7 +754,7 @@ const Dashboard = () => {
         }}
       >
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-          <Typography variant="h5" fontWeight="bold">Favorite Notes</Typography>
+          <Typography variant="h4" fontWeight="bold" sx={{ fontSize: '1.7rem' }}>Favorite Notes</Typography>
           <Button 
             variant="contained"
             size="small" 
@@ -790,17 +791,17 @@ const Dashboard = () => {
               }}
             >
               <ListItemText
-                primary={note.title}
+                primary={<Typography sx={{ fontSize: '1.2rem', fontWeight: 600 }}>{note.title}</Typography>}
                 secondary={
                   <Box sx={{ mt: 1, display: 'flex', gap: 1, flexWrap: 'wrap' }}>
                     {note.tags.map((tag) => (
                       <Chip
                         key={tag}
                         label={tag}
-                        size="small"
+                        size="medium"
                         sx={{
-                          height: 20,
-                          fontSize: '0.7rem',
+                          height: 28,
+                          fontSize: '0.9rem',
                           backgroundColor: 'rgba(0,0,0,0.06)',
                         }}
                       />
@@ -808,7 +809,7 @@ const Dashboard = () => {
                   </Box>
                 }
               />
-              <Typography variant="caption" color="text.secondary">
+              <Typography variant="caption" color="text.secondary" sx={{ fontSize: '1rem' }}>
                 {note.date}
               </Typography>
             </ListItem>
@@ -835,7 +836,7 @@ const Dashboard = () => {
         }}
       >
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-          <Typography variant="h5" fontWeight="bold">Explore Decks</Typography>
+          <Typography variant="h4" fontWeight="bold" sx={{ fontSize: '1.7rem' }}>Explore Decks</Typography>
           <Button 
             variant="contained"
             size="small" 
@@ -882,10 +883,10 @@ const Dashboard = () => {
                       <Typography variant="h6" fontWeight="bold" sx={{wordBreak: 'break-word'}}>
                         {deck.name}
                       </Typography>
-                      <School sx={{ color: 'primary.main' }} />
+                      <School sx={{ color: 'primary.main', fontSize: 36 }} />
                     </Box>
 
-                    <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                    <Typography variant="body2" color="text.secondary" sx={{ mb: 1, fontSize: '1.1rem' }}>
                       {deck.count} flashcard{deck.count === 1 ? '' : 's'}
                     </Typography>
                   </CardContent>

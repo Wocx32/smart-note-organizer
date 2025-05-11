@@ -31,8 +31,7 @@ const Navbar = () => {
           color: 'text.primary',
           width: '100%',
           zIndex: (theme) => theme.zIndex.drawer + 1,
-          borderBottom: '1px solid',
-          borderColor: 'divider'
+          borderBottom: '0.5px solid black'
         }}
       >
         <Toolbar>

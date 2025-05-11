@@ -107,11 +107,10 @@ const Sidebar = ({ onTagSelect }) => {
       sx={{
         width: isCollapsed ? collapsedWidth : drawerWidth,
         flexShrink: 0,
-        transition: 'width 0.2s ease-in-out',
-        [`& .MuiDrawer-paper`]: { 
+        '& .MuiDrawer-paper': { 
           width: isCollapsed ? collapsedWidth : drawerWidth,
           boxSizing: 'border-box',
-          borderRight: '1px solid',
+          borderRight: '0.5px solid black',
           borderColor: 'divider',
           backgroundColor: 'background.default',
           height: 'calc(100vh - 64px - 80px)',

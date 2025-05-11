@@ -15,11 +15,15 @@ const Layout = () => {
       display: 'flex', 
       minHeight: '100vh', 
       flexDirection: 'column',
-      bgcolor: 'background.default',
+      bgcolor: isDarkMode ? 'background.default' : undefined,
+      backgroundImage: isDarkMode ? undefined : 'linear-gradient(135deg, #9cd7e4 0%, #ffffff 50%, #b9e3c9 100%)',
+      backgroundAttachment: 'fixed',
+      backgroundRepeat: 'no-repeat',
+      backgroundSize: 'cover',
       color: 'text.primary'
     }}>
       <Navbar drawerWidth={drawerWidth} />
-      <Box sx={{ display: 'flex', flex: 1 }}>
+      <Box sx={{ display: 'flex', flex: 1, minHeight: 'calc(100vh - 64px - 80px)' }}>
         <Sidebar />
         <Box 
           component="main" 
@@ -53,7 +57,9 @@ const Layout = () => {
           </Box>
         </Box>
       </Box>
-      <Footer />
+      <Box sx={{ width: '100%', borderTop: '1px solid black', bgcolor: 'white' }}>
+        <Footer />
+      </Box>
     </Box>
   );
 };

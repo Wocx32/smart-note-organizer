@@ -34,8 +34,8 @@ export const ThemeProvider = ({ children }) => {
         main: '#48bb78', // Green
       },
       background: {
-        default: isDarkMode ? '#1a202c' : '#ffffff',
-        paper: isDarkMode ? '#2d3748' : '#ffffff',
+        default: isDarkMode ? '#1a202c' : 'linear-gradient(135deg, #f8fbff 0%, #e3f0ff 100%)',
+        paper: isDarkMode ? '#2d3748' : 'rgba(255,255,255,0.85)',
       },
     },
     components: {

@@ -801,7 +801,11 @@ const FlashcardsPage = () => {
                               p: 0.5,
                               px: 1,
                               borderRadius: 1,
-                              bgcolor: 'primary.light',
+                              background: 'linear-gradient(45deg, #3182ce 30%, #4299E1 90%)',
+                              backgroundClip: 'text',
+                              textFillColor: 'transparent',
+                              WebkitBackgroundClip: 'text',
+                              WebkitTextFillColor: 'transparent',
                               display: 'inline-block',
                               mb: 1
                             }}
