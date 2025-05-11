@@ -76,6 +76,18 @@ const NotesPage = () => {
   useEffect(() => {
     const savedNotes = getNotes();
     setNotes(savedNotes);
+
+    // Add event listener for notes updates
+    const handleNotesUpdate = () => {
+      const updatedNotes = getNotes();
+      setNotes(updatedNotes);
+    };
+
+    window.addEventListener('smart_notes_updated', handleNotesUpdate);
+
+    return () => {
+      window.removeEventListener('smart_notes_updated', handleNotesUpdate);
+    };
   }, []);
 
   const handleSortClick = (event) => {
@@ -169,7 +181,6 @@ const NotesPage = () => {
       // Create new note
       const newNote = {
         ...noteData,
-        id: Date.now().toString(),
         date: new Date().toLocaleDateString('en-US', {
           month: 'long',
           day: 'numeric',
@@ -180,33 +191,19 @@ const NotesPage = () => {
         tags: noteData.tags || [], // Ensure tags is an array
         summary: noteData.summary || noteData.content.substring(0, 150) + (noteData.content.length > 150 ? '...' : ''),
       };
-      addNote(newNote);
-      setNotes(prevNotes => [newNote, ...prevNotes]);
+      const savedNote = addNote(newNote);
+      // setNotes(prevNotes => [savedNote, ...prevNotes]);
       setSnackbar({ open: true, message: 'Note created successfully!', severity: 'success' });
     }
   };
 
   const handleImportFiles = (processedFiles) => {
-    const newNotes = processedFiles.map(file => ({
-      id: Date.now().toString() + Math.random().toString(36).substring(2,7), // More unique ID
-      title: file.name,
-      content: file.content,
-      summary: file.summary || file.content.substring(0, 150) + (file.content.length > 150 ? '...' : ''),
-      date: new Date().toLocaleDateString('en-US', {
-        month: 'long',
-        day: 'numeric',
-        year: 'numeric'
-      }),
-      tags: file.type ? [file.type.toUpperCase()] : [], // Ensure tags is an array
-      recent: true,
-      favorite: false,
+    const newNotes = processedFiles.map(noteData => ({
+      ...noteData,
     }));
 
-    newNotes.forEach(note => {
-      addNote(note);
-    });
-
-    setNotes(prevNotes => [...newNotes, ...prevNotes]);
+    const savedNotes = newNotes.map(note => addNote(note));
+    // setNotes(prevNotes => [...savedNotes, ...prevNotes]);
     setSnackbar({ open: true, message: `${newNotes.length} note(s) imported successfully!`, severity: 'success' });
   };
 
@@ -345,7 +342,13 @@ const NotesPage = () => {
 
   return (
     <Box sx={{ display: 'flex', height: '100vh' }}>
-      <Sidebar onTagSelect={handleTagSelect} />
+      <Sidebar 
+        onTagSelect={handleTagSelect} 
+        onNewNote={() => {
+          setEditingNote(null);
+          setNewNoteDialogOpen(true);
+        }}
+      />
       <Box sx={{ flexGrow: 1, p: 3, overflow: 'auto' }}>
         <Box>
           <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>

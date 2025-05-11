@@ -80,19 +80,7 @@ const FlashcardsPage = () => {
       }
     }
 
-    // Check if studyMode is set in localStorage
-    const studyModeEnabled = localStorage.getItem('studyMode') === 'true';
-    if (studyModeEnabled) {
-      // Clear the studyMode flag
-      localStorage.removeItem('studyMode');
-      // Start study mode with all flashcards
-      const storedFlashcards = JSON.parse(localStorage.getItem('flashcards') || '[]');
-      setFlashcards(storedFlashcards);
-      setStudyMode(true);
-      return; // Exit early to prevent loading all flashcards
-    }
-
-    // Only load all flashcards if we're not in a study session
+    // Only load all flashcards if we're not in a note study session
     const storedFlashcards = JSON.parse(localStorage.getItem('flashcards') || '[]');
     
     // Create a map to track unique flashcards by their content

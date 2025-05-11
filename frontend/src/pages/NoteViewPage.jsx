@@ -36,7 +36,7 @@ const NoteViewPage = () => {
 
   useEffect(() => {
     const notes = getNotes();
-    const foundNote = notes.find(n => n.id === Number(noteId));
+    const foundNote = notes.find(n => n.id === noteId);
     if (foundNote) {
       setNote(foundNote);
     } else {
