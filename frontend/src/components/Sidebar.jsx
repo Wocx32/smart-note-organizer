@@ -50,9 +50,9 @@ const Sidebar = ({ onTagSelect }) => {
   const [expanded, setExpanded] = useState(true);
   const [showAllTags, setShowAllTags] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(() => {
-    // Initialize from localStorage, default to false if not set
+    // Initialize from localStorage, default to true if not set
     const savedState = localStorage.getItem('sidebarCollapsed');
-    return savedState ? JSON.parse(savedState) : false;
+    return savedState ? JSON.parse(savedState) : true;
   });
   const MAX_VISIBLE_TAGS = 4;
 
@@ -368,29 +368,42 @@ const Sidebar = ({ onTagSelect }) => {
         <Box sx={{ flexGrow: 1 }} />
         
         {/* Theme Toggle Button */}
-        <Box sx={{ 
-          p: 2, 
-          borderTop: '1px solid',
-          borderColor: 'divider'
-        }}>
+        <Box
+          sx={{
+            p: 2,
+            borderTop: '1px solid',
+            borderColor: 'divider',
+            ...(isCollapsed && {
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              height: 65, // match collapsed sidebar width for a perfect square
+              p: 0,
+            })
+          }}
+        >
           <Tooltip title={isCollapsed ? (isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode") : ""} arrow placement="right">
             <Button
               onClick={toggleTheme}
-              fullWidth
+              fullWidth={!isCollapsed}
               sx={{
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: isCollapsed ? 'center' : 'flex-start',
                 color: 'text.primary',
                 textTransform: 'none',
-                py: 1,
-                px: isCollapsed ? 1 : 2,
+                minWidth: 0,
+                p: isCollapsed ? 0 : 2,
+                m: 0,
+                width: isCollapsed ? 48 : '100%',
+                height: isCollapsed ? 48 : 'auto',
+                borderRadius: isCollapsed ? '50%' : 1,
                 '&:hover': {
                   backgroundColor: 'action.hover'
                 }
               }}
             >
-              {isDarkMode ? <DarkMode /> : <LightMode />}
+              {isDarkMode ? <DarkMode sx={{ fontSize: 28 }} /> : <LightMode sx={{ fontSize: 28 }} />}
               {!isCollapsed && (
                 <Typography 
                   variant="body2" 

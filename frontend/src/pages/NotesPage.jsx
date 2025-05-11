@@ -340,6 +340,9 @@ const NotesPage = () => {
     navigate(`/notes/${noteId}`);
   };
 
+  // Get all unique tags from notes
+  const allTags = Array.from(new Set(notes.flatMap(note => note.tags || [])));
+
   return (
     <Box sx={{ display: 'flex', height: '100vh' }}>
       <Sidebar 
@@ -349,7 +352,20 @@ const NotesPage = () => {
           setNewNoteDialogOpen(true);
         }}
       />
-      <Box sx={{ flexGrow: 1, p: 3, overflow: 'auto', maxWidth: '100%' }}>
+      <Box
+        sx={{
+          flex: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          pl: 0,
+          pr: { xs: 0, md: 4 },
+          pt: 4,
+          pb: 4,
+          minHeight: '100vh',
+          maxWidth: '100%',
+          boxSizing: 'border-box',
+        }}
+      >
         <Box>
           <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <Typography variant="h4" fontWeight="bold">My Notes</Typography>
@@ -379,7 +395,8 @@ const NotesPage = () => {
                   textTransform: 'none',
                   fontSize: '1rem',
                   py: 1.5,
-                  px: 2.5
+                  px: 2.5,
+                  borderRadius: '50px'
                 }}
               >
                 Import
@@ -398,6 +415,7 @@ const NotesPage = () => {
                   fontSize: '1rem',
                   py: 1.5,
                   px: 2.5,
+                  borderRadius: '50px',
                   '&:hover': {
                     backgroundColor: '#2b6cb0',
                     boxShadow: 'none',
@@ -439,7 +457,23 @@ const NotesPage = () => {
                 size="small"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                sx={{ width: { xs: '100%', sm: '300px' } }}
+                sx={{
+                  width: { xs: '100%', sm: '700px' },
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: '50px',
+                    fontSize: '1.1rem',
+                    backgroundColor: 'background.paper',
+                    '& fieldset': {
+                      borderColor: 'divider',
+                    },
+                    '&:hover fieldset': {
+                      borderColor: 'primary.main',
+                    },
+                    '&.Mui-focused fieldset': {
+                      borderColor: 'primary.main',
+                    },
+                  },
+                }}
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
@@ -488,7 +522,8 @@ const NotesPage = () => {
                     textTransform: 'none',
                     fontSize: '1rem',
                     py: 1.5,
-                    px: 2.5
+                    px: 2.5,
+                    borderRadius: '50px'
                   }}
                 >
                   Sort
@@ -513,7 +548,8 @@ const NotesPage = () => {
                     textTransform: 'none',
                     fontSize: '1rem',
                     py: 1.5,
-                    px: 2.5
+                    px: 2.5,
+                    borderRadius: '50px'
                   }}
                 >
                   Filter
@@ -523,13 +559,14 @@ const NotesPage = () => {
                   open={Boolean(filterAnchorEl)}
                   onClose={handleFilterClose}
                 >
-                  {/* Example filter items, replace with dynamic tags or categories */}
-                  <MenuItem onClick={() => { handleTagSelect('Physics'); handleFilterClose(); }}>Physics</MenuItem>
-                  <MenuItem onClick={() => { handleTagSelect('Chemistry'); handleFilterClose(); }}>Chemistry</MenuItem>
-                  <MenuItem onClick={() => { handleTagSelect('Mathematics'); handleFilterClose(); }}>Mathematics</MenuItem>
-                  <MenuItem onClick={() => { handleTagSelect('Computer Science'); handleFilterClose(); }}>Computer Science</MenuItem>
-                  <MenuItem onClick={() => { handleTagSelect('Biology'); handleFilterClose(); }}>Biology</MenuItem>
-                  <MenuItem onClick={() => { setSelectedTag(null); handleFilterClose();}}>Clear Filter</MenuItem>
+                  {allTags.length === 0 ? (
+                    <MenuItem disabled>No tags available</MenuItem>
+                  ) : (
+                    allTags.map((tag) => (
+                      <MenuItem key={tag} onClick={() => { handleTagSelect(tag); handleFilterClose(); }}>{tag}</MenuItem>
+                    ))
+                  )}
+                  <MenuItem onClick={() => { setSelectedTag(null); handleFilterClose(); }}>Clear Filter</MenuItem>
                 </Menu>
               </Box>
             </Box>

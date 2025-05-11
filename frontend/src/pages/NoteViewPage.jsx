@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import {
   Box,
   Typography,
@@ -29,6 +29,7 @@ import NewNoteDialog from '../components/NewNoteDialog';
 const NoteViewPage = () => {
   const { noteId } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const [note, setNote] = useState(null);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -45,7 +46,17 @@ const NoteViewPage = () => {
   }, [noteId, navigate]);
 
   const handleBack = () => {
-    navigate('/notes');
+    if (location.state?.fromSearch) {
+      navigate('/search', { 
+        state: {
+          searchQuery: location.state.searchQuery,
+          activeTab: location.state.activeTab,
+          selectedTags: location.state.selectedTags
+        }
+      });
+    } else {
+      navigate('/notes');
+    }
   };
 
   const handleEdit = () => {
