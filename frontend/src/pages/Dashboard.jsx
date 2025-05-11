@@ -20,7 +20,8 @@ import {
   Snackbar,
   FormGroup,
   FormControlLabel,
-  Checkbox
+  Checkbox,
+  CardContent
 } from '@mui/material';
 import { 
   Description, 
@@ -57,6 +58,7 @@ const Dashboard = () => {
     summary: true,
     flashcards: false
   });
+  const [decks, setDecks] = useState([]);
 
   useEffect(() => {
     // Load notes from localStorage
@@ -80,6 +82,35 @@ const Dashboard = () => {
       note.tags?.forEach(tag => uniqueTags.add(tag));
     });
     setTags(Array.from(uniqueTags));
+
+    // Initialize decks from flashcards
+    const deckMap = {};
+    
+    // Process flashcards to organize by deck
+    savedFlashcards.forEach(card => {
+      if (!deckMap[card.deck]) {
+        deckMap[card.deck] = [];
+      }
+      deckMap[card.deck].push(card);
+    });
+
+    // Convert deck map to array format
+    const allDecks = [
+      { 
+        id: 'all', 
+        name: 'All Decks', 
+        count: savedFlashcards.length,
+        cards: savedFlashcards
+      },
+      ...Object.keys(deckMap).map(deck => ({ 
+        id: deck, 
+        name: deck, 
+        count: deckMap[deck].length,
+        cards: deckMap[deck]
+      })).sort((a, b) => a.name.localeCompare(b.name))
+    ];
+
+    setDecks(allDecks);
   }, []);
 
   const handleCreateNote = (noteData) => {
@@ -674,6 +705,207 @@ const Dashboard = () => {
             </ListItem>
           ))}
         </List>
+      </Paper>
+
+      {/* Favorite Notes Section */}
+      <Paper 
+        elevation={0} 
+        sx={{ 
+          p: 4, 
+          borderRadius: 2,
+          border: '1px solid rgba(0, 0, 0, 0.08)',
+          mb: 4
+        }}
+      >
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+          <Typography variant="h5" fontWeight="bold">Favorite Notes</Typography>
+          <Button 
+            variant="contained"
+            size="small" 
+            color="primary"
+            onClick={() => navigate('/notes', { state: { showFavorites: true } })}
+            sx={{
+              backgroundColor: '#3182ce',
+              borderRadius: 1.5,
+              textTransform: 'none',
+              px: 2,
+              '&:hover': {
+                backgroundColor: '#2b6cb0',
+              }
+            }}
+          >
+            View All
+          </Button>
+        </Box>
+        <Divider sx={{ mb: 3 }} />
+        <List>
+          {notes.filter(note => note.favorite).slice(0, 4).map((note) => (
+            <ListItem 
+              key={note.id}
+              alignItems="flex-start"
+              sx={{ 
+                px: 2, 
+                borderRadius: 1,
+                mb: 1,
+                '&:hover': { 
+                  backgroundColor: 'rgba(0, 0, 0, 0.04)' 
+                }
+              }}
+            >
+              <ListItemText
+                primary={note.title}
+                secondary={
+                  <Box sx={{ mt: 1, display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+                    {note.tags.map((tag) => (
+                      <Chip
+                        key={tag}
+                        label={tag}
+                        size="small"
+                        sx={{
+                          height: 20,
+                          fontSize: '0.7rem',
+                          backgroundColor: 'rgba(0,0,0,0.06)',
+                        }}
+                      />
+                    ))}
+                  </Box>
+                }
+              />
+              <Typography variant="caption" color="text.secondary">
+                {note.date}
+              </Typography>
+            </ListItem>
+          ))}
+          {notes.filter(note => note.favorite).length === 0 && (
+            <ListItem>
+              <ListItemText
+                primary="No favorite notes yet"
+                sx={{ textAlign: 'center', color: 'text.secondary' }}
+              />
+            </ListItem>
+          )}
+        </List>
+      </Paper>
+
+      {/* Explore Decks Section */}
+      <Paper 
+        elevation={0} 
+        sx={{ 
+          p: 4, 
+          borderRadius: 2,
+          border: '1px solid rgba(0, 0, 0, 0.08)',
+          mb: 4
+        }}
+      >
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+          <Typography variant="h5" fontWeight="bold">Explore Decks</Typography>
+          <Button 
+            variant="contained"
+            size="small" 
+            color="primary"
+            onClick={() => navigate('/flashcards')}
+            sx={{
+              backgroundColor: '#3182ce',
+              borderRadius: 1.5,
+              textTransform: 'none',
+              px: 2,
+              '&:hover': {
+                backgroundColor: '#2b6cb0',
+              }
+            }}
+          >
+            View All
+          </Button>
+        </Box>
+        <Divider sx={{ mb: 3 }} />
+
+        <Grid container spacing={3}>
+          {decks
+            .filter(deck => deck.id !== 'all' && deck.id !== 'PROCESSED')
+            .sort((a, b) => a.name.localeCompare(b.name))
+            .map((deck) => (
+              <Grid item xs={12} sm={6} md={3} key={deck.id}>
+                <Card
+                  elevation={0}
+                  sx={{
+                    borderRadius: 2,
+                    border: '1px solid rgba(0, 0, 0, 0.08)',
+                    height: '100%',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    transition: 'transform 0.2s, box-shadow 0.2s',
+                    '&:hover': {
+                      transform: 'translateY(-3px)',
+                      boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
+                    }
+                  }}
+                >
+                  <CardContent sx={{ p: 3, flexGrow: 1 }}>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                      <Typography variant="h6" fontWeight="bold" sx={{wordBreak: 'break-word'}}>
+                        {deck.name}
+                      </Typography>
+                      <School sx={{ color: 'primary.main' }} />
+                    </Box>
+
+                    <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                      {deck.count} flashcard{deck.count === 1 ? '' : 's'}
+                    </Typography>
+                  </CardContent>
+                  <Box sx={{ mt: 'auto', p: 2, pt: 0, display: 'flex', gap: 1 }}>
+                    <Button
+                      variant="outlined"
+                      size="small"
+                      onClick={() => navigate('/flashcards', { state: { selectedDeck: deck.id } })}
+                      sx={{
+                        flex: 1,
+                        borderColor: 'rgba(0, 0, 0, 0.23)',
+                        color: 'text.primary',
+                        textTransform: 'none'
+                      }}
+                    >
+                      View
+                    </Button>
+                    <Button
+                      variant="contained"
+                      size="small"
+                      onClick={() => {
+                        localStorage.setItem('currentStudySession', JSON.stringify({
+                          flashcards: deck.cards,
+                          source: 'deck',
+                          deckName: deck.name
+                        }));
+                        localStorage.setItem('studyMode', 'true');
+                        navigate('/flashcards');
+                      }}
+                      disabled={deck.count === 0}
+                      sx={{
+                        flex: 1,
+                        backgroundColor: '#3182ce',
+                        boxShadow: 'none',
+                        textTransform: 'none',
+                        '&:hover': {
+                          backgroundColor: '#2b6cb0',
+                          boxShadow: 'none',
+                        }
+                      }}
+                    >
+                      Study
+                    </Button>
+                  </Box>
+                </Card>
+              </Grid>
+            ))}
+          {decks.filter(deck => deck.id !== 'all' && deck.id !== 'PROCESSED').length === 0 && (
+            <Grid item xs={12}>
+              <Box sx={{ textAlign: 'center', py: 4 }}>
+                <Typography variant="body1" color="text.secondary">
+                  No decks available yet. Create some flashcards to get started!
+                </Typography>
+              </Box>
+            </Grid>
+          )}
+        </Grid>
       </Paper>
 
       <NewNoteDialog
